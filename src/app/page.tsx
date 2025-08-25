@@ -1,103 +1,196 @@
-import Image from "next/image";
+"use client";
+
+import Features from "@/components/Features";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import Hero from "@/components/Hero";
+import RecommendationResults from "@/components/RecommendationResults";
+import RestaurantDetails from "@/components/RestaurantDetails";
+import SearchInput from "@/components/SearchInput";
+import { Restaurant } from "@/types";
+import { useState } from "react";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [userInput, setUserInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [recommendations, setRecommendations] = useState<Restaurant[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const [aiReason, setAiReason] = useState<string>("");
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [radius, setRadius] = useState<number>(1500);
+  const [selectedRestaurant, setSelectedRestaurant] =
+    useState<Restaurant | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const getLocation = (): Promise<{ lat: number; lng: number }> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation not supported"));
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        },
+        (err) => reject(err),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+  };
+
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setShowResults(false);
+
+    try {
+      let lat = latitude;
+      let lng = longitude;
+      if (lat == null || lng == null) {
+        const loc = await getLocation();
+        lat = loc.lat;
+        lng = loc.lng;
+        setLatitude(lat);
+        setLongitude(lng);
+      }
+
+      const response = await fetch("/api/recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userInput: userInput.trim(),
+          latitude: lat,
+          longitude: lng,
+          radius,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setRecommendations(result.data.recommendations);
+        setAiReason(result.data.aiReason || "");
+        setShowResults(true);
+      } else {
+        console.error("推薦失敗:", result.error);
+      }
+    } catch (error) {
+      console.error("API 調用失敗:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRandomPick = () => {
+    if (recommendations.length === 0) return;
+    const shuffled = [...recommendations].sort(() => Math.random() - 0.5);
+    const selected = shuffled[0];
+    setRecommendations([selected]);
+  };
+
+  const handleViewDetails = (restaurant: Restaurant) => {
+    setSelectedRestaurant(restaurant);
+  };
+
+  const handleCloseDetails = () => {
+    setSelectedRestaurant(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+
+      <main className="max-w-4xl mx-auto px-4 py-8">
+        <Hero />
+
+        <SearchInput
+          value={userInput}
+          onChange={setUserInput}
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+        />
+
+        <div className="mt-4 border border-gray-200 rounded-lg p-3 bg-white">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-gray-700">
+            <div className="flex items-center gap-2">
+              <button
+                className="px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50"
+                onClick={async () => {
+                  try {
+                    const loc = await getLocation();
+                    setLatitude(loc.lat);
+                    setLongitude(loc.lng);
+                  } catch {}
+                }}
+              >
+                取得定位
+              </button>
+              {latitude != null && longitude != null && (
+                <span className="text-gray-600">
+                  已定位：{latitude.toFixed(4)}, {longitude.toFixed(4)}
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <label className="flex items-center gap-2">
+                搜尋半徑
+                <input
+                  type="number"
+                  className="w-28 rounded border border-gray-300 px-2 py-1"
+                  value={radius}
+                  min={200}
+                  max={5000}
+                  step={100}
+                  onChange={(e) => setRadius(Number(e.target.value))}
+                />
+                <span className="text-gray-500">
+                  公尺（約 {(radius / 1000).toFixed(1)} km）
+                </span>
+              </label>
+              <div className="flex items-center gap-2">
+                {[500, 1000, 2000, 3000].map((r) => (
+                  <button
+                    key={r}
+                    className={`px-2.5 py-1 rounded border text-xs ${
+                      radius === r
+                        ? "border-blue-600 text-blue-700 bg-blue-50"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
+                    onClick={() => setRadius(r)}
+                  >
+                    {r >= 1000 ? `${r / 1000}km` : `${r}m`}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
+
+        {showResults && (
+          <div className="mt-8">
+            <RecommendationResults
+              recommendations={recommendations}
+              onRandomPick={handleRandomPick}
+              onViewDetails={handleViewDetails}
+              aiReason={aiReason}
+            />
+          </div>
+        )}
+
+        {!showResults && <Features />}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      <Footer />
+
+      {/* 餐廳詳情彈窗 */}
+      {selectedRestaurant && (
+        <RestaurantDetails
+          restaurant={selectedRestaurant}
+          onClose={handleCloseDetails}
+        />
+      )}
     </div>
   );
 }
