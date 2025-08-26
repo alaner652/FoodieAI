@@ -25,19 +25,13 @@ function buildPrompt(
 **搜尋範圍資訊：**
 - 使用者位置：${latitude.toFixed(4)}, ${longitude.toFixed(4)}
 - 搜尋半徑：${(radius / 1000).toFixed(1)}km
-- 最大推薦數量：${maxRecommendations} 間餐廳
+- 推薦數量：${maxRecommendations} 間餐廳
 
 **核心原則：**
-1. **智能數量決定**：根據搜尋範圍和餐廳品質，決定最適合的推薦數量
+1. **固定推薦數量**：始終推薦 ${maxRecommendations} 間餐廳
 2. **永遠給出推薦**：從現有選項中挑選最適合的
-3. **誠實說明理由**：清楚解釋為什麼選擇這些餐廳和數量
+3. **誠實說明理由**：清楚解釋為什麼選擇這些餐廳
 4. **實用導向**：重點是解決問題
-
-**推薦數量策略：**
-- 小範圍搜尋（< 1km）：推薦 2-3 間
-- 中等範圍（1-2km）：推薦 3-4 間  
-- 大範圍搜尋（> 2km）：推薦 4 間
-- 根據餐廳品質和用戶需求調整
 
 **排序原則：**
 1. **需求匹配度**：最符合使用者需求的餐廳優先
@@ -57,12 +51,11 @@ function buildPrompt(
 }
 
 **重要提醒：**
-- 根據搜尋範圍智能決定推薦數量
+- 始終推薦 ${maxRecommendations} 間餐廳
 - 絕對不要因為條件嚴格就放棄推薦
 - 必須從現有選項中選擇最適合的
 - 只回傳 JSON 格式，不要其他文字
 - 只能推薦提供的餐廳列表中的餐廳
-- 推薦數量不要超過 ${maxRecommendations} 間
 - userMessage 必須是簡單直接的口語化表達
 - userMessage 絕對不能包含任何技術細節（如 ID、API 參數等）
 - userMessage 不能使用任何 markdown 格式（如粗體、斜體、代碼等）
@@ -96,7 +89,7 @@ function buildPrompt(
 **候選餐廳資料：**
 ${JSON.stringify(items, null, 2)}
 
-請根據搜尋範圍和餐廳品質，智能決定推薦數量並提供最適合的排序結果。只回傳 JSON 格式，不要其他文字。`;
+請從候選餐廳中選擇 ${maxRecommendations} 間最適合的餐廳並提供排序結果。只回傳 JSON 格式，不要其他文字。`;
 }
 
 export async function rerankWithGemini(
