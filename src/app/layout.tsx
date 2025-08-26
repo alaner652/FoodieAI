@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { APP_CONFIG } from "@/lib/config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FoodieAI - 智能餐廳推薦",
-  description: "AI驅動的餐廳推薦系統，解決您的選擇困難症",
+  title: `${APP_CONFIG.NAME} - 智能餐廳推薦`,
+  description: APP_CONFIG.DESCRIPTION,
 };
 
 export default function RootLayout({

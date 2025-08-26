@@ -1,6 +1,8 @@
+import { getPriceRangeText } from "@/lib/utils";
 import { Restaurant } from "@/types";
-import { ChefHat, Clock, Heart, MapPin, Star, Utensils } from "lucide-react";
+import { Clock, MapPin, Star } from "lucide-react";
 import Image from "next/image";
+import { UI_CONFIG } from "@/lib/config";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -11,35 +13,6 @@ export default function RestaurantCard({
   restaurant,
   onViewDetails,
 }: RestaurantCardProps) {
-  const getPriceRangeText = (priceRange: string) => {
-    switch (priceRange) {
-      case "$":
-        return "平價";
-      case "$$":
-        return "中等";
-      case "$$$":
-        return "高級";
-      case "$$$$":
-        return "奢華";
-      default:
-        return "中等";
-    }
-  };
-
-  const getCuisineColor = (cuisine: string) => {
-    const colors = {
-      日式: "bg-blue-100 text-blue-700",
-      韓式: "bg-red-100 text-red-700",
-      中式: "bg-orange-100 text-orange-700",
-      義大利: "bg-green-100 text-green-700",
-      美式: "bg-purple-100 text-purple-700",
-      泰式: "bg-yellow-100 text-yellow-700",
-    };
-    return (
-      colors[cuisine as keyof typeof colors] || "bg-gray-100 text-gray-700"
-    );
-  };
-
   return (
     <div className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors overflow-hidden">
       <div className="w-full h-44 bg-gray-100 relative">
@@ -64,13 +37,6 @@ export default function RestaurantCard({
               {restaurant.name}
             </h3>
             <div className="flex items-center space-x-2 mb-3">
-              <span
-                className={`px-2 py-1 rounded text-xs font-medium ${getCuisineColor(
-                  restaurant.cuisine
-                )}`}
-              >
-                {restaurant.cuisine}
-              </span>
               <span className="px-2 py-1 rounded text-xs font-medium bg-gray-200 text-gray-800">
                 {getPriceRangeText(restaurant.priceRange)}
               </span>
@@ -113,88 +79,6 @@ export default function RestaurantCard({
           </div>
         </div>
 
-        {/* 菜單資訊 */}
-        {restaurant.menu && (
-          <div className="mb-4 space-y-3">
-            {/* 特色菜餚 */}
-            {restaurant.menu.specialties &&
-              restaurant.menu.specialties.length > 0 && (
-                <div className="space-y-1">
-                  <div className="flex items-center text-sm font-medium text-gray-900">
-                    <ChefHat className="w-4 h-4 mr-2 text-orange-500" />
-                    特色菜餚
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {restaurant.menu.specialties
-                      .slice(0, 3)
-                      .map((dish, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-orange-50 text-orange-700 text-xs rounded-full border border-orange-200"
-                        >
-                          {dish}
-                        </span>
-                      ))}
-                    {restaurant.menu.specialties.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-50 text-gray-600 text-xs rounded-full">
-                        +{restaurant.menu.specialties.length - 3}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-            {/* 熱門菜餚 */}
-            {restaurant.menu.popularDishes &&
-              restaurant.menu.popularDishes.length > 0 && (
-                <div className="space-y-1">
-                  <div className="flex items-center text-sm font-medium text-gray-900">
-                    <Heart className="w-4 h-4 mr-2 text-red-500" />
-                    熱門菜餚
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {restaurant.menu.popularDishes
-                      .slice(0, 3)
-                      .map((dish, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-red-50 text-red-700 text-xs rounded-full border border-red-200"
-                        >
-                          {dish}
-                        </span>
-                      ))}
-                    {restaurant.menu.popularDishes.length > 3 && (
-                      <span className="px-2 py-1 bg-gray-50 text-gray-600 text-xs rounded-full">
-                        +{restaurant.menu.popularDishes.length - 3}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-            {/* 菜系類型 */}
-            {restaurant.menu.cuisineType &&
-              restaurant.menu.cuisineType.length > 0 && (
-                <div className="space-y-1">
-                  <div className="flex items-center text-sm font-medium text-gray-900">
-                    <Utensils className="w-4 h-4 mr-2 text-green-500" />
-                    菜系類型
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {restaurant.menu.cuisineType.map((type, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200"
-                      >
-                        {type}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-          </div>
-        )}
-
         {/* 操作按鈕 */}
         <div className="flex space-x-2">
           {onViewDetails && (
@@ -202,7 +86,7 @@ export default function RestaurantCard({
               onClick={() => onViewDetails(restaurant)}
               className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
             >
-              查看詳情
+              {UI_CONFIG.BUTTON_TEXTS.VIEW_DETAILS}
             </button>
           )}
         </div>

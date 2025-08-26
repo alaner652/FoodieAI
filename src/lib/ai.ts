@@ -1,4 +1,5 @@
 import { Restaurant } from "@/types";
+import { AI_CONFIG } from "@/lib/config";
 
 type GeminiModel = "gemini-1.5-flash" | "gemini-1.5-pro";
 
@@ -101,8 +102,8 @@ export async function rerankWithGemini(
     latitude,
     longitude,
     radius,
-    maxRecommendations = 4,
-    model = "gemini-1.5-flash",
+    maxRecommendations = AI_CONFIG.PROMPT.MAX_RESTAURANTS,
+    model = AI_CONFIG.GEMINI.DEFAULT_MODEL,
   } = params;
   const apiKey =
     process.env.GOOGLE_GEMINI_API_KEY ||

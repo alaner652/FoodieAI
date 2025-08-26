@@ -1,3 +1,4 @@
+import { getPriceRangeText } from "@/lib/utils";
 import { Restaurant } from "@/types";
 import { Calendar, ExternalLink, Globe, MapPin, Star, X } from "lucide-react";
 import Image from "next/image";
@@ -11,21 +12,6 @@ export default function RestaurantDetails({
   restaurant,
   onClose,
 }: RestaurantDetailsProps) {
-  const getPriceRangeText = (priceRange: string) => {
-    switch (priceRange) {
-      case "$":
-        return "平價";
-      case "$$":
-        return "中等";
-      case "$$$":
-        return "高級";
-      case "$$$$":
-        return "奢華";
-      default:
-        return "中等";
-    }
-  };
-
   const getDayName = (day: number) => {
     const days = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
     return days[day] || "";

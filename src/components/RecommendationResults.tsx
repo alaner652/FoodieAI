@@ -1,6 +1,7 @@
 import { Restaurant } from "@/types";
 import { RefreshCw, Sparkles } from "lucide-react";
 import RestaurantCard from "./RestaurantCard";
+import { UI_CONFIG } from "@/lib/config";
 
 interface RecommendationResultsProps {
   recommendations: Restaurant[];
@@ -120,7 +121,7 @@ export default function RecommendationResults({
                 className="flex items-center space-x-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium shadow-sm"
               >
                 <RefreshCw className="w-4 h-4" />
-                <span>隨機選擇</span>
+                <span>{UI_CONFIG.BUTTON_TEXTS.RANDOM_PICK}</span>
               </button>
             )}
           </div>

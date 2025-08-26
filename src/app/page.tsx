@@ -7,6 +7,7 @@ import Hero from "@/components/Hero";
 import RecommendationResults from "@/components/RecommendationResults";
 import RestaurantDetails from "@/components/RestaurantDetails";
 import SearchInput from "@/components/SearchInput";
+import { API_CONFIG, DEV_CONFIG, MAP_CONFIG, UI_CONFIG } from "@/lib/config";
 import { Restaurant } from "@/types";
 import { useState } from "react";
 
@@ -20,7 +21,7 @@ export default function Home() {
   const [error, setError] = useState<string>(""); // 新增：錯誤訊息狀態
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
-  const [radius, setRadius] = useState<number>(1500);
+  const [radius, setRadius] = useState<number>(API_CONFIG.DEFAULT_RADIUS);
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
 
@@ -35,7 +36,10 @@ export default function Home() {
           resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         },
         (err) => reject(err),
-        { enableHighAccuracy: true, timeout: 10000 }
+        {
+          enableHighAccuracy: MAP_CONFIG.GEOLOCATION.ENABLE_HIGH_ACCURACY,
+          timeout: MAP_CONFIG.GEOLOCATION.TIMEOUT,
+        }
       );
     });
   };
@@ -56,7 +60,7 @@ export default function Home() {
         setLongitude(lng);
       }
 
-      const response = await fetch("/api/recommend", {
+      const response = await fetch(DEV_CONFIG.ENDPOINTS.RECOMMEND, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,9 +85,10 @@ export default function Home() {
       }
     } catch (error) {
       const errorMessage =
-        error instanceof Error ? error.message : "API 調用失敗";
+        error instanceof Error
+          ? error.message
+          : UI_CONFIG.ERROR_MESSAGES.API_FAILED;
       setError(errorMessage);
-      console.error("API 調用失敗:", error);
     } finally {
       setIsLoading(false);
     }
@@ -141,7 +146,10 @@ export default function Home() {
                       const loc = await getLocation();
                       setLatitude(loc.lat);
                       setLongitude(loc.lng);
-                    } catch {}
+                    } catch (error) {
+                      console.error("取得位置失敗:", error);
+                      setError(UI_CONFIG.ERROR_MESSAGES.LOCATION_FAILED);
+                    }
                   }}
                 >
                   取得定位
@@ -160,8 +168,8 @@ export default function Home() {
                     type="number"
                     className="w-28 rounded border border-gray-300 px-2 py-1"
                     value={radius}
-                    min={200}
-                    max={5000}
+                    min={API_CONFIG.MIN_RADIUS}
+                    max={API_CONFIG.MAX_RADIUS}
                     step={100}
                     onChange={(e) => setRadius(Number(e.target.value))}
                   />
@@ -170,7 +178,7 @@ export default function Home() {
                   </span>
                 </label>
                 <div className="flex items-center gap-2">
-                  {[500, 1000, 2000, 3000].map((r) => (
+                  {API_CONFIG.QUICK_RADIUS_OPTIONS.map((r) => (
                     <button
                       key={r}
                       className={`px-2.5 py-1 rounded border text-xs ${

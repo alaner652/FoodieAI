@@ -1,4 +1,5 @@
 import { Sparkles } from "lucide-react";
+import { APP_CONFIG } from "@/lib/config";
 
 interface HeaderProps {
   title?: string;
@@ -6,7 +7,7 @@ interface HeaderProps {
 }
 
 export default function Header({
-  title = "FoodieAI",
+  title = APP_CONFIG.NAME,
   showNav = false,
 }: HeaderProps) {
   return (

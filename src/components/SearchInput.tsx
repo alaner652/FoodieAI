@@ -1,4 +1,5 @@
 import { Search, Sparkles } from "lucide-react";
+import { UI_CONFIG } from "@/lib/config";
 
 interface SearchInputProps {
   value: string;
@@ -13,14 +14,7 @@ export default function SearchInput({
   onChange,
   onSubmit,
   isLoading,
-  suggestions = [
-    "日式料理",
-    "義大利麵",
-    "韓式燒肉",
-    "中式小炒",
-    "美式漢堡",
-    "泰式料理",
-  ],
+  suggestions = UI_CONFIG.SEARCH_SUGGESTIONS,
 }: SearchInputProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,12 +50,12 @@ export default function SearchInput({
             {isLoading ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>AI 分析中...</span>
+                <span>{UI_CONFIG.LOADING_TEXT}</span>
               </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5" />
-                <span>開始推薦</span>
+                <span>{UI_CONFIG.BUTTON_TEXTS.START_RECOMMEND}</span>
               </>
             )}
           </button>

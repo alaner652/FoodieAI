@@ -12,18 +12,7 @@ export interface Restaurant {
   mapsUrl?: string;
   website?: string;
   userRatingsTotal?: number;
-  // 新增菜單相關欄位
-  menu?: {
-    items?: Array<{
-      name: string;
-      description?: string;
-      price?: string;
-      category?: string;
-    }>;
-    specialties?: string[]; // 特色菜餚
-    popularDishes?: string[]; // 熱門菜餚
-    cuisineType?: string[]; // 詳細菜系類型
-  };
+
   openingHours?: {
     periods?: Array<{
       open: { day: number; time: string };

@@ -2,12 +2,7 @@ import { rerankWithGemini } from "@/lib/ai";
 import { fetchPlaceDetails, searchNearbyRestaurants } from "@/lib/google";
 import { RecommendationRequest, Restaurant } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
-
-// API 配置常量
-const API_CONFIG = {
-  DEFAULT_RADIUS: 1500, // 1.5km
-  MAX_RECOMMENDATIONS: 4, // 最大推薦數量（改為 4 間）
-} as const;
+import { API_CONFIG, UI_CONFIG } from "@/lib/config";
 
 /**
  * 驗證請求參數
@@ -31,7 +26,10 @@ function validateRequest(body: RecommendationRequest): {
     typeof body.radius === "number" ? body.radius : API_CONFIG.DEFAULT_RADIUS;
 
   if (!latitude || !longitude) {
-    return { isValid: false, error: "缺少使用者座標" };
+    return {
+      isValid: false,
+      error: UI_CONFIG.ERROR_MESSAGES.MISSING_COORDINATES,
+    };
   }
 
   return {
