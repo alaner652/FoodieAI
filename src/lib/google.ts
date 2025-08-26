@@ -1,5 +1,5 @@
-import { Restaurant } from "@/types";
 import { MAP_CONFIG } from "@/lib/config";
+import { Restaurant } from "@/types";
 
 interface NearbySearchPlace {
   place_id: string;
@@ -58,9 +58,9 @@ export async function searchNearbyRestaurants(params: {
     language = MAP_CONFIG.GOOGLE_PLACES.LANGUAGE,
   } = params;
 
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) {
-    throw new Error("Missing GOOGLE_MAPS_API_KEY");
+    throw new Error("Missing GOOGLE_PLACES_API_KEY");
   }
 
   const url = new URL(
@@ -80,7 +80,7 @@ export async function searchNearbyRestaurants(params: {
     throw new Error(`Google Places request failed: ${res.status}`);
   }
   const data: NearbySearchResponse = await res.json();
-  
+
   // 改進錯誤處理和日誌記錄
   if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
     const msg = data.error_message || data.status;
@@ -88,17 +88,17 @@ export async function searchNearbyRestaurants(params: {
       status: data.status,
       error_message: data.error_message,
       request_url: url.toString().replace(apiKey, "API_KEY_HIDDEN"),
-      params: { latitude, longitude, radius, keyword, openNow }
+      params: { latitude, longitude, radius, keyword, openNow },
     });
     throw new Error(`Google Places error: ${msg}`);
   }
-  
+
   // 記錄搜尋結果
   console.log("Google Places search result:", {
     status: data.status,
     results_count: data.results?.length || 0,
     radius_km: (radius / 1000).toFixed(1),
-    keyword: keyword || "無"
+    keyword: keyword || "無",
   });
 
   const restaurants: Restaurant[] = (data.results || []).map((p, index) => {
@@ -177,8 +177,8 @@ export async function fetchPlaceDetails(params: {
   photoApiKeyOverride?: string;
 }): Promise<Partial<Restaurant>> {
   const { placeId, language = "zh-TW", photoApiKeyOverride } = params;
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  if (!apiKey) throw new Error("Missing GOOGLE_MAPS_API_KEY");
+  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey) throw new Error("Missing GOOGLE_PLACES_API_KEY");
 
   const url = new URL(
     "https://maps.googleapis.com/maps/api/place/details/json"

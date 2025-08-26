@@ -21,7 +21,7 @@
 ### 環境需求
 
 - Node.js 18+
-- Google Maps API Key
+- Google Places API Key
 - Gemini AI API Key
 
 ### 安裝
@@ -35,14 +35,13 @@ npm install
 創建 `.env.local` 檔案：
 
 ```env
-# Google Maps API Key (必需)
+# Google Places API Key (必需)
 # 1. 前往 https://console.cloud.google.com/
 # 2. 建立新專案或選擇現有專案
 # 3. 啟用以下 API：
 #    - Places API
-#    - Maps JavaScript API
 # 4. 建立憑證 > API 金鑰
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
 
 # Gemini AI API Key (可選，用於 AI 推薦功能)
 # 1. 前往 https://makersuite.google.com/app/apikey
@@ -53,7 +52,7 @@ GEMINI_API_KEY=your_gemini_api_key_here
 NODE_ENV=development
 ```
 
-**重要**: 如果沒有設定 `GOOGLE_MAPS_API_KEY`，應用程式將無法搜尋餐廳。
+**重要**: 如果沒有設定 `GOOGLE_PLACES_API_KEY`，應用程式將無法搜尋餐廳。
 
 ### 啟動
 
@@ -97,10 +96,10 @@ src/
 
 1. **"沒有找到任何餐廳" 錯誤**
 
-   - 檢查 `GOOGLE_MAPS_API_KEY` 是否正確設定
-   - 確認已啟用 Places API
-   - 嘗試擴大搜尋範圍
-   - 檢查定位是否正確
+     - 檢查 `GOOGLE_PLACES_API_KEY` 是否正確設定
+     - 確認已啟用 Places API
+     - 嘗試擴大搜尋範圍
+     - 檢查定位是否正確
 
 2. **定位失敗**
 
