@@ -1,5 +1,6 @@
 import { Restaurant } from "@/types";
 import { ChefHat, Clock, Heart, MapPin, Star, Utensils } from "lucide-react";
+import Image from "next/image";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -41,12 +42,12 @@ export default function RestaurantCard({
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors overflow-hidden">
-      <div className="w-full h-44 bg-gray-100">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+      <div className="w-full h-44 bg-gray-100 relative">
+        <Image
           src={restaurant.photoUrl || "/window.svg"}
           alt={restaurant.name}
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
           loading="lazy"
           onError={(e) => {
             const img = e.currentTarget as HTMLImageElement;

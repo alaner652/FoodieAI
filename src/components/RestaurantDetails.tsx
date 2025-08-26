@@ -1,15 +1,6 @@
 import { Restaurant } from "@/types";
-import {
-  Calendar,
-  ChefHat,
-  ExternalLink,
-  Globe,
-  Heart,
-  MapPin,
-  Star,
-  Utensils,
-  X,
-} from "lucide-react";
+import { Calendar, ExternalLink, Globe, MapPin, Star, X } from "lucide-react";
+import Image from "next/image";
 
 interface RestaurantDetailsProps {
   restaurant: Restaurant;
@@ -49,8 +40,8 @@ export default function RestaurantDetails({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/20 flex items-center justify-center p-4 z-[9999]">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
         {/* 頭部 */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">餐廳詳情</h2>
@@ -63,13 +54,14 @@ export default function RestaurantDetails({
         </div>
 
         {/* 內容 */}
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-6 overflow-y-auto flex-1">
           {/* 餐廳照片 */}
-          <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-            <img
+          <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative">
+            <Image
               src={restaurant.photoUrl || "/window.svg"}
               alt={restaurant.name}
-              className="w-full h-full object-cover"
+              fill
+              className="object-cover"
               onError={(e) => {
                 const img = e.currentTarget as HTMLImageElement;
                 if (img.src.endsWith("/window.svg")) return;
@@ -159,108 +151,6 @@ export default function RestaurantDetails({
                   <div className="text-sm text-gray-500">營業時間資訊暫無</div>
                 )}
               </div>
-            </div>
-          )}
-
-          {/* 菜單資訊 */}
-          {restaurant.menu && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                <Utensils className="w-5 h-5 mr-2 text-green-500" />
-                菜系類型
-              </h3>
-
-              {/* 特色菜餚 */}
-              {restaurant.menu.specialties &&
-                restaurant.menu.specialties.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-md font-medium text-gray-900 flex items-center">
-                      <ChefHat className="w-4 h-4 mr-2 text-orange-500" />
-                      特色菜餚
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {restaurant.menu.specialties.map((dish, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-2 bg-orange-50 text-orange-700 rounded-lg border border-orange-200 text-sm"
-                        >
-                          {dish}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              {/* 熱門菜餚 */}
-              {restaurant.menu.popularDishes &&
-                restaurant.menu.popularDishes.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-md font-medium text-gray-900 flex items-center">
-                      <Heart className="w-4 h-4 mr-2 text-red-500" />
-                      熱門菜餚
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {restaurant.menu.popularDishes.map((dish, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-2 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm"
-                        >
-                          {dish}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              {/* 菜系類型 */}
-              {restaurant.menu.cuisineType &&
-                restaurant.menu.cuisineType.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-2">
-                      {restaurant.menu.cuisineType.map((type, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-2 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm"
-                        >
-                          {type}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-              {/* 詳細菜單 */}
-              {restaurant.menu.items && restaurant.menu.items.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-md font-medium text-gray-900">
-                    詳細菜單
-                  </h4>
-                  <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-                    {restaurant.menu.items.map((item, index) => (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center py-2 border-b border-gray-200 last:border-b-0"
-                      >
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {item.name}
-                          </div>
-                          {item.description && (
-                            <div className="text-sm text-gray-600">
-                              {item.description}
-                            </div>
-                          )}
-                        </div>
-                        {item.price && (
-                          <div className="text-sm font-medium text-gray-900">
-                            {item.price}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
 

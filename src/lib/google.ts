@@ -207,10 +207,12 @@ export async function fetchPlaceDetails(params: {
     : undefined;
 
   // 解析營業時間
-  const openingHours = r.opening_hours ? {
-    periods: r.opening_hours.periods,
-    weekdayText: r.opening_hours.weekday_text,
-  } : undefined;
+  const openingHours = r.opening_hours
+    ? {
+        periods: r.opening_hours.periods,
+        weekdayText: r.opening_hours.weekday_text,
+      }
+    : undefined;
 
   // 從評論中提取菜單資訊
   const menuInfo = extractMenuFromReviews(r.reviews || []);
@@ -242,34 +244,50 @@ export async function fetchPlaceDetails(params: {
 }
 
 // 從評論中提取菜單資訊的輔助函數
-function extractMenuFromReviews(reviews: PlaceReview[]): Restaurant['menu'] {
-  const menuItems: Array<{ name: string; description?: string; price?: string; category?: string }> = [];
+function extractMenuFromReviews(reviews: PlaceReview[]): Restaurant["menu"] {
+  const menuItems: Array<{
+    name: string;
+    description?: string;
+    price?: string;
+    category?: string;
+  }> = [];
   const specialties: string[] = [];
   const popularDishes: string[] = [];
   const cuisineTypes: string[] = [];
 
   // 常見的菜系關鍵詞
   const cuisineKeywords = {
-    '中式': ['中餐', '中式', '川菜', '粵菜', '湘菜', '魯菜', '蘇菜', '浙菜', '閩菜', '徽菜'],
-    '日式': ['日式', '壽司', '拉麵', '天婦羅', '刺身', '和食'],
-    '韓式': ['韓式', '韓料', '烤肉', '泡菜', '石鍋拌飯'],
-    '泰式': ['泰式', '泰國菜', '冬陰功', '咖哩'],
-    '義式': ['義式', '義大利', '披薩', '義大利麵', '燉飯'],
-    '美式': ['美式', '漢堡', '牛排', 'BBQ'],
-    '法式': ['法式', '法國菜', '鵝肝', '蝸牛'],
-    '越式': ['越式', '越南菜', '河粉', '春捲'],
+    中式: [
+      "中餐",
+      "中式",
+      "川菜",
+      "粵菜",
+      "湘菜",
+      "魯菜",
+      "蘇菜",
+      "浙菜",
+      "閩菜",
+      "徽菜",
+    ],
+    日式: ["日式", "壽司", "拉麵", "天婦羅", "刺身", "和食"],
+    韓式: ["韓式", "韓料", "烤肉", "泡菜", "石鍋拌飯"],
+    泰式: ["泰式", "泰國菜", "冬陰功", "咖哩"],
+    義式: ["義式", "義大利", "披薩", "義大利麵", "燉飯"],
+    美式: ["美式", "漢堡", "牛排", "BBQ"],
+    法式: ["法式", "法國菜", "鵝肝", "蝸牛"],
+    越式: ["越式", "越南菜", "河粉", "春捲"],
   };
 
-  reviews.forEach(review => {
+  reviews.forEach((review) => {
     if (!review.text) return;
-    
+
     const text = review.text.toLowerCase();
-    
+
     // 提取菜名（通常在引號或特定格式中）
     const dishMatches = text.match(/["「]([^"」]+)["」]/g);
     if (dishMatches) {
-      dishMatches.forEach(match => {
-        const dishName = match.replace(/["「」]/g, '');
+      dishMatches.forEach((match) => {
+        const dishName = match.replace(/["「」]/g, "");
         if (dishName.length > 1 && dishName.length < 20) {
           menuItems.push({ name: dishName });
         }
@@ -277,16 +295,16 @@ function extractMenuFromReviews(reviews: PlaceReview[]): Restaurant['menu'] {
     }
 
     // 提取特色菜餚（包含"推薦"、"必點"、"招牌"等關鍵詞）
-    const specialtyKeywords = ['推薦', '必點', '招牌', '特色', '經典', '人氣'];
-    specialtyKeywords.forEach(keyword => {
+    const specialtyKeywords = ["推薦", "必點", "招牌", "特色", "經典", "人氣"];
+    specialtyKeywords.forEach((keyword) => {
       if (text.includes(keyword)) {
         const sentences = text.split(/[。！？]/);
-        sentences.forEach(sentence => {
+        sentences.forEach((sentence) => {
           if (sentence.includes(keyword)) {
             const dishes = sentence.match(/[「"]([^"」]+)[」"]/g);
             if (dishes) {
-              dishes.forEach(dish => {
-                const dishName = dish.replace(/["「」]/g, '');
+              dishes.forEach((dish) => {
+                const dishName = dish.replace(/["「」]/g, "");
                 if (!specialties.includes(dishName)) {
                   specialties.push(dishName);
                 }
@@ -298,16 +316,16 @@ function extractMenuFromReviews(reviews: PlaceReview[]): Restaurant['menu'] {
     });
 
     // 提取熱門菜餚（包含"好吃"、"美味"、"讚"等正面評價）
-    const popularKeywords = ['好吃', '美味', '讚', '棒', '不錯', '推薦'];
-    popularKeywords.forEach(keyword => {
+    const popularKeywords = ["好吃", "美味", "讚", "棒", "不錯", "推薦"];
+    popularKeywords.forEach((keyword) => {
       if (text.includes(keyword)) {
         const sentences = text.split(/[。！？]/);
-        sentences.forEach(sentence => {
+        sentences.forEach((sentence) => {
           if (sentence.includes(keyword)) {
             const dishes = sentence.match(/[「"]([^"」]+)[」"]/g);
             if (dishes) {
-              dishes.forEach(dish => {
-                const dishName = dish.replace(/["「」]/g, '');
+              dishes.forEach((dish) => {
+                const dishName = dish.replace(/["「」]/g, "");
                 if (!popularDishes.includes(dishName)) {
                   popularDishes.push(dishName);
                 }
@@ -320,7 +338,7 @@ function extractMenuFromReviews(reviews: PlaceReview[]): Restaurant['menu'] {
 
     // 識別菜系類型
     Object.entries(cuisineKeywords).forEach(([cuisine, keywords]) => {
-      keywords.forEach(keyword => {
+      keywords.forEach((keyword) => {
         if (text.includes(keyword) && !cuisineTypes.includes(cuisine)) {
           cuisineTypes.push(cuisine);
         }
@@ -331,7 +349,8 @@ function extractMenuFromReviews(reviews: PlaceReview[]): Restaurant['menu'] {
   return {
     items: menuItems.length > 0 ? menuItems.slice(0, 10) : undefined,
     specialties: specialties.length > 0 ? specialties.slice(0, 5) : undefined,
-    popularDishes: popularDishes.length > 0 ? popularDishes.slice(0, 5) : undefined,
+    popularDishes:
+      popularDishes.length > 0 ? popularDishes.slice(0, 5) : undefined,
     cuisineType: cuisineTypes.length > 0 ? cuisineTypes : undefined,
   };
 }

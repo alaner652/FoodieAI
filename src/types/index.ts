@@ -64,6 +64,8 @@ export interface RecommendationResponse {
     totalFound: number;
     userInput: string;
     searchRadius?: number;
+    aiReason?: string;
+    aiRecommendedCount?: number; // 新增：AI 實際推薦的餐廳數量
   };
   error?: string;
 }
