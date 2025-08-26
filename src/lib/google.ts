@@ -80,10 +80,26 @@ export async function searchNearbyRestaurants(params: {
     throw new Error(`Google Places request failed: ${res.status}`);
   }
   const data: NearbySearchResponse = await res.json();
+  
+  // 改進錯誤處理和日誌記錄
   if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
     const msg = data.error_message || data.status;
+    console.error("Google Places API error:", {
+      status: data.status,
+      error_message: data.error_message,
+      request_url: url.toString().replace(apiKey, "API_KEY_HIDDEN"),
+      params: { latitude, longitude, radius, keyword, openNow }
+    });
     throw new Error(`Google Places error: ${msg}`);
   }
+  
+  // 記錄搜尋結果
+  console.log("Google Places search result:", {
+    status: data.status,
+    results_count: data.results?.length || 0,
+    radius_km: (radius / 1000).toFixed(1),
+    keyword: keyword || "無"
+  });
 
   const restaurants: Restaurant[] = (data.results || []).map((p, index) => {
     const placeLat = p.geometry?.location?.lat ?? 0;

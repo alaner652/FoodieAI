@@ -80,7 +80,20 @@ export default function Home() {
         setAiReason(result.data.aiReason || "");
         setAiRecommendedCount(result.data.aiRecommendedCount || 0);
         setShowResults(true);
+        
+        // 如果沒有找到結果，清除錯誤訊息
+        if (result.data.noResultsFound) {
+          setError("");
+        }
       } else {
+        // 處理真正的 API 錯誤
+        let errorMessage = result.error;
+        
+        if (errorMessage.includes("API")) {
+          errorMessage = "服務暫時無法使用，請稍後再試";
+        }
+        
+        setError(errorMessage);
         console.error("推薦失敗:", result.error);
       }
     } catch (error) {
@@ -127,11 +140,11 @@ export default function Home() {
           {/* 錯誤訊息顯示 */}
           {error && (
             <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mr-3">
+              <div className="flex items-start">
+                <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
                   <span className="text-white text-xs">!</span>
                 </div>
-                <p className="text-red-800">{error}</p>
+                <div className="text-red-800 whitespace-pre-line">{error}</div>
               </div>
             </div>
           )}

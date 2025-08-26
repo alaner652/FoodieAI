@@ -55,6 +55,7 @@ export interface RecommendationResponse {
     searchRadius?: number;
     aiReason?: string;
     aiRecommendedCount?: number; // 新增：AI 實際推薦的餐廳數量
+    noResultsFound?: boolean; // 新增：標記沒有找到結果
   };
   error?: string;
 }

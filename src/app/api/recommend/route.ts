@@ -1,8 +1,8 @@
 import { rerankWithGemini } from "@/lib/ai";
+import { API_CONFIG, UI_CONFIG } from "@/lib/config";
 import { fetchPlaceDetails, searchNearbyRestaurants } from "@/lib/google";
 import { RecommendationRequest, Restaurant } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
-import { API_CONFIG, UI_CONFIG } from "@/lib/config";
 
 /**
  * 驗證請求參數
@@ -126,15 +126,40 @@ export async function POST(request: NextRequest) {
 
     // 檢查是否找到餐廳
     if (nearby.length === 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `在 ${(radius / 1000).toFixed(
-            1
-          )}km 範圍內沒有找到任何餐廳，請嘗試擴大搜尋範圍或調整關鍵詞`,
+      // 提供更詳細的診斷資訊
+      const diagnosticInfo = {
+        searchParams: {
+          latitude,
+          longitude,
+          radius,
+          keyword: userInput || "無",
+          openNow: true,
         },
-        { status: 404 }
-      );
+        suggestions: [
+          "嘗試擴大搜尋範圍（目前為 " + (radius / 1000).toFixed(1) + "km）",
+          "調整搜尋關鍵詞",
+          "檢查定位是否正確",
+          "確認該區域是否有餐廳營業",
+        ],
+      };
+
+      console.log("No restaurants found:", diagnosticInfo);
+
+      // 改為正常回應，而不是錯誤
+      return NextResponse.json({
+        success: true,
+        data: {
+          recommendations: [],
+          totalFound: 0,
+          userInput,
+          searchRadius: radius,
+          aiReason: `很抱歉，在 ${(radius / 1000).toFixed(
+            1
+          )}km 範圍內沒有找到任何餐廳。\n\n建議：\n• 嘗試擴大搜尋範圍\n• 調整搜尋關鍵詞\n• 檢查定位是否正確`,
+          aiRecommendedCount: 0,
+          noResultsFound: true, // 標記沒有找到結果
+        },
+      });
     }
 
     // 2. 豐富餐廳資訊

@@ -69,16 +69,34 @@ export default function RecommendationResults({
   if (recommendations.length === 0) {
     return (
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-          <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center mx-auto mb-3">
-            <Sparkles className="w-6 h-6 text-gray-500" />
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="text-center mb-4">
+            <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center mx-auto mb-3">
+              <Sparkles className="w-6 h-6 text-gray-500" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              沒有找到符合條件的餐廳
+            </h3>
           </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            沒有找到符合條件的餐廳
-          </h3>
-          <p className="text-gray-700">
-            請嘗試調整您的搜尋條件，或擴大搜尋範圍
-          </p>
+          
+          {/* 顯示 AI 建議 */}
+          {aiReason && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <span className="text-white text-xs">💡</span>
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-blue-900 mb-2">
+                    AI 建議
+                  </h4>
+                  <div className="text-sm text-blue-800 whitespace-pre-line">
+                    {aiReason}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

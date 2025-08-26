@@ -35,9 +35,25 @@ npm install
 創建 `.env.local` 檔案：
 
 ```env
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
-GEMINI_API_KEY=your_gemini_api_key
+# Google Maps API Key (必需)
+# 1. 前往 https://console.cloud.google.com/
+# 2. 建立新專案或選擇現有專案
+# 3. 啟用以下 API：
+#    - Places API
+#    - Maps JavaScript API
+# 4. 建立憑證 > API 金鑰
+GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
+
+# Gemini AI API Key (可選，用於 AI 推薦功能)
+# 1. 前往 https://makersuite.google.com/app/apikey
+# 2. 建立 API 金鑰
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# 應用程式環境
+NODE_ENV=development
 ```
+
+**重要**: 如果沒有設定 `GOOGLE_MAPS_API_KEY`，應用程式將無法搜尋餐廳。
 
 ### 啟動
 
@@ -74,6 +90,30 @@ src/
 - ESLint + Prettier 代碼規範
 - 組件化開發
 - 配置集中管理
+
+## 故障排除
+
+### 常見問題
+
+1. **"沒有找到任何餐廳" 錯誤**
+
+   - 檢查 `GOOGLE_MAPS_API_KEY` 是否正確設定
+   - 確認已啟用 Places API
+   - 嘗試擴大搜尋範圍
+   - 檢查定位是否正確
+
+2. **定位失敗**
+
+   - 確認瀏覽器定位權限
+   - 檢查 HTTPS 連線（定位需要安全連線）
+
+3. **API 錯誤**
+   - 檢查 API Key 配額是否用完
+   - 確認 API 已正確啟用
+
+### 除錯模式
+
+開發模式下，詳細錯誤資訊會記錄在瀏覽器控制台和伺服器日誌中。
 
 ## 部署
 
