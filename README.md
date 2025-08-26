@@ -48,9 +48,6 @@ GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 # 1. 前往 https://makersuite.google.com/app/apikey
 # 2. 建立 API 金鑰
 GEMINI_API_KEY=your_gemini_api_key_here
-
-# 應用程式環境
-NODE_ENV=development
 ```
 
 **重要**: 如果沒有設定 `GOOGLE_MAPS_API_KEY`，應用程式將無法搜尋餐廳。
