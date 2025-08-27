@@ -176,7 +176,7 @@ export default function RecommendationResults({
         {/* 結果底部信息 */}
         <div className="border-t border-gray-100 px-6 py-4">
           <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>最後更新：{new Date().toLocaleTimeString()}</span>
+            <span>推薦完成</span>
           </div>
         </div>
       </div>

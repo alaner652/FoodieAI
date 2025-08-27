@@ -1,5 +1,5 @@
-import { Search, Sparkles } from "lucide-react";
 import { UI_CONFIG } from "@/lib/config";
+import { Search, Sparkles } from "lucide-react";
 
 interface SearchInputProps {
   value: string;
@@ -14,7 +14,7 @@ export default function SearchInput({
   onChange,
   onSubmit,
   isLoading,
-  suggestions = UI_CONFIG.SEARCH_SUGGESTIONS,
+  suggestions = [...UI_CONFIG.SEARCH_SUGGESTIONS],
 }: SearchInputProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
