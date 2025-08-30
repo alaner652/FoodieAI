@@ -201,13 +201,13 @@ export default function HomeClient() {
       {/* 重新設計的地圖設定區域 */}
       <div className="mt-6">
         {/* 位置設定卡片 */}
-        <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-xl p-2 xl:p-1.5 shadow-md">
+        <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-xl p-2 md:p-1.5 shadow-md">
           {/* 標題區域 */}
-          <div className="text-center mb-3 xl:mb-2">
-            <div className="inline-flex items-center justify-center w-10 h-10 xl:w-8 xl:h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-sm mb-2 xl:mb-1">
-              <Globe className="w-5 h-5 xl:w-4 xl:h-4 text-white" />
+          <div className="text-center mb-3 md:mb-2">
+            <div className="inline-flex items-center justify-center w-10 h-10 md:w-8 md:h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-sm mb-2 md:mb-1">
+              <Globe className="w-5 h-5 md:w-4 md:h-4 text-white" />
             </div>
-            <h3 className="text-lg xl:text-base font-bold text-gray-900 mb-1">
+            <h3 className="text-lg md:text-base font-bold text-gray-900 mb-1">
               📍 位置設定
             </h3>
             <p className="text-xs text-gray-600">
@@ -215,16 +215,16 @@ export default function HomeClient() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 xl:gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             {/* 左側：位置資訊 */}
-            <div className="space-y-2 xl:space-y-1.5">
-              <div className="bg-white rounded-lg p-4 xl:p-3.5 border border-gray-100 shadow-sm h-full flex flex-col">
-                <div className="flex items-center space-x-2 mb-3 xl:mb-2.5">
-                  <div className="w-6 h-6 xl:w-5 xl:h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center shadow-sm">
-                    <Compass className="w-3 h-3 xl:w-2.5 xl:h-2.5 text-white" />
+            <div className="space-y-2 md:space-y-1.5">
+              <div className="bg-white rounded-lg p-4 md:p-3.5 border border-gray-100 shadow-sm h-full flex flex-col">
+                <div className="flex items-center space-x-2 mb-3 md:mb-2.5">
+                  <div className="w-6 h-6 md:w-5 md:h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center shadow-sm">
+                    <Compass className="w-3 h-3 md:w-2.5 md:h-2.5 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-sm xl:text-xs font-semibold text-gray-800">
+                    <h4 className="text-sm md:text-xs font-semibold text-gray-800">
                       目前位置
                     </h4>
                     <p className="text-xs text-gray-500">
@@ -233,20 +233,20 @@ export default function HomeClient() {
                   </div>
                 </div>
 
-                <div className="space-y-3 xl:space-y-2.5 flex-1">
+                <div className="space-y-3 md:space-y-2.5 flex-1">
                   <button
                     onClick={handleGetLocation}
                     disabled={isGettingLocation || isLoading}
-                    className="group w-full flex items-center justify-center space-x-2 px-3 py-2.5 xl:px-2.5 xl:py-2 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 text-white rounded-md hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md transform hover:scale-105 disabled:transform-none"
+                    className="group w-full flex items-center justify-center space-x-2 px-3 py-2.5 md:px-2.5 md:py-2 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 text-white rounded-md hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md transform hover:scale-105 disabled:transform-none"
                   >
                     {isGettingLocation ? (
                       <>
-                        <div className="w-3 h-3 xl:w-2.5 xl:h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <div className="w-3 h-3 md:w-2.5 md:h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span className="font-medium text-xs">定位中...</span>
                       </>
                     ) : (
                       <>
-                        <Navigation className="w-3 h-3 xl:w-2.5 xl:h-2.5" />
+                        <Navigation className="w-3 h-3 md:w-2.5 md:h-2.5" />
                         <span className="font-medium text-xs">
                           📍 取得目前位置
                         </span>
@@ -255,13 +255,13 @@ export default function HomeClient() {
                   </button>
 
                   {latitude != null && longitude != null && (
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-md border-2 border-green-200 p-3 xl:p-2.5 shadow-sm">
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-md border-2 border-green-200 p-3 md:p-2.5 shadow-sm">
                       <div className="flex items-center space-x-2">
-                        <div className="w-5 h-5 xl:w-4 xl:h-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-sm">
-                          <Check className="w-2.5 h-2.5 xl:w-2 xl:h-2 text-white" />
+                        <div className="w-5 h-5 md:w-4 md:h-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-sm">
+                          <Check className="w-2.5 h-2.5 md:w-2 md:h-2 text-white" />
                         </div>
                         <div className="flex-1">
-                          <div className="bg-white rounded-sm p-2 xl:p-1.5 border border-green-200">
+                          <div className="bg-white rounded-sm p-2 md:p-1.5 border border-green-200">
                             <p className="text-xs text-green-700 font-medium mb-1">
                               座標位置
                             </p>
@@ -278,14 +278,14 @@ export default function HomeClient() {
             </div>
 
             {/* 右側：搜尋範圍設定 */}
-            <div className="space-y-2 xl:space-y-1.5">
-              <div className="bg-white rounded-lg p-4 xl:p-3.5 border border-gray-100 shadow-sm h-full flex flex-col">
-                <div className="flex items-center space-x-2 mb-3 xl:mb-2.5">
-                  <div className="w-6 h-6 xl:w-5 xl:h-5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-md flex items-center justify-center shadow-sm">
-                    <Zap className="w-3 h-3 xl:w-2.5 xl:h-2.5 text-white" />
+            <div className="space-y-2 md:space-y-1.5">
+              <div className="bg-white rounded-lg p-4 md:p-3.5 border border-gray-100 shadow-sm h-full flex flex-col">
+                <div className="flex items-center space-x-2 mb-3 md:mb-2.5">
+                  <div className="w-6 h-6 md:w-5 md:h-5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-md flex items-center justify-center shadow-sm">
+                    <Zap className="w-3 h-3 md:w-2.5 md:h-2.5 text-white" />
                   </div>
                   <div>
-                    <h4 className="text-sm xl:text-xs font-semibold text-gray-800">
+                    <h4 className="text-sm md:text-xs font-semibold text-gray-800">
                       搜尋範圍
                     </h4>
                     <p className="text-xs text-gray-500">
@@ -294,13 +294,13 @@ export default function HomeClient() {
                   </div>
                 </div>
 
-                <div className="space-y-3 xl:space-y-2.5 flex-1">
+                <div className="space-y-3 md:space-y-2.5 flex-1">
                   {/* 自定義半徑輸入 */}
-                  <div className="space-y-2 xl:space-y-1.5">
+                  <div className="space-y-2 md:space-y-1.5">
                     <div className="flex items-center space-x-2">
                       <input
                         type="number"
-                        className="flex-1 rounded-md border-2 border-gray-200 px-2 py-2 xl:px-1.5 xl:py-1.5 text-sm font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-300 transition-all duration-200 shadow-sm"
+                        className="flex-1 rounded-md border-2 border-gray-200 px-2 py-2 md:px-1.5 md:py-1.5 text-sm font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-300 transition-all duration-200 shadow-sm"
                         value={radius}
                         min={API_CONFIG.MIN_RADIUS}
                         max={API_CONFIG.MAX_RADIUS}
@@ -310,16 +310,16 @@ export default function HomeClient() {
                     </div>
 
                     {/* 範圍指示器 */}
-                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-md p-3 xl:p-2.5 border border-purple-200">
+                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-md p-3 md:p-2.5 border border-purple-200">
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-purple-700 font-medium">
                           搜尋範圍
                         </span>
-                        <span className="text-sm xl:text-xs font-bold text-purple-800">
+                        <span className="text-sm md:text-xs font-bold text-purple-800">
                           {(radius / 1000).toFixed(1)} 公里
                         </span>
                       </div>
-                      <div className="mt-1.5 xl:mt-1 w-full bg-purple-200 rounded-full h-1">
+                      <div className="mt-1.5 md:mt-1 w-full bg-purple-200 rounded-full h-1">
                         <div
                           className="bg-gradient-to-r from-purple-500 to-indigo-500 h-1 rounded-full transition-all duration-300"
                           style={{
@@ -332,7 +332,7 @@ export default function HomeClient() {
                           }}
                         ></div>
                       </div>
-                      <div className="flex justify-between text-xs text-purple-600 mt-1.5 xl:mt-1">
+                      <div className="flex justify-between text-xs text-purple-600 md:mt-1.5">
                         <span>{API_CONFIG.MIN_RADIUS / 1000}km</span>
                         <span>{API_CONFIG.MAX_RADIUS / 1000}km</span>
                       </div>
@@ -344,8 +344,8 @@ export default function HomeClient() {
           </div>
 
           {/* 底部提示 */}
-          <div className="mt-3 xl:mt-2 text-center">
-            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-2 py-1 xl:px-1.5 xl:py-0.5 rounded-full text-xs">
+          <div className="mt-3 md:mt-2 text-center">
+            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-2 py-1 md:px-1.5 md:py-0.5 rounded-full text-xs">
               <span className="w-1 h-1 bg-blue-500 rounded-full animate-pulse"></span>
               <span>設定完成後，在搜尋框輸入需求即可開始搜尋</span>
             </div>
