@@ -44,6 +44,8 @@ export interface RecommendationRequest {
   latitude?: number;
   longitude?: number;
   radius?: number; // meters
+  userGoogleApiKey?: string; // 新增：使用者提供的 Google Places API Key
+  userGeminiApiKey?: string; // 新增：使用者提供的 Gemini API Key
 }
 
 export interface RecommendationResponse {

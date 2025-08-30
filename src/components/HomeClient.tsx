@@ -1,11 +1,13 @@
 "use client";
 
+import ApiKeySettings from "@/components/ApiKeySettings";
 import RecommendationResults from "@/components/RecommendationResults";
 import RestaurantDetails from "@/components/RestaurantDetails";
 import SearchInput from "@/components/SearchInput";
 import { API_CONFIG, DEV_CONFIG, MAP_CONFIG, UI_CONFIG } from "@/lib/config";
 import { Restaurant } from "@/types";
-import { useState } from "react";
+import { Check, Compass, Globe, Navigation, Zap } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function HomeClient() {
   const [userInput, setUserInput] = useState("");
@@ -20,6 +22,19 @@ export default function HomeClient() {
   const [radius, setRadius] = useState<number>(API_CONFIG.DEFAULT_RADIUS);
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+
+  // 預設位置：台北市中心
+  const DEFAULT_LATITUDE = 25.033;
+  const DEFAULT_LONGITUDE = 121.5654;
+
+  // 組件載入時自動設定預設位置
+  useEffect(() => {
+    if (latitude === null && longitude === null) {
+      setLatitude(DEFAULT_LATITUDE);
+      setLongitude(DEFAULT_LONGITUDE);
+    }
+  }, [latitude, longitude]);
 
   const getLocation = (): Promise<{ lat: number; lng: number }> => {
     return new Promise((resolve, reject) => {
@@ -40,6 +55,22 @@ export default function HomeClient() {
     });
   };
 
+  const handleGetLocation = async () => {
+    setIsGettingLocation(true);
+    setError("");
+
+    try {
+      const loc = await getLocation();
+      setLatitude(loc.lat);
+      setLongitude(loc.lng);
+    } catch (error) {
+      console.error("取得位置失敗:", error);
+      setError(UI_CONFIG.ERROR_MESSAGES.LOCATION_FAILED);
+    } finally {
+      setIsGettingLocation(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setIsLoading(true);
     setShowResults(false);
@@ -56,6 +87,24 @@ export default function HomeClient() {
         setLongitude(lng);
       }
 
+      // 從 localStorage 讀取使用者的 API Keys
+      const userGoogleApiKey = localStorage.getItem("userGoogleApiKey") || "";
+      const userGeminiApiKey = localStorage.getItem("userGeminiKey") || "";
+
+      // 檢查是否設定了必要的 API Keys
+      if (!userGoogleApiKey.trim()) {
+        setError("請先設定您的 Google Places API Key，前往測試頁面進行設定。");
+        setIsLoading(false);
+        return;
+      }
+
+      if (!userGeminiApiKey.trim()) {
+        setError("請先設定您的 Gemini API Key，前往測試頁面進行設定。");
+        setIsLoading(false);
+        return;
+      }
+
+      // 修改：在 API 請求中包含使用者的 API Keys
       const response = await fetch(DEV_CONFIG.ENDPOINTS.RECOMMEND, {
         method: "POST",
         headers: {
@@ -66,6 +115,8 @@ export default function HomeClient() {
           latitude: lat,
           longitude: lng,
           radius,
+          userGoogleApiKey: userGoogleApiKey, // 傳遞使用者的 Google API Key
+          userGeminiApiKey: userGeminiApiKey, // 傳遞使用者的 Gemini API Key
         }),
       });
 
@@ -101,20 +152,20 @@ export default function HomeClient() {
     }
   };
 
-  const handleRandomPick = () => {
+  const handleRandomPick = useCallback(() => {
     if (recommendations.length === 0) return;
     const shuffled = [...recommendations].sort(() => Math.random() - 0.5);
     const selected = shuffled[0];
     setRecommendations([selected]);
-  };
+  }, [recommendations]);
 
-  const handleViewDetails = (restaurant: Restaurant) => {
+  const handleViewDetails = useCallback((restaurant: Restaurant) => {
     setSelectedRestaurant(restaurant);
-  };
+  }, []);
 
-  const handleCloseDetails = () => {
+  const handleCloseDetails = useCallback(() => {
     setSelectedRestaurant(null);
-  };
+  }, []);
 
   return (
     <>
@@ -123,75 +174,159 @@ export default function HomeClient() {
         onChange={setUserInput}
         onSubmit={handleSubmit}
         isLoading={isLoading}
+        error={error}
       />
 
-      {/* 錯誤訊息顯示 */}
-      {error && (
-        <div className="mt-4 bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-start">
-            <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center mr-3 mt-0.5 flex-shrink-0">
-              <span className="text-white text-xs">!</span>
+      {/* 重新設計的地圖設定區域 */}
+      <div className="mt-6">
+        {/* 位置設定卡片 */}
+        <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-xl p-2 xl:p-1.5 shadow-md">
+          {/* 標題區域 */}
+          <div className="text-center mb-3 xl:mb-2">
+            <div className="inline-flex items-center justify-center w-10 h-10 xl:w-8 xl:h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-sm mb-2 xl:mb-1">
+              <Globe className="w-5 h-5 xl:w-4 xl:h-4 text-white" />
             </div>
-            <div className="text-red-800 whitespace-pre-line">{error}</div>
-          </div>
-        </div>
-      )}
-
-      <div className="mt-4 border border-gray-200 rounded-lg p-3 bg-white">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between text-sm text-gray-700">
-          <div className="flex items-center gap-2">
-            <button
-              className="px-3 py-1.5 rounded border border-gray-300 hover:bg-gray-50"
-              onClick={async () => {
-                try {
-                  const loc = await getLocation();
-                  setLatitude(loc.lat);
-                  setLongitude(loc.lng);
-                } catch (error) {
-                  console.error("取得位置失敗:", error);
-                  setError(UI_CONFIG.ERROR_MESSAGES.LOCATION_FAILED);
-                }
-              }}
-            >
-              取得定位
-            </button>
-            {latitude != null && longitude != null && (
-              <span className="text-gray-600">
-                已定位：{latitude.toFixed(4)}, {longitude.toFixed(4)}
-              </span>
-            )}
+            <h3 className="text-lg xl:text-base font-bold text-gray-900 mb-1">
+              📍 位置設定
+            </h3>
+            <p className="text-xs text-gray-600">
+              設定您的搜尋位置和範圍，找到最適合的餐廳
+            </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <label className="flex items-center gap-2">
-              搜尋半徑
-              <input
-                type="number"
-                className="w-28 rounded border border-gray-300 px-2 py-1"
-                value={radius}
-                min={API_CONFIG.MIN_RADIUS}
-                max={API_CONFIG.MAX_RADIUS}
-                step={100}
-                onChange={(e) => setRadius(Number(e.target.value))}
-              />
-              <span className="text-gray-500">
-                公尺（約 {(radius / 1000).toFixed(1)} km）
-              </span>
-            </label>
-            <div className="flex items-center gap-2">
-              {API_CONFIG.QUICK_RADIUS_OPTIONS.map((r) => (
-                <button
-                  key={r}
-                  className={`px-2.5 py-1 rounded border text-xs ${
-                    radius === r
-                      ? "border-blue-600 text-blue-700 bg-blue-50"
-                      : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                  }`}
-                  onClick={() => setRadius(r)}
-                >
-                  {r >= 1000 ? `${r / 1000}km` : `${r}m`}
-                </button>
-              ))}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 xl:gap-4">
+            {/* 左側：位置資訊 */}
+            <div className="space-y-2 xl:space-y-1.5">
+              <div className="bg-white rounded-lg p-4 xl:p-3.5 border border-gray-100 shadow-sm h-full flex flex-col">
+                <div className="flex items-center space-x-2 mb-3 xl:mb-2.5">
+                  <div className="w-6 h-6 xl:w-5 xl:h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center shadow-sm">
+                    <Compass className="w-3 h-3 xl:w-2.5 xl:h-2.5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm xl:text-xs font-semibold text-gray-800">
+                      目前位置
+                    </h4>
+                    <p className="text-xs text-gray-500">
+                      使用 GPS 定位您的當前位置
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 xl:space-y-2.5 flex-1">
+                  <button
+                    onClick={handleGetLocation}
+                    disabled={isGettingLocation || isLoading}
+                    className="group w-full flex items-center justify-center space-x-2 px-3 py-2.5 xl:px-2.5 xl:py-2 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 text-white rounded-md hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md transform hover:scale-105 disabled:transform-none"
+                  >
+                    {isGettingLocation ? (
+                      <>
+                        <div className="w-3 h-3 xl:w-2.5 xl:h-2.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span className="font-medium text-xs">定位中...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Navigation className="w-3 h-3 xl:w-2.5 xl:h-2.5" />
+                        <span className="font-medium text-xs">
+                          📍 取得目前位置
+                        </span>
+                      </>
+                    )}
+                  </button>
+
+                  {latitude != null && longitude != null && (
+                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-md border-2 border-green-200 p-3 xl:p-2.5 shadow-sm">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-5 h-5 xl:w-4 xl:h-4 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-sm">
+                          <Check className="w-2.5 h-2.5 xl:w-2 xl:h-2 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="bg-white rounded-sm p-2 xl:p-1.5 border border-green-200">
+                            <p className="text-xs text-green-700 font-medium mb-1">
+                              座標位置
+                            </p>
+                            <p className="text-xs font-mono text-green-800">
+                              {latitude.toFixed(6)}, {longitude.toFixed(6)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* 右側：搜尋範圍設定 */}
+            <div className="space-y-2 xl:space-y-1.5">
+              <div className="bg-white rounded-lg p-4 xl:p-3.5 border border-gray-100 shadow-sm h-full flex flex-col">
+                <div className="flex items-center space-x-2 mb-3 xl:mb-2.5">
+                  <div className="w-6 h-6 xl:w-5 xl:h-5 bg-gradient-to-br from-purple-500 to-purple-600 rounded-md flex items-center justify-center shadow-sm">
+                    <Zap className="w-3 h-3 xl:w-2.5 xl:h-2.5 text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm xl:text-xs font-semibold text-gray-800">
+                      搜尋範圍
+                    </h4>
+                    <p className="text-xs text-gray-500">
+                      設定搜尋餐廳的地理範圍
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 xl:space-y-2.5 flex-1">
+                  {/* 自定義半徑輸入 */}
+                  <div className="space-y-2 xl:space-y-1.5">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="number"
+                        className="flex-1 rounded-md border-2 border-gray-200 px-2 py-2 xl:px-1.5 xl:py-1.5 text-sm font-mono focus:ring-2 focus:ring-purple-500 focus:border-purple-300 transition-all duration-200 shadow-sm"
+                        value={radius}
+                        min={API_CONFIG.MIN_RADIUS}
+                        max={API_CONFIG.MAX_RADIUS}
+                        step={100}
+                        onChange={(e) => setRadius(Number(e.target.value))}
+                      />
+                    </div>
+
+                    {/* 範圍指示器 */}
+                    <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-md p-3 xl:p-2.5 border border-purple-200">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-purple-700 font-medium">
+                          搜尋範圍
+                        </span>
+                        <span className="text-sm xl:text-xs font-bold text-purple-800">
+                          {(radius / 1000).toFixed(1)} 公里
+                        </span>
+                      </div>
+                      <div className="mt-1.5 xl:mt-1 w-full bg-purple-200 rounded-full h-1">
+                        <div
+                          className="bg-gradient-to-r from-purple-500 to-indigo-500 h-1 rounded-full transition-all duration-300"
+                          style={{
+                            width: `${
+                              ((radius - API_CONFIG.MIN_RADIUS) /
+                                (API_CONFIG.MAX_RADIUS -
+                                  API_CONFIG.MIN_RADIUS)) *
+                              100
+                            }%`,
+                          }}
+                        ></div>
+                      </div>
+                      <div className="flex justify-between text-xs text-purple-600 mt-1.5 xl:mt-1">
+                        <span>{API_CONFIG.MIN_RADIUS / 1000}km</span>
+                        <span>{API_CONFIG.MAX_RADIUS / 1000}km</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 底部提示 */}
+          <div className="mt-3 xl:mt-2 text-center">
+            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-2 py-1 xl:px-1.5 xl:py-0.5 rounded-full text-xs">
+              <span className="w-1 h-1 bg-blue-500 rounded-full animate-pulse"></span>
+              <span>設定完成後，在搜尋框輸入需求即可開始搜尋</span>
             </div>
           </div>
         </div>
@@ -216,6 +351,11 @@ export default function HomeClient() {
           />
         </div>
       )}
+
+      {/* API Key 設定組件 - 移到底部 */}
+      <div className="mt-8">
+        <ApiKeySettings />
+      </div>
     </>
   );
 }

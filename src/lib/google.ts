@@ -48,6 +48,7 @@ export async function searchNearbyRestaurants(params: {
   keyword?: string;
   openNow?: boolean;
   language?: string;
+  userApiKey?: string; // 新增：使用者提供的 API Key
 }): Promise<Restaurant[]> {
   const {
     latitude,
@@ -56,11 +57,13 @@ export async function searchNearbyRestaurants(params: {
     keyword,
     openNow = MAP_CONFIG.GOOGLE_PLACES.OPEN_NOW,
     language = MAP_CONFIG.GOOGLE_PLACES.LANGUAGE,
+    userApiKey, // 新增：使用者提供的 API Key
   } = params;
 
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
+  // 優先使用使用者提供的 API Key，否則使用環境變數
+  const apiKey = userApiKey || process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) {
-    throw new Error("Missing GOOGLE_PLACES_API_KEY");
+    throw new Error("Missing Google Places API Key");
   }
 
   const url = new URL(
@@ -175,10 +178,18 @@ export async function fetchPlaceDetails(params: {
   placeId: string;
   language?: string;
   photoApiKeyOverride?: string;
+  userApiKey?: string; // 新增：使用者提供的 API Key
 }): Promise<Partial<Restaurant>> {
-  const { placeId, language = "zh-TW", photoApiKeyOverride } = params;
-  const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-  if (!apiKey) throw new Error("Missing GOOGLE_PLACES_API_KEY");
+  const {
+    placeId,
+    language = "zh-TW",
+    photoApiKeyOverride,
+    userApiKey,
+  } = params;
+
+  // 優先使用使用者提供的 API Key，否則使用環境變數
+  const apiKey = userApiKey || process.env.GOOGLE_PLACES_API_KEY;
+  if (!apiKey) throw new Error("Missing Google Places API Key");
 
   const url = new URL(
     "https://maps.googleapis.com/maps/api/place/details/json"

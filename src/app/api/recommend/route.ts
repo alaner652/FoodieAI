@@ -1,48 +1,59 @@
 import { rerankWithGemini } from "@/lib/ai";
-import { API_CONFIG, UI_CONFIG } from "@/lib/config";
+import { API_CONFIG } from "@/lib/config";
 import { fetchPlaceDetails, searchNearbyRestaurants } from "@/lib/google";
 import { RecommendationRequest, Restaurant } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
- * 驗證請求參數
+ * 驗證請求
  */
-function validateRequest(body: RecommendationRequest): {
-  isValid: boolean;
-  error?: string;
-  data?: {
-    userInput: string;
-    latitude: number;
-    longitude: number;
-    radius: number;
-  };
-} {
-  const userInput = (body.userInput || "").trim();
-  const latitude =
-    typeof body.latitude === "number" ? body.latitude : undefined;
-  const longitude =
-    typeof body.longitude === "number" ? body.longitude : undefined;
-  const radius =
-    typeof body.radius === "number" ? body.radius : API_CONFIG.DEFAULT_RADIUS;
+const validateRequest = (body: RecommendationRequest) => {
+  const {
+    userInput,
+    latitude,
+    longitude,
+    radius,
+    userGoogleApiKey,
+    userGeminiApiKey,
+  } = body;
 
-  if (!latitude || !longitude) {
-    return {
-      isValid: false,
-      error: UI_CONFIG.ERROR_MESSAGES.MISSING_COORDINATES,
-    };
+  if (!userInput || typeof userInput !== "string") {
+    throw new Error("userInput is required and must be a string");
+  }
+
+  if (typeof latitude !== "number" || typeof longitude !== "number") {
+    throw new Error("latitude and longitude are required and must be numbers");
+  }
+
+  if (typeof radius !== "number" || radius < 100 || radius > 5000) {
+    throw new Error("radius must be a number between 100 and 5000");
+  }
+
+  // 檢查是否提供了必要的 API Keys
+  if (!userGoogleApiKey || typeof userGoogleApiKey !== "string") {
+    throw new Error("userGoogleApiKey is required");
+  }
+
+  if (!userGeminiApiKey || typeof userGeminiApiKey !== "string") {
+    throw new Error("userGeminiApiKey is required");
   }
 
   return {
-    isValid: true,
-    data: { userInput, latitude, longitude, radius },
+    userInput: userInput.trim(),
+    latitude,
+    longitude,
+    radius,
+    userGoogleApiKey,
+    userGeminiApiKey,
   };
-}
+};
 
 /**
  * 豐富餐廳資訊
  */
 async function enrichRestaurants(
-  restaurants: Restaurant[]
+  restaurants: Restaurant[],
+  userGoogleApiKey?: string
 ): Promise<Restaurant[]> {
   const enriched: Restaurant[] = [];
 
@@ -53,7 +64,10 @@ async function enrichRestaurants(
     }
 
     try {
-      const details = await fetchPlaceDetails({ placeId: restaurant.placeId });
+      const details = await fetchPlaceDetails({
+        placeId: restaurant.placeId,
+        userApiKey: userGoogleApiKey, // 傳遞使用者的 Google API Key
+      });
       enriched.push({ ...restaurant, ...details });
     } catch {
       enriched.push(restaurant);
@@ -104,24 +118,24 @@ export async function POST(request: NextRequest) {
   try {
     const body: RecommendationRequest = await request.json();
 
-    // 驗證請求參數
-    const validation = validateRequest(body);
-    if (!validation.isValid) {
-      return NextResponse.json(
-        { success: false, error: validation.error },
-        { status: 400 }
-      );
-    }
+    // 驗證請求
+    const {
+      userInput,
+      latitude,
+      longitude,
+      radius,
+      userGoogleApiKey,
+      userGeminiApiKey,
+    } = validateRequest(body);
 
-    const { userInput, latitude, longitude, radius } = validation.data!;
-
-    // 1. 搜尋附近餐廳
+    // 1. 搜尋附近餐廳 - 傳遞使用者的 Google API Key
     const nearby = await searchNearbyRestaurants({
       latitude,
       longitude,
       radius,
       keyword: userInput,
       openNow: true,
+      userApiKey: userGoogleApiKey, // 傳遞使用者的 Google API Key
     });
 
     // 檢查是否找到餐廳
@@ -162,10 +176,10 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // 2. 豐富餐廳資訊
-    const enriched = await enrichRestaurants(nearby);
+    // 2. 豐富餐廳資訊 - 傳遞使用者的 Google API Key
+    const enriched = await enrichRestaurants(nearby, userGoogleApiKey);
 
-    // 3. 讓 AI 進行智能排序和數量決定
+    // 3. 讓 AI 進行智能排序和數量決定 - 傳遞使用者的 Gemini API Key
     const gemini = await rerankWithGemini({
       restaurants: enriched,
       userInput,
@@ -173,6 +187,7 @@ export async function POST(request: NextRequest) {
       longitude,
       radius, // 傳遞半徑資訊給 AI
       maxRecommendations: API_CONFIG.MAX_RECOMMENDATIONS, // 最大推薦數量
+      userApiKey: userGeminiApiKey, // 傳遞使用者的 Gemini API Key
     });
 
     // 4. 獲取 AI 推薦結果

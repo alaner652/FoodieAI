@@ -1,5 +1,5 @@
-import { Restaurant } from "@/types";
 import { AI_CONFIG } from "@/lib/config";
+import { Restaurant } from "@/types";
 
 type GeminiModel = "gemini-1.5-flash" | "gemini-1.5-pro";
 
@@ -11,6 +11,7 @@ interface RerankParams {
   radius: number; // 新增：搜尋半徑
   maxRecommendations?: number; // 新增：最大推薦數量
   model?: GeminiModel;
+  userApiKey?: string; // 新增：使用者提供的 Gemini API Key
 }
 
 function buildPrompt(
@@ -104,11 +105,16 @@ export async function rerankWithGemini(
     radius,
     maxRecommendations = AI_CONFIG.PROMPT.MAX_RESTAURANTS,
     model = AI_CONFIG.GEMINI.DEFAULT_MODEL,
+    userApiKey, // 新增：使用者提供的 Gemini API Key
   } = params;
+
+  // 優先使用使用者提供的 API Key，否則使用環境變數
   const apiKey =
+    userApiKey ||
     process.env.GOOGLE_GEMINI_API_KEY ||
     process.env.GEMINI_API_KEY ||
     process.env.GOOGLE_API_KEY;
+
   if (!apiKey) return null;
 
   const prompt = buildPrompt(
