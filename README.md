@@ -1,120 +1,67 @@
-# FoodieAI - 智能餐廳推薦系統
+# 🍽️ Foodie.AI
 
-基於 AI 的餐廳推薦系統，結合 Google Places API 和 Gemini AI，為用戶提供個性化的餐廳推薦服務。
+智能餐廳推薦系統，使用 AI 幫你找到最適合的餐廳。
 
-## 功能特色
+## ✨ 功能特色
 
-- 🤖 **AI 智能推薦**: 支援中文自然語言輸入，固定推薦 4 間餐廳
-- 📍 **精準定位**: 自動獲取用戶位置，支援 200m-5000m 搜尋半徑
-- 🎯 **智能排序**: 需求匹配度 > 距離 > 評分
-- 🎲 **隨機選擇**: 一鍵隨機選擇餐廳
-- 📱 **響應式設計**: 支援桌面和行動裝置
+- **🔍 智能搜尋** - 自然語言描述，AI 智能推薦
+- **📍 自動定位** - 自動獲取你的位置，無需手動設定
+- **🎯 快速建議** - 一鍵套用常用搜尋條件
+- **🤖 AI 排序** - Gemini AI 智能分析，推薦最適合的餐廳
 
-## 技術架構
+## 🚀 快速開始
 
-- **前端**: Next.js 15 + TypeScript + Tailwind CSS
-- **後端**: Next.js API Routes + Google Places API + Gemini AI
-- **部署**: Vercel
-
-## 快速開始
-
-### 環境需求
-
-- Node.js 18+
-- Google Places API Key
-- Gemini AI API Key
-
-### 安裝
+### 1. 安裝
 
 ```bash
+git clone <repository-url>
+cd my-app
 npm install
 ```
 
-### 環境變數
+### 2. 設定 API Keys
 
-創建 `.env.local` 檔案：
+前往 `/test` 頁面設定：
 
-```env
-# Google Places API Key (必需)
-# 1. 前往 https://console.cloud.google.com/
-# 2. 建立新專案或選擇現有專案
-# 3. 啟用以下 API：
-#    - Places API
-# 4. 建立憑證 > API 金鑰
-GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
+- **Google Places API Key** - 搜尋附近餐廳
+- **Gemini API Key** - AI 智能推薦
 
-# Gemini AI API Key (可選，用於 AI 推薦功能)
-# 1. 前往 https://makersuite.google.com/app/apikey
-# 2. 建立 API 金鑰
-GEMINI_API_KEY=your_gemini_api_key_here
-```
-
-**重要**: 如果沒有設定 `GOOGLE_PLACES_API_KEY`，應用程式將無法搜尋餐廳。
-
-### 啟動
+### 3. 啟動
 
 ```bash
 npm run dev
 ```
 
-訪問 [http://localhost:3000](http://localhost:3000)
+## 🔑 API Keys 取得
 
-## 使用方式
+- **Google Places API** - [Google Cloud Console](https://console.cloud.google.com/)
+- **Gemini AI** - [Google AI Studio](https://makersuite.google.com/app/apikey)
 
-1. 在搜尋框輸入需求，例如：「想要吃日式料理，不要太貴」
-2. 點擊「開始推薦」
-3. AI 分析需求並推薦餐廳
-4. 可調整搜尋半徑或使用隨機選擇功能
+## 🎯 使用方式
 
-## 專案結構
+1. **輸入需求** - 例如：「想要吃日式料理，不要太貴」
+2. **自動定位** - 系統會自動獲取你的位置
+3. **AI 推薦** - 點擊搜尋，AI 會推薦最適合的餐廳
 
-```
-src/
-├── app/                    # Next.js App Router
-├── components/             # React 組件
-├── lib/                    # 工具函數和配置
-│   ├── config.ts          # 應用配置
-│   ├── ai.ts              # AI 整合
-│   ├── google.ts          # Google API 整合
-│   └── utils.ts           # 工具函數
-└── types/                  # TypeScript 類型定義
-```
+## 🛠️ 技術架構
 
-## 開發規範
+- **前端** - Next.js 15 + React 19 + TypeScript
+- **樣式** - Tailwind CSS 4
+- **AI 服務** - Google Gemini API
+- **地圖服務** - Google Places API
 
-- TypeScript 強制使用
-- ESLint + Prettier 代碼規範
-- 組件化開發
-- 配置集中管理
+## 📱 響應式設計
 
-## 故障排除
+支援桌面、平板、手機等各種裝置。
 
-### 常見問題
-
-1. **"沒有找到任何餐廳" 錯誤**
-
-     - 檢查 `GOOGLE_PLACES_API_KEY` 是否正確設定
-     - 確認已啟用 Places API
-     - 嘗試擴大搜尋範圍
-     - 檢查定位是否正確
-
-2. **定位失敗**
-
-   - 確認瀏覽器定位權限
-   - 檢查 HTTPS 連線（定位需要安全連線）
-
-3. **API 錯誤**
-   - 檢查 API Key 配額是否用完
-   - 確認 API 已正確啟用
-
-### 除錯模式
-
-開發模式下，詳細錯誤資訊會記錄在瀏覽器控制台和伺服器日誌中。
-
-## 部署
+## 🚀 部署
 
 推送到 GitHub，Vercel 自動部署。
 
-## 授權
+## 📄 授權
 
 MIT License
+
+---
+
+**享受美食，從 AI 推薦開始！** 🍜✨

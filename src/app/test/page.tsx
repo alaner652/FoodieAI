@@ -7,9 +7,15 @@ export default function TestPage() {
       <Header showNav={true} />
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">
-            API Key 設定測試頁面
-          </h1>
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+              🔑 API Keys 設定中心
+            </h1>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              設定您的 Google Places API Key 和 Gemini API
+              Key，開始使用智能餐廳推薦功能
+            </p>
+          </div>
 
           <div className="space-y-6">
             <div className="bg-white rounded-lg shadow p-6">

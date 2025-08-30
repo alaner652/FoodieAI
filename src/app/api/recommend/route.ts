@@ -17,8 +17,8 @@ const validateRequest = (body: RecommendationRequest) => {
     userGeminiApiKey,
   } = body;
 
-  if (!userInput || typeof userInput !== "string") {
-    throw new Error("userInput is required and must be a string");
+  if (typeof userInput !== "string") {
+    throw new Error("userInput must be a string");
   }
 
   if (typeof latitude !== "number" || typeof longitude !== "number") {

@@ -1,6 +1,5 @@
 "use client";
 
-import ApiKeySettings from "@/components/ApiKeySettings";
 import RecommendationResults from "@/components/RecommendationResults";
 import RestaurantDetails from "@/components/RestaurantDetails";
 import SearchInput from "@/components/SearchInput";
@@ -24,17 +23,31 @@ export default function HomeClient() {
     useState<Restaurant | null>(null);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
 
-  // 預設位置：台北市中心
-  const DEFAULT_LATITUDE = 25.033;
-  const DEFAULT_LONGITUDE = 121.5654;
+  // 移除預設位置，改為自動獲取使用者位置
+  // const DEFAULT_LATITUDE = 25.033;
+  // const DEFAULT_LONGITUDE = 121.5654;
 
-  // 組件載入時自動設定預設位置
+  // 組件載入時自動獲取使用者位置
   useEffect(() => {
+    const getInitialLocation = async () => {
+      try {
+        // 嘗試獲取使用者位置
+        const loc = await getLocation();
+        setLatitude(loc.lat);
+        setLongitude(loc.lng);
+      } catch (error) {
+        console.log("無法獲取使用者位置，將使用預設位置");
+        // 如果無法獲取位置，使用台北市中心作為後備
+        setLatitude(25.033);
+        setLongitude(121.5654);
+      }
+    };
+
+    // 只在組件首次載入時執行
     if (latitude === null && longitude === null) {
-      setLatitude(DEFAULT_LATITUDE);
-      setLongitude(DEFAULT_LONGITUDE);
+      getInitialLocation();
     }
-  }, [latitude, longitude]);
+  }, []); // 空依賴陣列，只在組件載入時執行一次
 
   const getLocation = (): Promise<{ lat: number; lng: number }> => {
     return new Promise((resolve, reject) => {
@@ -111,7 +124,7 @@ export default function HomeClient() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userInput: userInput.trim(),
+          userInput: userInput.trim() || "", // 如果為空則傳送空字串
           latitude: lat,
           longitude: lng,
           radius,
@@ -134,8 +147,18 @@ export default function HomeClient() {
       } else {
         let errorMessage = result.error;
 
+        // 改進錯誤訊息處理
         if (errorMessage.includes("API")) {
-          errorMessage = "服務暫時無法使用，請稍後再試";
+          errorMessage = "推薦系統暫時無法使用，請稍後再試";
+        } else if (errorMessage.includes("userInput")) {
+          errorMessage = "搜尋條件格式錯誤，請重新輸入";
+        } else if (
+          errorMessage.includes("latitude") ||
+          errorMessage.includes("longitude")
+        ) {
+          errorMessage = "位置資訊錯誤，請重新定位";
+        } else if (errorMessage.includes("radius")) {
+          errorMessage = "搜尋範圍設定錯誤，請調整範圍";
         }
 
         setError(errorMessage);
@@ -351,11 +374,6 @@ export default function HomeClient() {
           />
         </div>
       )}
-
-      {/* API Key 設定組件 - 移到底部 */}
-      <div className="mt-8">
-        <ApiKeySettings />
-      </div>
     </>
   );
 }
