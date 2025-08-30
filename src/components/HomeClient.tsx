@@ -44,9 +44,7 @@ export default function HomeClient() {
     };
 
     // 只在組件首次載入時執行
-    if (latitude === null && longitude === null) {
-      getInitialLocation();
-    }
+    getInitialLocation();
   }, []); // 空依賴陣列，只在組件載入時執行一次
 
   const getLocation = (): Promise<{ lat: number; lng: number }> => {

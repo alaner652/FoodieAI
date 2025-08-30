@@ -1,15 +1,24 @@
-import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import { HTMLAttributes, forwardRef } from "react";
 
-interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: "default" | "primary" | "secondary" | "success" | "warning" | "error";
+export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+  variant?:
+    | "default"
+    | "primary"
+    | "secondary"
+    | "success"
+    | "warning"
+    | "error";
   size?: "sm" | "md" | "lg";
 }
 
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
-  ({ className, variant = "default", size = "md", children, ...props }, ref) => {
+  (
+    { className, variant = "default", size = "md", children, ...props },
+    ref
+  ) => {
     const baseClasses = "inline-flex items-center font-medium rounded-full";
-    
+
     const variants = {
       default: "bg-gray-100 text-gray-800",
       primary: "bg-blue-100 text-blue-800",
@@ -28,12 +37,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
     return (
       <span
         ref={ref}
-        className={cn(
-          baseClasses,
-          variants[variant],
-          sizes[size],
-          className
-        )}
+        className={cn(baseClasses, variants[variant], sizes[size], className)}
         {...props}
       >
         {children}

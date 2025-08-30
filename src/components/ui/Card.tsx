@@ -1,15 +1,18 @@
 import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "default" | "outlined" | "elevated";
   padding?: "none" | "sm" | "md" | "lg" | "xl";
 }
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = "default", padding = "md", children, ...props }, ref) => {
+  (
+    { className, variant = "default", padding = "md", children, ...props },
+    ref
+  ) => {
     const baseClasses = "rounded-xl";
-    
+
     const variants = {
       default: "bg-white",
       outlined: "bg-white border border-gray-200",
