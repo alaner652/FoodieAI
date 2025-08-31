@@ -21,31 +21,30 @@ export const API_CONFIG = {
 export const UI_CONFIG = {
   // Search Suggestions
   SEARCH_SUGGESTIONS: [
-    "Japanese Cuisine",
-    "Italian Pasta",
-    "Korean BBQ",
-    "Chinese Stir-fry",
-    "American Burger",
-    "Thai Cuisine",
+    "日式料理",
+    "義大利麵",
+    "韓式烤肉",
+    "中式熱炒",
+    "美式漢堡",
+    "泰式料理",
   ] as const,
 
   // Loading Text
-  LOADING_TEXT: "AI is analyzing...",
+  LOADING_TEXT: "AI 分析中...",
 
   // Button Texts
   BUTTON_TEXTS: {
-    START_RECOMMEND: "Start Recommendation",
-    VIEW_DETAILS: "View Details",
-    GET_LOCATION: "Get Location",
-    RANDOM_PICK: "Random Pick",
+    START_RECOMMEND: "開始推薦",
+    VIEW_DETAILS: "查看詳情",
+    GET_LOCATION: "取得位置",
+    RANDOM_PICK: "隨機挑選",
   } as const,
 
   // Error Messages
   ERROR_MESSAGES: {
-    LOCATION_FAILED:
-      "Unable to get your location, please set manually or check location permissions",
-    MISSING_COORDINATES: "Missing user coordinates",
-    API_FAILED: "API call failed",
+    LOCATION_FAILED: "無法取得您的位置，請手動設定或檢查位置權限",
+    MISSING_COORDINATES: "缺少使用者座標",
+    API_FAILED: "API 呼叫失敗",
   } as const,
 } as const;
 

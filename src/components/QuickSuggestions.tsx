@@ -1,4 +1,4 @@
-import { POPULAR_COMBOS, SEARCH_SUGGESTIONS } from "@/constants";
+import { POPULAR_COMBOS, SEARCH_SUGGESTIONS } from "@/constants/search";
 
 interface QuickSuggestionsProps {
   onSuggestionClick: (suggestion: string) => void;

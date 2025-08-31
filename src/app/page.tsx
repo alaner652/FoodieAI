@@ -3,7 +3,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
-import { STATS_DATA } from "@/constants";
+import { STATS_DATA } from "@/constants/homeFeatures";
 import { ArrowRight, Sparkles, TrendingUp, Users, Zap } from "lucide-react";
 import Link from "next/link";
 

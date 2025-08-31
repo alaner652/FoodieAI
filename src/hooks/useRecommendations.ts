@@ -78,15 +78,12 @@ export const useRecommendations = () => {
           // Show success toast
           const count = result.data.recommendations?.length || 0;
           if (count > 0) {
-            showSuccess(
-              `Found ${count} perfect restaurants for you!`,
-              "AI Recommendations"
-            );
+            showSuccess(`為您找到 ${count} 家完美餐廳！`, "AI 推薦");
           }
         } else {
           const errorMessage = getErrorMessage(result.error);
           setState((prev) => ({ ...prev, error: errorMessage }));
-          showError(errorMessage, "Recommendation Failed");
+          showError(errorMessage, "推薦失敗");
           console.error("Recommendation failed:", result.error);
         }
       } catch (error) {
@@ -107,7 +104,7 @@ export const useRecommendations = () => {
         }
 
         setState((prev) => ({ ...prev, error: errorMessage }));
-        showError(errorMessage, "Network Error");
+        showError(errorMessage, "網路錯誤");
         console.error("Recommendation failed:", error);
       } finally {
         setState((prev) => ({ ...prev, isLoading: false }));
@@ -158,10 +155,7 @@ export const useRecommendations = () => {
           // Show success toast
           const count = result.data.restaurants?.length || 0;
           if (count > 0) {
-            showSuccess(
-              `Found ${count} random restaurants near you!`,
-              "Random Selection"
-            );
+            showSuccess(`為您找到 ${count} 家隨機餐廳！`, "隨機選擇");
           }
         } else {
           const errorMsg = result.error || "Random selection failed";
@@ -169,7 +163,7 @@ export const useRecommendations = () => {
             ...prev,
             error: errorMsg,
           }));
-          showError(errorMsg, "Random Selection Failed");
+          showError(errorMsg, "隨機選擇失敗");
         }
       } catch (error) {
         let errorMessage: string;
@@ -192,7 +186,7 @@ export const useRecommendations = () => {
           ...prev,
           error: errorMessage,
         }));
-        showError(errorMessage, "Random Selection Error");
+        showError(errorMessage, "隨機選擇錯誤");
         console.error("Random selection failed:", error);
       } finally {
         setState((prev) => ({ ...prev, isRandomLoading: false }));
@@ -211,7 +205,7 @@ export const useRecommendations = () => {
     }));
 
     // Show success toast
-    showSuccess(`Randomly picked: ${selected.name}!`, "Random Pick");
+    showSuccess(`隨機選擇：${selected.name}！`, "隨機挑選");
   }, [state.recommendations, showSuccess]);
 
   const getErrorMessage = (error: string): string => {

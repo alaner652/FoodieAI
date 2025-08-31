@@ -88,7 +88,7 @@ export const useLocation = () => {
       setState((prev) => ({ ...prev, permissionStatus: "granted" }));
 
       // Show success toast
-      showSuccess("Location detected successfully!", "Location Access");
+      showSuccess("位置偵測成功！", "位置存取");
     } catch (error) {
       console.error("Failed to get location:", error);
 
@@ -159,7 +159,7 @@ export const useLocation = () => {
           ...prev,
           error: errorMsg,
         }));
-        showError(errorMsg, "Invalid Coordinates");
+        showError(errorMsg, "無效座標");
         return false;
       }
 

@@ -1,5 +1,5 @@
 import Card from "@/components/ui/Card";
-import { DEFAULT_FEATURES, Feature } from "@/constants";
+import { DEFAULT_FEATURES, Feature } from "@/constants/features";
 
 interface FeaturesProps {
   features?: Feature[];

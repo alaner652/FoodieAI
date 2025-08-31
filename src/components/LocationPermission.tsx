@@ -1,7 +1,7 @@
+import { useToastContext } from "@/contexts/ToastContext";
 import { useLocation } from "@/hooks/useLocation";
-import { CheckCircle, MapPin, Shield, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Button from "./ui/Button";
 
 interface LocationPermissionProps {
   onLocationObtained?: (lat: number, lng: number) => void;
@@ -10,18 +10,16 @@ interface LocationPermissionProps {
 
 export default function LocationPermission({
   onLocationObtained,
-  showManualInput = false,
 }: LocationPermissionProps) {
   const location = useLocation();
-  const [manualLat, setManualLat] = useState("");
-  const [manualLng, setManualLng] = useState("");
-  const [showManual, setShowManual] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const { showWarning, showInfo } = useToastContext();
+  const router = useRouter();
+  const [hasShownToast, setHasShownToast] = useState(false);
 
   useEffect(() => {
     // Check permission status on mount
     location.checkPermission();
-  }, [location.checkPermission]);
+  }, [location]);
 
   useEffect(() => {
     // Call callback when location is obtained
@@ -30,160 +28,86 @@ export default function LocationPermission({
     }
   }, [location.latitude, location.longitude, onLocationObtained]);
 
+  useEffect(() => {
+    // Show toast notification when location is needed
+    // Only show once when component mounts and location is not available
+    if (
+      !hasShownToast &&
+      (!location.latitude || !location.longitude) &&
+      location.permissionStatus !== null // Wait for permission status to be determined
+    ) {
+      setHasShownToast(true);
+
+      // Add a small delay to prevent duplicate toasts
+      const timer = setTimeout(() => {
+        if (location.permissionStatus === "denied") {
+          showWarning(
+            "位置存取被拒絕，請前往設定頁面手動輸入位置或在瀏覽器中允許位置存取",
+            "需要位置資訊",
+            8000
+          );
+        } else {
+          showInfo(
+            "需要您的位置來找尋附近餐廳，您可以允許位置存取或前往設定頁面手動輸入",
+            "位置權限",
+            8000
+          );
+        }
+      }, 500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location.permissionStatus, hasShownToast, showWarning, showInfo]);
+
   const handleRequestPermission = async () => {
     await location.handleGetLocation();
   };
 
-  const handleManualLocation = () => {
-    const lat = parseFloat(manualLat);
-    const lng = parseFloat(manualLng);
-
-    if (isNaN(lat) || isNaN(lng)) {
-      return;
-    }
-
-    location.setManualLocation(lat, lng);
-    setShowManual(false);
+  const handleGoToSettings = () => {
+    router.push("/settings");
   };
 
-  const handleDismiss = () => {
-    setIsVisible(false);
-  };
-
-  // Hide component if location is set and user dismissed it
-  if (!isVisible && location.latitude && location.longitude) {
+  // If location is available, don't render anything
+  if (location.latitude && location.longitude) {
     return null;
-  }
-
-  // Auto-hide if location is already granted and available
-  if (
-    location.latitude &&
-    location.longitude &&
-    location.permissionStatus === "granted" &&
-    !showManual
-  ) {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-green-800">
-            <CheckCircle className="w-4 h-4" />
-            <span className="text-sm font-medium">Location Ready</span>
-            <span className="text-xs text-green-600">
-              ({location.latitude.toFixed(4)}, {location.longitude.toFixed(4)})
-            </span>
-          </div>
-          <button
-            onClick={handleDismiss}
-            className="text-green-600 hover:text-green-800 p-1"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    );
   }
 
   return (
     <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-      <div className="flex items-start justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center space-x-2 mb-2">
-            <MapPin className="w-5 h-5 text-orange-600" />
-            <h3 className="font-medium text-orange-800">Location Required</h3>
+            <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+              <span className="text-orange-600 text-sm">📍</span>
+            </div>
+            <h3 className="font-medium text-orange-800">位置設定</h3>
           </div>
 
           <p className="text-sm text-orange-700 mb-3">
-            We need your location to find nearby restaurants.
-            {location.permissionStatus === "denied" &&
-              " Location access is currently blocked."}
+            {location.permissionStatus === "denied"
+              ? "位置存取被拒絕，您可以手動設定位置或在瀏覽器中重新允許位置存取"
+              : "為了提供最佳的餐廳推薦服務，我們需要您的位置資訊"}
           </p>
 
           <div className="flex flex-wrap gap-2">
-            {(!location.latitude || !location.longitude) &&
-              location.permissionStatus !== "denied" && (
-                <Button
-                  onClick={handleRequestPermission}
-                  disabled={location.isGettingLocation}
-                  size="sm"
-                  className="flex items-center space-x-2"
-                >
-                  {location.isGettingLocation ? (
-                    <>
-                      <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent"></div>
-                      <span>Getting...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Shield className="w-3 h-3" />
-                      <span>Allow Location</span>
-                    </>
-                  )}
-                </Button>
-              )}
-
-            {showManualInput && (
-              <Button
-                variant="outline"
-                onClick={() => setShowManual(!showManual)}
-                size="sm"
-                className="text-orange-700 border-orange-300 hover:bg-orange-100"
+            {location.permissionStatus !== "denied" && (
+              <button
+                onClick={handleRequestPermission}
+                disabled={location.isGettingLocation}
+                className="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white text-sm font-medium rounded-lg hover:bg-orange-700 disabled:opacity-50"
               >
-                Manual Input
-              </Button>
+                {location.isGettingLocation ? "取得中..." : "允許位置存取"}
+              </button>
             )}
+
+            <button
+              onClick={handleGoToSettings}
+              className="inline-flex items-center px-3 py-1.5 bg-white border border-orange-300 text-orange-700 text-sm font-medium rounded-lg hover:bg-orange-50"
+            >
+              前往設定頁面
+            </button>
           </div>
-
-          {/* Compact Manual Location Input */}
-          {showManual && (
-            <div className="mt-3 p-3 bg-white border border-orange-200 rounded-md">
-              <div className="flex gap-2 mb-2">
-                <input
-                  type="number"
-                  step="any"
-                  value={manualLat}
-                  onChange={(e) => setManualLat(e.target.value)}
-                  placeholder="Latitude"
-                  className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-500"
-                />
-                <input
-                  type="number"
-                  step="any"
-                  value={manualLng}
-                  onChange={(e) => setManualLng(e.target.value)}
-                  placeholder="Longitude"
-                  className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-500"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleManualLocation} size="sm">
-                  Set
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowManual(false)}
-                  size="sm"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Compact Permission Instructions */}
-          {location.permissionStatus === "denied" && (
-            <div className="mt-3 text-xs text-orange-600">
-              💡 Enable location: Click the location icon in your browser's
-              address bar → Allow
-            </div>
-          )}
         </div>
-
-        <button
-          onClick={handleDismiss}
-          className="text-orange-600 hover:text-orange-800 p-1 ml-2"
-        >
-          <X className="w-4 h-4" />
-        </button>
       </div>
     </div>
   );

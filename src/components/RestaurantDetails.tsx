@@ -1,5 +1,5 @@
 import Card from "@/components/ui/Card";
-import { BUSINESS_STATUS, WEEKDAY_NAMES } from "@/constants";
+import { BUSINESS_STATUS, WEEKDAY_NAMES } from "@/constants/dateTime";
 import { getPriceRangeText } from "@/lib/utils";
 import { Restaurant } from "@/types";
 import { Calendar, ExternalLink, Globe, MapPin, Star, X } from "lucide-react";
