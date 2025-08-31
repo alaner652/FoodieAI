@@ -107,6 +107,23 @@ export interface LocationOptions {
   maxRetries?: number;
 }
 
+// Check if location permission is granted
+export const checkLocationPermission = async (): Promise<PermissionState> => {
+  if (typeof window === "undefined" || !navigator.permissions) {
+    return "prompt";
+  }
+
+  try {
+    const permission = await navigator.permissions.query({
+      name: "geolocation",
+    });
+    return permission.state;
+  } catch (error) {
+    console.warn("Permission API not supported:", error);
+    return "prompt";
+  }
+};
+
 // Smart location function
 export const getSmartLocation = async (
   options: LocationOptions = {}
@@ -123,12 +140,23 @@ export const getSmartLocation = async (
     throw new Error("Geolocation not supported");
   }
 
-  // Try high accuracy positioning
+  // Check permission status first
+  const permissionStatus = await checkLocationPermission();
+  console.log("Location permission status:", permissionStatus);
+
+  if (permissionStatus === "denied") {
+    throw new Error(
+      "Location permission denied. Please enable location access in browser settings."
+    );
+  }
+
+  // Try high accuracy positioning with explicit permission request
   try {
+    console.log("Requesting high accuracy location...");
     const position = await getCurrentPosition({
       enableHighAccuracy: true,
       timeout: timeout,
-      maximumAge: maximumAge,
+      maximumAge: permissionStatus === "prompt" ? 0 : maximumAge, // Force fresh request if prompting
     });
 
     return {
@@ -139,7 +167,21 @@ export const getSmartLocation = async (
       source: "gps",
     };
   } catch (highAccuracyError) {
-    console.log("高精度定位失敗，嘗試低精度定位:", highAccuracyError);
+    console.log(
+      "High accuracy positioning failed, trying low accuracy:",
+      highAccuracyError
+    );
+
+    // Check if error is due to permission denial
+    if (highAccuracyError instanceof GeolocationPositionError) {
+      if (
+        highAccuracyError.code === GeolocationPositionError.PERMISSION_DENIED
+      ) {
+        throw new Error(
+          "Location permission denied by user. Please allow location access and try again."
+        );
+      }
+    }
 
     // If fallback enabled, try low accuracy positioning
     if (fallbackToLowAccuracy) {
@@ -158,7 +200,18 @@ export const getSmartLocation = async (
           source: "network",
         };
       } catch (lowAccuracyError) {
-        console.log("低精度定位也失敗:", lowAccuracyError);
+        console.log("Low accuracy positioning also failed:", lowAccuracyError);
+
+        // Check if error is due to permission denial
+        if (lowAccuracyError instanceof GeolocationPositionError) {
+          if (
+            lowAccuracyError.code === GeolocationPositionError.PERMISSION_DENIED
+          ) {
+            throw new Error(
+              "Location permission denied by user. Please allow location access and try again."
+            );
+          }
+        }
 
         // If retries remaining, try again
         if (maxRetries > 0) {
@@ -167,7 +220,9 @@ export const getSmartLocation = async (
           return getSmartLocation({ ...options, maxRetries: maxRetries - 1 });
         }
 
-        throw new Error("無法取得位置，請檢查定位權限或手動設定");
+        throw new Error(
+          "Unable to get location. Please check location permissions or set manually."
+        );
       }
     } else {
       throw highAccuracyError;

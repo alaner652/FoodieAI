@@ -3,12 +3,14 @@
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import LocationPermission from "@/components/LocationPermission";
 import QuickSuggestions from "@/components/QuickSuggestions";
 import RecommendationResults from "@/components/RecommendationResults";
 import RestaurantDetails from "@/components/RestaurantDetails";
 import SearchInput from "@/components/SearchInput";
-import Alert from "@/components/ui/Alert";
+
 import Container from "@/components/ui/Container";
+import { useToastContext } from "@/contexts/ToastContext";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { useLocation } from "@/hooks/useLocation";
 import { useRecommendations } from "@/hooks/useRecommendations";
@@ -25,26 +27,16 @@ export default function UsePage() {
   const location = useLocation();
   const apiKeys = useApiKeys();
   const recommendations = useRecommendations();
+  const { showSuccess, showError, showWarning, showInfo } = useToastContext();
 
-  // Auto-get location when component loads
+  // Check location permission on component load
   useEffect(() => {
-    const autoGetLocation = async () => {
-      if (hasAttemptedLocation) return;
-
-      try {
-        setHasAttemptedLocation(true);
-        await location.handleGetLocation();
-        location.startLocationWatch();
-      } catch (error) {
-        console.error("自動位置獲取失敗:", error);
-      }
-    };
-
-    // If no location and haven't tried yet, auto-get
-    if (!location.latitude || !location.longitude) {
-      autoGetLocation();
+    if (!hasAttemptedLocation) {
+      setHasAttemptedLocation(true);
+      // Just check permission status, don't auto-request
+      location.checkPermission();
     }
-  }, [location, hasAttemptedLocation]); // Include complete location object
+  }, [hasAttemptedLocation, location.checkPermission]);
 
   const handleSubmit = async () => {
     try {
@@ -127,10 +119,52 @@ export default function UsePage() {
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 告訴我們您的偏好，AI 會為您推薦最適合的餐廳
               </p>
+
+              {/* Toast Test Buttons */}
+              <div className="flex flex-wrap justify-center gap-2 mt-8">
+                <button
+                  onClick={() => showSuccess("這是成功訊息測試！", "成功")}
+                  className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600"
+                >
+                  測試成功
+                </button>
+                <button
+                  onClick={() => showError("這是錯誤訊息測試！", "錯誤")}
+                  className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
+                >
+                  測試錯誤
+                </button>
+                <button
+                  onClick={() => showWarning("這是警告訊息測試！", "警告")}
+                  className="px-3 py-1 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600"
+                >
+                  測試警告
+                </button>
+                <button
+                  onClick={() => showInfo("這是資訊訊息測試！", "資訊")}
+                  className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
+                >
+                  測試資訊
+                </button>
+              </div>
             </div>
 
             {/* Main Functionality Area */}
             <div className="mb-16">
+              {/* Location Permission Section */}
+              {(!location.latitude ||
+                !location.longitude ||
+                location.error) && (
+                <div className="mb-8">
+                  <LocationPermission
+                    showManualInput={true}
+                    onLocationObtained={(lat, lng) => {
+                      console.log("Location obtained in parent:", lat, lng);
+                    }}
+                  />
+                </div>
+              )}
+
               <SearchInput
                 value={userInput}
                 onChange={setUserInput}
@@ -150,31 +184,6 @@ export default function UsePage() {
                     aiReason={recommendations.aiReason}
                     aiRecommendedCount={recommendations.aiRecommendedCount}
                   />
-                </div>
-              )}
-
-              {/* Error and Success Message Display */}
-              {recommendations.error && (
-                <div className="mt-6">
-                  <Alert
-                    variant="error"
-                    title="操作失敗"
-                    onClose={() => recommendations.clearError()}
-                  >
-                    {recommendations.error}
-                  </Alert>
-                </div>
-              )}
-
-              {location.error && (
-                <div className="mt-6">
-                  <Alert
-                    variant="warning"
-                    title="位置問題"
-                    onClose={() => location.clearError()}
-                  >
-                    {location.error}
-                  </Alert>
                 </div>
               )}
 

@@ -1,3 +1,4 @@
+import { useToastContext } from "@/contexts/ToastContext";
 import { DEV_CONFIG, UI_CONFIG } from "@/lib/config";
 import { Restaurant } from "@/types";
 import { useCallback, useState } from "react";
@@ -13,6 +14,7 @@ interface RecommendationState {
 }
 
 export const useRecommendations = () => {
+  const { showError, showSuccess } = useToastContext();
   const [state, setState] = useState<RecommendationState>({
     recommendations: [],
     showResults: false,
@@ -72,10 +74,20 @@ export const useRecommendations = () => {
             showResults: true,
             error: result.data.noResultsFound ? "" : prev.error,
           }));
+
+          // Show success toast
+          const count = result.data.recommendations?.length || 0;
+          if (count > 0) {
+            showSuccess(
+              `Found ${count} perfect restaurants for you!`,
+              "AI Recommendations"
+            );
+          }
         } else {
           const errorMessage = getErrorMessage(result.error);
           setState((prev) => ({ ...prev, error: errorMessage }));
-          console.error("推薦失敗:", result.error);
+          showError(errorMessage, "Recommendation Failed");
+          console.error("Recommendation failed:", result.error);
         }
       } catch (error) {
         let errorMessage: string;
@@ -95,12 +107,13 @@ export const useRecommendations = () => {
         }
 
         setState((prev) => ({ ...prev, error: errorMessage }));
-        console.error("推薦失敗:", error);
+        showError(errorMessage, "Network Error");
+        console.error("Recommendation failed:", error);
       } finally {
         setState((prev) => ({ ...prev, isLoading: false }));
       }
     },
-    []
+    [showError, showSuccess]
   );
 
   const handleRandomRestaurants = useCallback(
@@ -136,15 +149,27 @@ export const useRecommendations = () => {
           setState((prev) => ({
             ...prev,
             recommendations: result.data.restaurants,
-            aiReason: "這是隨機選擇的餐廳，沒有特定的偏好分析。",
+            aiReason:
+              "Random restaurant selection with no specific preference analysis.",
             aiRecommendedCount: result.data.totalFound,
             showResults: true,
           }));
+
+          // Show success toast
+          const count = result.data.restaurants?.length || 0;
+          if (count > 0) {
+            showSuccess(
+              `Found ${count} random restaurants near you!`,
+              "Random Selection"
+            );
+          }
         } else {
+          const errorMsg = result.error || "Random selection failed";
           setState((prev) => ({
             ...prev,
-            error: result.error || "隨機選擇失敗",
+            error: errorMsg,
           }));
+          showError(errorMsg, "Random Selection Failed");
         }
       } catch (error) {
         let errorMessage: string;
@@ -167,12 +192,13 @@ export const useRecommendations = () => {
           ...prev,
           error: errorMessage,
         }));
-        console.error("隨機選擇失敗:", error);
+        showError(errorMessage, "Random Selection Error");
+        console.error("Random selection failed:", error);
       } finally {
         setState((prev) => ({ ...prev, isRandomLoading: false }));
       }
     },
-    []
+    [showError, showSuccess]
   );
 
   const handleRandomPick = useCallback(() => {
@@ -183,7 +209,10 @@ export const useRecommendations = () => {
       ...prev,
       recommendations: [selected],
     }));
-  }, [state.recommendations]);
+
+    // Show success toast
+    showSuccess(`Randomly picked: ${selected.name}!`, "Random Pick");
+  }, [state.recommendations, showSuccess]);
 
   const getErrorMessage = (error: string): string => {
     if (error.includes("API")) return "推薦系統暫時無法使用，請稍後再試";
