@@ -1,8 +1,9 @@
+import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
-import { HOME_FEATURES, STATS_DATA } from "@/constants";
+import { STATS_DATA } from "@/constants";
 import { ArrowRight, Sparkles, TrendingUp, Users, Zap } from "lucide-react";
 import Link from "next/link";
 
@@ -75,37 +76,8 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Features Preview */}
-            <div className="mb-20">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  為什麼選擇 <span className="text-orange-600">FoodieAI</span>？
-                </h2>
-                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                  結合最新AI技術與豐富的餐廳資料庫，為您提供最智能的用餐建議
-                </p>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-8">
-                {HOME_FEATURES.map((feature, index) => (
-                  <div
-                    key={index}
-                    className="text-center p-6 bg-white border border-gray-200 rounded-xl"
-                  >
-                    <div
-                      className={`w-16 h-16 bg-gradient-to-br ${feature.bgColor} rounded-xl flex items-center justify-center mx-auto mb-4`}
-                    >
-                      <feature.icon className="w-8 h-8 text-white" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            <div className="mb-16">
+              <Features />
             </div>
 
             {/* Stats */}

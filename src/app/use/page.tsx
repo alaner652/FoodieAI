@@ -9,7 +9,9 @@ import RestaurantDetails from "@/components/RestaurantDetails";
 import SearchInput from "@/components/SearchInput";
 import Alert from "@/components/ui/Alert";
 import Container from "@/components/ui/Container";
-import { useApiKeys, useLocation, useRecommendations } from "@/hooks";
+import { useApiKeys } from "@/hooks/useApiKeys";
+import { useLocation } from "@/hooks/useLocation";
+import { useRecommendations } from "@/hooks/useRecommendations";
 import { Restaurant } from "@/types";
 import { useEffect, useState } from "react";
 
@@ -17,6 +19,7 @@ export default function UsePage() {
   const [userInput, setUserInput] = useState("");
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
+  const [hasAttemptedLocation, setHasAttemptedLocation] = useState(false);
 
   // 使用自定義 Hooks
   const location = useLocation();
@@ -26,7 +29,10 @@ export default function UsePage() {
   // 組件載入時自動獲取位置
   useEffect(() => {
     const autoGetLocation = async () => {
+      if (hasAttemptedLocation) return;
+
       try {
+        setHasAttemptedLocation(true);
         await location.handleGetLocation();
         location.startLocationWatch();
       } catch (error) {
@@ -34,11 +40,11 @@ export default function UsePage() {
       }
     };
 
-    // 如果沒有位置，自動獲取
+    // 如果沒有位置且還沒嘗試過，自動獲取
     if (!location.latitude || !location.longitude) {
       autoGetLocation();
     }
-  }, [location]);
+  }, [location, hasAttemptedLocation]); // 包含完整的 location 物件
 
   const handleSubmit = async () => {
     try {

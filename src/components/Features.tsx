@@ -23,11 +23,7 @@ export default function Features({ features }: FeaturesProps) {
       {/* 特色卡片 */}
       <div className="grid md:grid-cols-3 gap-8">
         {displayFeatures.map((feature, index) => (
-          <Card
-            key={index}
-            variant="outlined"
-            className="text-center p-8 hover:border-orange-300 transition-colors duration-200"
-          >
+          <Card key={index} variant="outlined" className="text-center p-8">
             <div
               className={`w-16 h-16 bg-gradient-to-br ${feature.bgColor} rounded-xl flex items-center justify-center mx-auto mb-6`}
             >

@@ -3,9 +3,10 @@ import {
   getSmartLocation,
   LocationResult,
   startLocationTracking,
+  stopLocationTracking,
   validateLocation,
 } from "@/lib/utils";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface LocationState {
   latitude: number | null;
@@ -23,6 +24,9 @@ export const useLocation = () => {
     isGettingLocation: false,
     error: "",
   });
+
+  // 追蹤位置監視器的 ID
+  const watchIdRef = useRef<number | null>(null);
 
   const getLocation = useCallback(async (): Promise<{
     lat: number;
@@ -75,7 +79,12 @@ export const useLocation = () => {
 
   const startLocationWatch = useCallback(() => {
     try {
-      startLocationTracking(
+      // 如果已經有監視器在運行，先停止它
+      if (watchIdRef.current !== null) {
+        stopLocationTracking(watchIdRef.current);
+      }
+
+      watchIdRef.current = startLocationTracking(
         (location: LocationResult) => {
           if (validateLocation(location.latitude, location.longitude)) {
             setState((prev) => ({
@@ -123,11 +132,28 @@ export const useLocation = () => {
     setState((prev) => ({ ...prev, error: "" }));
   }, []);
 
+  const stopLocationWatch = useCallback(() => {
+    if (watchIdRef.current !== null) {
+      stopLocationTracking(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+  }, []);
+
+  // 組件卸載時清理位置追蹤
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null) {
+        stopLocationTracking(watchIdRef.current);
+      }
+    };
+  }, []);
+
   return {
     ...state,
     getLocation,
     handleGetLocation,
     startLocationWatch,
+    stopLocationWatch,
     setManualLocation,
     clearError,
   };
