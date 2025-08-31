@@ -27,17 +27,6 @@ export default function SearchInput({
     onSubmit();
   };
 
-  const handleSuggestionClick = (suggestion: string) => {
-    if (isLoading) return;
-
-    // 如果輸入框已有內容，在後面添加；否則直接設置
-    if (value.trim()) {
-      onChange(value + "，" + suggestion);
-    } else {
-      onChange(suggestion);
-    }
-  };
-
   return (
     <div className="max-w-4xl mx-auto mb-8">
       <form onSubmit={handleSubmit} className="space-y-4">

@@ -234,10 +234,6 @@ export default function HomeClient() {
     }
   }, [latitude, longitude, radius]);
 
-  const handleViewDetails = useCallback((restaurant: Restaurant) => {
-    setSelectedRestaurant(restaurant);
-  }, []);
-
   const handleCloseDetails = useCallback(() => {
     setSelectedRestaurant(null);
   }, []);
