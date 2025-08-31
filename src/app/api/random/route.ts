@@ -1,9 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
 import { getRandomRestaurants } from "@/lib/google";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { latitude, longitude, radius, count = 4, userGoogleApiKey } = await request.json();
+    const {
+      latitude,
+      longitude,
+      radius,
+      count = 4,
+      userGoogleApiKey,
+    } = await request.json();
 
     // 驗證必要參數
     if (!latitude || !longitude || !userGoogleApiKey) {
@@ -35,7 +41,7 @@ export async function POST(request: NextRequest) {
       longitude,
       radius,
       count,
-      apiKey: userGoogleApiKey,
+      userApiKey: userGoogleApiKey,
     });
 
     if (!restaurants || restaurants.length === 0) {

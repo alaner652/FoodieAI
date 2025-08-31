@@ -1,6 +1,6 @@
-import { rerankWithGemini } from "@/lib/ai";
+import { recommendRestaurantsWithAI } from "@/lib/ai";
 import { API_CONFIG } from "@/lib/config";
-import { fetchPlaceDetails, searchNearbyRestaurants } from "@/lib/google";
+import { getPlaceDetails, searchNearbyRestaurants } from "@/lib/google";
 import { RecommendationRequest, Restaurant } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -64,7 +64,7 @@ async function enrichRestaurants(
     }
 
     try {
-      const details = await fetchPlaceDetails({
+      const details = await getPlaceDetails({
         placeId: restaurant.placeId,
         userApiKey: userGoogleApiKey, // 傳遞使用者的 Google API Key
       });
@@ -181,14 +181,13 @@ export async function POST(request: NextRequest) {
     const enriched = await enrichRestaurants(nearby, userGoogleApiKey);
 
     // 3. 讓 AI 進行智能排序和數量決定 - 傳遞使用者的 Gemini API Key
-    const gemini = await rerankWithGemini({
+    const gemini = await recommendRestaurantsWithAI({
       restaurants: enriched,
-      userInput,
+      userRequest: userInput,
       latitude,
       longitude,
-      radius, // 傳遞半徑資訊給 AI
-      maxRecommendations: API_CONFIG.MAX_RECOMMENDATIONS, // 最大推薦數量
-      userApiKey: userGeminiApiKey, // 傳遞使用者的 Gemini API Key
+      radius,
+      userApiKey: userGeminiApiKey,
     });
 
     // 4. 獲取 AI 推薦結果
@@ -217,7 +216,7 @@ export async function POST(request: NextRequest) {
 
     // 5. 生成推薦說明
     const finalReason =
-      gemini?.reason ||
+      gemini?.message ||
       generateFallbackReason(recommendations, userInput, radius);
 
     return NextResponse.json({
