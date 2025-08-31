@@ -36,7 +36,7 @@ export default function HomeClient() {
         setLatitude(loc.lat);
         setLongitude(loc.lng);
       } catch (error) {
-        console.log("無法獲取使用者位置，將使用預設位置");
+        console.error("無法獲取使用者位置，將使用預設位置", error);
         // 如果無法獲取位置，使用台北市中心作為後備
         setLatitude(25.033);
         setLongitude(121.5654);

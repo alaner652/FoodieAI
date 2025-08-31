@@ -1,15 +1,7 @@
-import {
-  Clock,
-  DollarSign,
-  MapPin,
-  Search,
-  Sparkles,
-  Star,
-  Users,
-  Utensils,
-} from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 
 import Input from "@/components/ui/Input";
+import { POPULAR_COMBOS, SEARCH_SUGGESTIONS } from "@/constants";
 import { UI_CONFIG } from "@/lib/config";
 
 interface SearchInputProps {
@@ -19,80 +11,6 @@ interface SearchInputProps {
   isLoading: boolean;
   error?: string;
 }
-
-// 中等數量的快速建議，保留最實用的選項
-const MODERATE_SUGGESTIONS = [
-  {
-    category: "菜系",
-    icon: Utensils,
-    suggestions: [
-      { text: "日式料理", emoji: "🍣" },
-      { text: "義大利麵", emoji: "🍝" },
-      { text: "韓式燒肉", emoji: "🥩" },
-      { text: "中式小炒", emoji: "🥘" },
-      { text: "美式漢堡", emoji: "🍔" },
-      { text: "泰式料理", emoji: "🍜" },
-    ],
-  },
-  {
-    category: "價格",
-    icon: DollarSign,
-    suggestions: [
-      { text: "不要太貴", emoji: "💰" },
-      { text: "平價美食", emoji: "💵" },
-      { text: "高級餐廳", emoji: "💎" },
-      { text: "CP值高", emoji: "⭐" },
-      { text: "經濟實惠", emoji: "🪙" },
-      { text: "奢華享受", emoji: "👑" },
-    ],
-  },
-  {
-    category: "距離",
-    icon: MapPin,
-    suggestions: [
-      { text: "走路10分鐘內", emoji: "🚶" },
-      { text: "附近500公尺", emoji: "📍" },
-      { text: "開車15分鐘", emoji: "🚗" },
-      { text: "捷運站附近", emoji: "🚇" },
-    ],
-  },
-  {
-    category: "特色",
-    icon: Star,
-    suggestions: [
-      { text: "適合約會", emoji: "💕" },
-      { text: "網美餐廳", emoji: "📸" },
-      { text: "安靜環境", emoji: "🤫" },
-      { text: "親子友善", emoji: "👶" },
-      { text: "寵物友善", emoji: "🐕" },
-      { text: "戶外座位", emoji: "🌳" },
-    ],
-  },
-  {
-    category: "時間",
-    icon: Clock,
-    suggestions: [
-      { text: "營業中", emoji: "🕐" },
-      { text: "24小時營業", emoji: "🌙" },
-      { text: "早餐", emoji: "🌅" },
-      { text: "宵夜", emoji: "🌃" },
-      { text: "下午茶", emoji: "☕" },
-      { text: "午餐", emoji: "🍽️" },
-    ],
-  },
-  {
-    category: "用餐場景",
-    icon: Users,
-    suggestions: [
-      { text: "一人用餐", emoji: "👤" },
-      { text: "情侶約會", emoji: "💑" },
-      { text: "朋友聚餐", emoji: "👥" },
-      { text: "家庭聚餐", emoji: "👨‍👩‍👧‍👦" },
-      { text: "商務聚餐", emoji: "💼" },
-      { text: "團體聚會", emoji: "🎉" },
-    ],
-  },
-];
 
 export default function SearchInput({
   value,
@@ -173,7 +91,7 @@ export default function SearchInput({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-3 gap-4 xl:gap-3">
-              {MODERATE_SUGGESTIONS.map((category) => (
+              {SEARCH_SUGGESTIONS.map((category) => (
                 <div
                   key={category.category}
                   className="bg-white rounded-xl border border-gray-100 p-4 xl:p-3 shadow-sm"
@@ -215,24 +133,7 @@ export default function SearchInput({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2 gap-4 xl:gap-3">
-                {[
-                  {
-                    text: "日式料理 + 不要太貴 + 走路10分鐘內",
-                    emoji: "🍣",
-                  },
-                  {
-                    text: "義大利麵 + 適合約會 + 安靜環境",
-                    emoji: "🍝",
-                  },
-                  {
-                    text: "韓式燒肉 + 網美餐廳 + 營業中",
-                    emoji: "🥩",
-                  },
-                  {
-                    text: "中式小炒 + 平價美食 + 附近500公尺",
-                    emoji: "🥘",
-                  },
-                ].map((combo) => (
+                {POPULAR_COMBOS.map((combo) => (
                   <button
                     key={combo.text}
                     onClick={() => onChange(combo.text)}

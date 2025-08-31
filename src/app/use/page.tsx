@@ -7,26 +7,35 @@ import Container from "@/components/ui/Container";
 export default function UsePage() {
   return (
     <>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-white">
         <Header showNav={true} />
 
-        <main className="py-8">
-          <Container maxWidth="4xl" className="px-4">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                開始使用{" "}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 via-pink-600 to-red-600">
-                  FoodieAI
-                </span>
+        <main className="py-16">
+          <Container maxWidth="6xl" className="px-4">
+            {/* 頁面標題區域 */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center space-x-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                <span>開始使用</span>
+              </div>
+
+              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                開始使用 <span className="text-orange-600">FoodieAI</span>
               </h1>
-              <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 告訴我們您的偏好，AI 會為您推薦最適合的餐廳
               </p>
             </div>
 
-            <HomeClient />
+            {/* 主要功能區域 */}
+            <div className="mb-16">
+              <HomeClient />
+            </div>
 
-            <Features />
+            {/* 特色說明 */}
+            <div className="mb-16">
+              <Features />
+            </div>
           </Container>
         </main>
 

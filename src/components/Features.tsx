@@ -1,62 +1,44 @@
 import Card from "@/components/ui/Card";
-import { Clock, MapPin, Sparkles } from "lucide-react";
-
-interface Feature {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  bgColor: string;
-  iconColor: string;
-}
+import { DEFAULT_FEATURES, Feature } from "@/constants";
 
 interface FeaturesProps {
   features?: Feature[];
 }
 
 export default function Features({ features }: FeaturesProps) {
-  const defaultFeatures: Feature[] = [
-    {
-      icon: <Sparkles className="w-6 h-6" />,
-      title: "AI 智能分析",
-      description: "運用 AI 技術，深度理解您的偏好，提供個性化推薦",
-      bgColor: "bg-orange-100",
-      iconColor: "text-orange-600",
-    },
-    {
-      icon: <MapPin className="w-6 h-6" />,
-      title: "精準定位",
-      description: "結合位置數據，確保推薦的餐廳都在您方便到達的範圍內",
-      bgColor: "bg-pink-100",
-      iconColor: "text-pink-600",
-    },
-    {
-      icon: <Clock className="w-6 h-6" />,
-      title: "快速決策",
-      description: "告別選擇困難症，幾秒鐘內獲得最適合的餐廳推薦",
-      bgColor: "bg-purple-100",
-      iconColor: "text-purple-600",
-    },
-  ];
-
-  const displayFeatures = features || defaultFeatures;
+  const displayFeatures = features || DEFAULT_FEATURES;
 
   return (
-    <div className="mt-8">
-      <h3 className="text-xl font-semibold text-center text-gray-900 mb-6">
-        為什麼選擇 FoodieAI？
-      </h3>
-      <div className="grid md:grid-cols-3 gap-4">
+    <div>
+      {/* 標題區域 */}
+      <div className="text-center mb-12">
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          為什麼選擇 <span className="text-orange-600">FoodieAI</span>？
+        </h2>
+        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          結合最新AI技術與豐富的餐廳資料庫，為您提供最智能的用餐建議
+        </p>
+      </div>
+
+      {/* 特色卡片 */}
+      <div className="grid md:grid-cols-3 gap-8">
         {displayFeatures.map((feature, index) => (
-          <Card key={index} variant="outlined" className="text-center p-3">
+          <Card
+            key={index}
+            variant="outlined"
+            className="text-center p-8 hover:border-orange-300 transition-colors duration-200"
+          >
             <div
-              className={`w-10 h-10 ${feature.bgColor} rounded flex items-center justify-center mx-auto mb-2`}
+              className={`w-16 h-16 bg-gradient-to-br ${feature.bgColor} rounded-xl flex items-center justify-center mx-auto mb-6`}
             >
               <div className={feature.iconColor}>{feature.icon}</div>
             </div>
-            <h4 className="text-base font-medium mb-2 text-gray-900">
+            <h4 className="text-xl font-semibold mb-4 text-gray-900">
               {feature.title}
             </h4>
-            <p className="text-gray-800 text-sm">{feature.description}</p>
+            <p className="text-gray-600 leading-relaxed">
+              {feature.description}
+            </p>
           </Card>
         ))}
       </div>
