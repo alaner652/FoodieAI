@@ -17,20 +17,20 @@ export default function Home() {
           <Container maxWidth="6xl" className="px-4">
             {/* Hero Section */}
             <div className="text-center mb-20">
-              {/* 徽章 */}
+              {/* Badge */}
               <div className="inline-flex items-center space-x-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-full text-sm font-medium mb-8">
                 <Sparkles className="w-4 h-4" />
                 <span>AI 驅動的餐廳推薦系統</span>
               </div>
 
-              {/* 主標題 */}
+              {/* Main Title */}
               <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
                 不知道吃什麼？
                 <br />
                 <span className="text-orange-600">AI 幫您決定</span>
               </h1>
 
-              {/* 副標題 */}
+              {/* Subtitle */}
               <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8 leading-relaxed">
                 告訴我們您的偏好和位置，AI 會從 40+
                 間餐廳中為您精選最適合的選擇，
@@ -38,7 +38,7 @@ export default function Home() {
                 解決您的選擇困難症！
               </p>
 
-              {/* CTA 按鈕 */}
+              {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Link href="/use">
                   <Button className="px-8 py-4 text-lg font-semibold rounded-xl bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-200">
@@ -57,7 +57,7 @@ export default function Home() {
                 </Link>
               </div>
 
-              {/* 信任指標 */}
+              {/* Trust Indicators */}
               <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2 whitespace-nowrap">
                   <Users className="w-4 h-4 text-green-500 flex-shrink-0" />
@@ -101,9 +101,9 @@ export default function Home() {
             {/* CTA Section */}
             <div className="text-center">
               <div className="relative overflow-hidden bg-gradient-to-br from-orange-50 to-pink-50 rounded-3xl p-12 border border-orange-200">
-                {/* 裝飾元素 */}
+                {/* Decorative Elements */}
                 <div className="relative z-10">
-                  {/* 標題 */}
+                  {/* Title */}
                   <div className="mb-6">
                     <h2 className="text-4xl font-bold text-gray-900 mb-3">
                       準備好開始了嗎？
@@ -113,7 +113,7 @@ export default function Home() {
                     </p>
                   </div>
 
-                  {/* 主要按鈕 */}
+                  {/* Main Button */}
                   <Link href="/use">
                     <Button className="group relative px-10 py-5 text-xl font-bold rounded-2xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
                       <span className="flex items-center">

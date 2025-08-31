@@ -44,8 +44,8 @@ export interface RecommendationRequest {
   latitude?: number;
   longitude?: number;
   radius?: number; // meters
-  userGoogleApiKey?: string; // 新增：使用者提供的 Google Places API Key
-  userGeminiApiKey?: string; // 新增：使用者提供的 Gemini API Key
+  userGoogleApiKey?: string; // User-provided Google Places API Key
+  userGeminiApiKey?: string; // User-provided Gemini API Key
 }
 
 export interface RecommendationResponse {
@@ -56,8 +56,8 @@ export interface RecommendationResponse {
     userInput: string;
     searchRadius?: number;
     aiReason?: string;
-    aiRecommendedCount?: number; // 新增：AI 實際推薦的餐廳數量
-    noResultsFound?: boolean; // 新增：標記沒有找到結果
+    aiRecommendedCount?: number; // AI actual recommended restaurant count
+    noResultsFound?: boolean; // Flag for no results found
   };
   error?: string;
 }

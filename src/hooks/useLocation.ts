@@ -25,7 +25,7 @@ export const useLocation = () => {
     error: "",
   });
 
-  // 追蹤位置監視器的 ID
+  // Track location watcher ID
   const watchIdRef = useRef<number | null>(null);
 
   const getLocation = useCallback(async (): Promise<{
@@ -79,7 +79,7 @@ export const useLocation = () => {
 
   const startLocationWatch = useCallback(() => {
     try {
-      // 如果已經有監視器在運行，先停止它
+      // If there's already a watcher running, stop it first
       if (watchIdRef.current !== null) {
         stopLocationTracking(watchIdRef.current);
       }
@@ -139,7 +139,7 @@ export const useLocation = () => {
     }
   }, []);
 
-  // 組件卸載時清理位置追蹤
+  // Clean up location tracking when component unmounts
   useEffect(() => {
     return () => {
       if (watchIdRef.current !== null) {

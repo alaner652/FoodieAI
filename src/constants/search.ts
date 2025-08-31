@@ -1,6 +1,6 @@
 import { Clock, DollarSign, MapPin, Star, Users, Utensils } from "lucide-react";
 
-// 搜尋建議類型定義
+// Search suggestion types definition
 export interface SearchSuggestion {
   text: string;
   emoji: string;
@@ -17,7 +17,7 @@ export interface PopularCombo {
   emoji: string;
 }
 
-// 中等數量的快速建議，保留最實用的選項
+// Moderate number of quick suggestions, keeping the most practical options
 export const SEARCH_SUGGESTIONS: SearchCategory[] = [
   {
     category: "菜系",
@@ -91,7 +91,7 @@ export const SEARCH_SUGGESTIONS: SearchCategory[] = [
   },
 ];
 
-// 熱門組合建議
+// Popular combination suggestions
 export const POPULAR_COMBOS: PopularCombo[] = [
   {
     text: "日式料理 + 不要太貴 + 走路10分鐘內",

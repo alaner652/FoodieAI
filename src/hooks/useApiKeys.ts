@@ -7,7 +7,7 @@ interface ApiKeys {
 
 export const useApiKeys = () => {
   const [apiKeys, setApiKeys] = useState<ApiKeys>(() => {
-    // 安全地檢查 localStorage 是否可用（SSR 安全）
+    // Safely check if localStorage is available (SSR safe)
     if (typeof window !== "undefined") {
       return {
         google: localStorage.getItem("userGoogleApiKey") || "",

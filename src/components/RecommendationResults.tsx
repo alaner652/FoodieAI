@@ -8,7 +8,7 @@ interface RecommendationResultsProps {
   recommendations: Restaurant[];
   onRandomPick?: () => void;
   aiReason?: string;
-  aiRecommendedCount?: number; // 新增：AI 推薦數量
+  aiRecommendedCount?: number; // AI recommendation count
 }
 
 /**
@@ -36,7 +36,7 @@ function renderAIReason(aiReason: string): React.ReactNode {
         })}
       </div>
 
-      {/* 特色標籤 */}
+      {/* Feature Tags */}
       <div className="flex flex-wrap justify-center gap-3">
         <Badge variant="primary" size="sm">
           🎯 智能排序
@@ -69,7 +69,7 @@ export default function RecommendationResults({
             </h3>
           </div>
 
-          {/* 顯示 AI 建議 */}
+          {/* Display AI Suggestions */}
           {aiReason && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-start space-x-3">
@@ -94,11 +94,11 @@ export default function RecommendationResults({
 
   return (
     <div className="max-w-4xl mx-auto">
-      {/* 餐廳卡片列表 */}
+      {/* Restaurant Card List */}
       <div className="grid gap-6 mb-12">
         {recommendations.map((restaurant, index) => (
           <div key={restaurant.id} className="relative">
-            {/* 排名標籤 */}
+            {/* Ranking Tag */}
             <div className="absolute -top-3 -left-3 z-10">
               <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
                 <span className="text-white text-sm font-bold">
@@ -112,7 +112,7 @@ export default function RecommendationResults({
         ))}
       </div>
 
-      {/* AI 推薦說明 */}
+      {/* AI Recommendation Description */}
       {aiReason && (
         <div className="bg-gradient-to-br from-orange-50 via-pink-50 to-red-50 border border-orange-200 rounded-2xl p-8">
           {renderAIReason(aiReason)}

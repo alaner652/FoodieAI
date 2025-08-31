@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       userGoogleApiKey,
     } = await request.json();
 
-    // 驗證必要參數
+    // Validate required parameters
     if (!latitude || !longitude || !userGoogleApiKey) {
       return NextResponse.json(
         { success: false, error: "缺少必要參數" },
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 驗證半徑範圍
+    // Validate radius range
     if (radius < 200 || radius > 5000) {
       return NextResponse.json(
         { success: false, error: "搜尋半徑必須在 200m - 5000m 之間" },
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 驗證數量範圍
+    // Validate count range
     if (count < 1 || count > 10) {
       return NextResponse.json(
         { success: false, error: "餐廳數量必須在 1-10 之間" },
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 獲取隨機餐廳
+    // Get random restaurants
     const restaurants = await getRandomRestaurants({
       latitude,
       longitude,

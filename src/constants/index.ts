@@ -1,11 +1,11 @@
-// 搜尋相關常數
+// Search related constants
 export * from "./search";
 
-// 功能特色常數
+// Feature constants
 export * from "./features";
 
-// 日期時間常數
+// Date time constants
 export * from "./dateTime";
 
-// 主頁面特色常數
+// Home page feature constants
 export * from "./homeFeatures";

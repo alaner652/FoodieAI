@@ -29,7 +29,7 @@ const validateRequest = (body: RecommendationRequest) => {
     throw new Error("radius must be a number between 100 and 5000");
   }
 
-  // 檢查是否提供了必要的 API Keys
+  // Check if required API Keys are provided
   if (!userGoogleApiKey || typeof userGoogleApiKey !== "string") {
     throw new Error("userGoogleApiKey is required");
   }
@@ -66,7 +66,7 @@ async function enrichRestaurants(
     try {
       const details = await getPlaceDetails({
         placeId: restaurant.placeId,
-        userApiKey: userGoogleApiKey, // 傳遞使用者的 Google API Key
+        userApiKey: userGoogleApiKey, // Pass user's Google API Key
       });
       enriched.push({ ...restaurant, ...details });
     } catch {
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
   try {
     const body: RecommendationRequest = await request.json();
 
-    // 驗證請求
+    // Validate request
     const {
       userInput,
       latitude,
@@ -128,20 +128,20 @@ export async function POST(request: NextRequest) {
       userGeminiApiKey,
     } = validateRequest(body);
 
-    // 1. 搜尋附近餐廳 - 傳遞使用者的 Google API Key
+    // 1. Search nearby restaurants - pass user's Google API Key
     const nearby = await searchNearbyRestaurants({
       latitude,
       longitude,
       radius,
       keyword: userInput,
       openNow: true,
-      userApiKey: userGoogleApiKey, // 傳遞使用者的 Google API Key
-      maxResults: 40, // 最多搜尋 40 間餐廳
+      userApiKey: userGoogleApiKey, // Pass user's Google API Key
+      maxResults: 40, // Search up to 40 restaurants
     });
 
-    // 檢查是否找到餐廳
+    // Check if restaurants were found
     if (nearby.length === 0) {
-      // 提供更詳細的診斷資訊
+      // Provide more detailed diagnostic information
       const diagnosticInfo = {
         searchParams: {
           latitude,
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
 
       console.log("No restaurants found:", diagnosticInfo);
 
-      // 改為正常回應，而不是錯誤
+      // Return normal response instead of error
       return NextResponse.json({
         success: true,
         data: {
@@ -172,15 +172,15 @@ export async function POST(request: NextRequest) {
             1
           )}km 範圍內沒有找到任何餐廳。\n\n建議：\n• 嘗試擴大搜尋範圍\n• 調整搜尋關鍵詞\n• 檢查定位是否正確`,
           aiRecommendedCount: 0,
-          noResultsFound: true, // 標記沒有找到結果
+          noResultsFound: true, // Flag for no results found
         },
       });
     }
 
-    // 2. 豐富餐廳資訊 - 傳遞使用者的 Google API Key
+    // 2. Enrich restaurant information - pass user's Google API Key
     const enriched = await enrichRestaurants(nearby, userGoogleApiKey);
 
-    // 3. 讓 AI 進行智能排序和數量決定 - 傳遞使用者的 Gemini API Key
+    // 3. Let AI perform smart sorting and quantity decision - pass user's Gemini API Key
     const gemini = await recommendRestaurantsWithAI({
       restaurants: enriched,
       userRequest: userInput,
@@ -190,17 +190,17 @@ export async function POST(request: NextRequest) {
       userApiKey: userGeminiApiKey,
     });
 
-    // 4. 獲取 AI 推薦結果
+    // 4. Get AI recommendation results
     let recommendations: Restaurant[];
     if (gemini?.ids?.length) {
-      // 使用 AI 排序結果
+      // Use AI sorted results
       const idToItem = new Map(enriched.map((r) => [r.id, r] as const));
 
       recommendations = gemini.ids
         .map((id) => idToItem.get(id))
         .filter(Boolean) as Restaurant[];
 
-      // 限制最大數量（防止 AI 回傳過多）
+      // Limit maximum quantity (prevent AI from returning too many)
       if (recommendations.length > API_CONFIG.MAX_RECOMMENDATIONS) {
         recommendations = recommendations.slice(
           0,
@@ -208,13 +208,13 @@ export async function POST(request: NextRequest) {
         );
       }
     } else {
-      // AI 失敗時的後備方案：按距離排序取前 5 間
+      // AI failure fallback: sort by distance and take top 5
       recommendations = enriched
         .sort((a, b) => a.distance - b.distance)
         .slice(0, 5);
     }
 
-    // 5. 生成推薦說明
+    // 5. Generate recommendation description
     const finalReason =
       gemini?.message ||
       generateFallbackReason(recommendations, userInput, radius);
@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
         userInput,
         searchRadius: radius,
         aiReason: finalReason,
-        aiRecommendedCount: recommendations.length, // 新增：AI 實際推薦數量
+        aiRecommendedCount: recommendations.length, // AI actual recommendation count
       },
     });
   } catch (error) {

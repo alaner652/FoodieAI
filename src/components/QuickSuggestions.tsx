@@ -52,7 +52,7 @@ export default function QuickSuggestions({
           ))}
         </div>
 
-        {/* 簡化的熱門組合建議 */}
+        {/* Simplified Popular Combination Suggestions */}
         <div className="mt-6 bg-gradient-to-br from-orange-50 via-pink-50 to-red-50 rounded-xl border border-orange-200 p-5 xl:p-4 shadow-sm">
           <div className="text-center mb-4 xl:mb-3">
             <h4 className="text-lg xl:text-base font-bold text-orange-900 mb-2 xl:mb-1.5">

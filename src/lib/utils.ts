@@ -90,7 +90,7 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
   };
 }
 
-// 🌍 改進的定位功能
+// Improved location functionality
 export interface LocationResult {
   latitude: number;
   longitude: number;
@@ -107,7 +107,7 @@ export interface LocationOptions {
   maxRetries?: number;
 }
 
-// 🎯 智能定位函數
+// Smart location function
 export const getSmartLocation = async (
   options: LocationOptions = {}
 ): Promise<LocationResult> => {
@@ -118,12 +118,12 @@ export const getSmartLocation = async (
     maxRetries = 2,
   } = options;
 
-  // 檢查瀏覽器支援
+  // Check browser support
   if (typeof window === "undefined" || !navigator.geolocation) {
     throw new Error("Geolocation not supported");
   }
 
-  // 嘗試高精度定位
+  // Try high accuracy positioning
   try {
     const position = await getCurrentPosition({
       enableHighAccuracy: true,
@@ -141,7 +141,7 @@ export const getSmartLocation = async (
   } catch (highAccuracyError) {
     console.log("高精度定位失敗，嘗試低精度定位:", highAccuracyError);
 
-    // 如果啟用備用方案，嘗試低精度定位
+    // If fallback enabled, try low accuracy positioning
     if (fallbackToLowAccuracy) {
       try {
         const lowAccuracyPosition = await getCurrentPosition({
@@ -160,10 +160,10 @@ export const getSmartLocation = async (
       } catch (lowAccuracyError) {
         console.log("低精度定位也失敗:", lowAccuracyError);
 
-        // 如果還有重試次數，重試一次
+        // If retries remaining, try again
         if (maxRetries > 0) {
           console.log("重試定位...");
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // 等待1秒
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second
           return getSmartLocation({ ...options, maxRetries: maxRetries - 1 });
         }
 
@@ -175,7 +175,7 @@ export const getSmartLocation = async (
   }
 };
 
-// 🔄 持續定位追蹤
+// Continuous location tracking
 export const startLocationTracking = (
   onLocationUpdate: (location: LocationResult) => void,
   onError: (error: Error) => void,
@@ -215,14 +215,14 @@ export const startLocationTracking = (
   return watchId;
 };
 
-// 🛑 停止位置追蹤
+// Stop location tracking
 export const stopLocationTracking = (watchId: number): void => {
   if (typeof window !== "undefined" && navigator.geolocation) {
     navigator.geolocation.clearWatch(watchId);
   }
 };
 
-// 📍 手動設定位置
+// Manual location setting
 export const setManualLocation = (
   latitude: number,
   longitude: number
@@ -235,14 +235,14 @@ export const setManualLocation = (
   };
 };
 
-// 🧮 計算兩個位置之間的距離（公尺）
+// Calculate distance between two locations (meters)
 export const calculateDistance = (
   lat1: number,
   lon1: number,
   lat2: number,
   lon2: number
 ): number => {
-  const R = 6371000; // 地球半徑（公尺）
+  const R = 6371000; // Earth radius (meters)
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -255,24 +255,24 @@ export const calculateDistance = (
   return R * c;
 };
 
-// 🔍 驗證位置是否合理
+// Validate if location is reasonable
 export const validateLocation = (
   latitude: number,
   longitude: number
 ): boolean => {
-  // 檢查緯度範圍 (-90 到 90)
+  // Check latitude range (-90 to 90)
   if (latitude < -90 || latitude > 90) return false;
 
-  // 檢查經度範圍 (-180 到 180)
+  // Check longitude range (-180 to 180)
   if (longitude < -180 || longitude > 180) return false;
 
-  // 檢查是否為有效數字
+  // Check if valid numbers
   if (isNaN(latitude) || isNaN(longitude)) return false;
 
   return true;
 };
 
-// 輔助函數：包裝 getCurrentPosition
+// Helper function: wrap getCurrentPosition
 const getCurrentPosition = (
   options: PositionOptions
 ): Promise<GeolocationPosition> => {

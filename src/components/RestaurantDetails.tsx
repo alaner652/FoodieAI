@@ -19,7 +19,7 @@ export default function RestaurantDetails({
   };
 
   const formatTime = (time: string) => {
-    // Google API 時間格式為 "HHMM"，轉換為 "HH:MM"
+    // Google API time format is "HHMM", convert to "HH:MM"
     if (time.length === 4) {
       return `${time.slice(0, 2)}:${time.slice(2)}`;
     }
@@ -32,7 +32,7 @@ export default function RestaurantDetails({
         variant="outlined"
         className="max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
       >
-        {/* 頭部 */}
+        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">餐廳詳情</h2>
           <button
@@ -43,9 +43,9 @@ export default function RestaurantDetails({
           </button>
         </div>
 
-        {/* 內容 */}
+        {/* Content */}
         <div className="p-4 space-y-6 overflow-y-auto flex-1">
-          {/* 餐廳照片 */}
+          {/* Restaurant Photos */}
           <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative">
             <Image
               src={restaurant.photoUrl || "/window.svg"}
@@ -60,7 +60,7 @@ export default function RestaurantDetails({
             />
           </div>
 
-          {/* 基本資訊 */}
+          {/* Basic Information */}
           <div className="space-y-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -87,7 +87,7 @@ export default function RestaurantDetails({
               </div>
             </div>
 
-            {/* 評分和距離 */}
+            {/* Rating and Distance */}
             <div className="flex items-center space-x-6">
               <div className="flex items-center">
                 <Star className="w-5 h-5 mr-2 text-yellow-400 fill-current" />
@@ -106,14 +106,14 @@ export default function RestaurantDetails({
               </div>
             </div>
 
-            {/* 地址 */}
+            {/* Address */}
             <div className="flex items-start">
               <MapPin className="w-5 h-5 mr-2 text-gray-500 mt-0.5" />
               <span className="text-gray-700">{restaurant.address}</span>
             </div>
           </div>
 
-          {/* 營業時間 */}
+          {/* Opening Hours */}
           {restaurant.openingHours && (
             <div className="space-y-3">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -146,7 +146,7 @@ export default function RestaurantDetails({
             </div>
           )}
 
-          {/* 評論 */}
+          {/* Reviews */}
           {restaurant.reviews && restaurant.reviews.length > 0 && (
             <div className="space-y-3">
               <h3 className="text-lg font-semibold text-gray-900">顧客評論</h3>
@@ -171,7 +171,7 @@ export default function RestaurantDetails({
             </div>
           )}
 
-          {/* 外部連結 */}
+          {/* External Links */}
           <div className="flex space-x-3 pt-4 border-t border-gray-200">
             {restaurant.mapsUrl && (
               <a

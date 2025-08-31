@@ -81,7 +81,7 @@ export const useRecommendations = () => {
         let errorMessage: string;
 
         if (error instanceof Error) {
-          // 處理 JSON 解析錯誤
+          // Handle JSON parsing errors
           if (
             error.message.includes("JSON") ||
             error.message.includes("Unexpected token")
@@ -150,7 +150,7 @@ export const useRecommendations = () => {
         let errorMessage: string;
 
         if (error instanceof Error) {
-          // 處理 JSON 解析錯誤
+          // Handle JSON parsing errors
           if (
             error.message.includes("JSON") ||
             error.message.includes("Unexpected token")

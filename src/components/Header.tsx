@@ -21,7 +21,7 @@ export default function Header({
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <Container maxWidth="7xl" className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo 和標題 */}
+          {/* Logo and Title */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
               <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-pink-500 rounded-lg flex items-center justify-center">
@@ -34,7 +34,7 @@ export default function Header({
             </Link>
           </div>
 
-          {/* 桌面版導航 */}
+          {/* Desktop Navigation */}
           {showNav && (
             <nav className="hidden md:flex items-center space-x-1">
               <Link
@@ -47,7 +47,7 @@ export default function Header({
             </nav>
           )}
 
-          {/* 手機版選單按鈕 */}
+          {/* Mobile Menu Button */}
           {showNav && (
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -62,7 +62,7 @@ export default function Header({
           )}
         </div>
 
-        {/* 手機版導航選單 */}
+        {/* Mobile Navigation Menu */}
         {showNav && isMobileMenuOpen && (
           <div className="md:hidden border-t border-gray-200 bg-white">
             <div className="px-2 pt-2 pb-3 space-y-1">

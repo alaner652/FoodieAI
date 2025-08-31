@@ -1,14 +1,14 @@
 import { Restaurant } from "@/types";
 
-// 🍽️ AI 配置
+// AI Configuration
 const AI_CONFIG = {
   MAX_RECOMMENDATIONS: 5,
   MODEL: "gemini-1.5-flash",
-  TEMPERATURE: 0.7, // 提高創造性，讓回應更自然
-  MAX_TOKENS: 1500, // 增加 token 數量，讓回應更豐富
+  TEMPERATURE: 0.7, // Increase creativity for more natural responses
+  MAX_TOKENS: 1500, // Increase token count for richer responses
 } as const;
 
-// 🚀 使用 AI 推薦餐廳
+// Use AI to recommend restaurants
 export async function recommendRestaurantsWithAI(params: {
   restaurants: Restaurant[];
   userRequest: string;
@@ -19,7 +19,7 @@ export async function recommendRestaurantsWithAI(params: {
 }): Promise<{ ids: string[]; message: string } | null> {
   const { restaurants, userRequest, radius, userApiKey } = params;
 
-  // 取得 API Key
+  // Get API Key
   const apiKey =
     userApiKey ||
     process.env.GOOGLE_GEMINI_API_KEY ||
@@ -29,7 +29,7 @@ export async function recommendRestaurantsWithAI(params: {
     return null;
   }
 
-  // 建立提示詞
+  // Build prompt
   const prompt = `你是一個貼心的美食顧問，請幫使用者推薦最適合的餐廳。
 
 使用者需求：${userRequest || "想要找好吃的餐廳"}
@@ -66,7 +66,7 @@ ${restaurants
 9. 重要：userMessage 中只能提到餐廳名稱，不能出現任何 ID 或技術性內容`;
 
   try {
-    // 呼叫 Gemini API
+    // Call Gemini API
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${AI_CONFIG.MODEL}:generateContent?key=${apiKey}`;
     const response = await fetch(url, {
       method: "POST",
@@ -89,7 +89,7 @@ ${restaurants
     const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) return null;
 
-    // 解析回應
+    // Parse response
     const result = parseAIResponse(text);
     if (!result) return null;
 
@@ -103,21 +103,21 @@ ${restaurants
   }
 }
 
-// 📊 解析 AI 回應
+// Parse AI response
 function parseAIResponse(
   response: string
 ): { restaurantIds: string[]; userMessage: string } | null {
   try {
-    // 清理回應文字
+    // Clean response text
     let cleanText = response.trim();
 
-    // 提取 JSON 內容
+    // Extract JSON content
     if (cleanText.includes("```json")) {
       const match = cleanText.match(/```json\s*([\s\S]*?)\s*```/);
       if (match) cleanText = match[1].trim();
     }
 
-    // 尋找 JSON
+    // Find JSON
     const jsonStart = cleanText.indexOf("{");
     const jsonEnd = cleanText.lastIndexOf("}");
     if (jsonStart === -1 || jsonEnd === -1) return null;
@@ -125,7 +125,7 @@ function parseAIResponse(
     const jsonText = cleanText.slice(jsonStart, jsonEnd + 1);
     const parsed = JSON.parse(jsonText);
 
-    // 驗證格式
+    // Validate format
     if (!parsed.restaurantIds || !Array.isArray(parsed.restaurantIds))
       return null;
     if (!parsed.userMessage || typeof parsed.userMessage !== "string")
@@ -141,7 +141,7 @@ function parseAIResponse(
   }
 }
 
-// 🧹 清理訊息格式
+// Clean message format
 function cleanMessage(message: string): string {
   return message
     .replace(/\*\*(.*?)\*\*/g, "$1")
@@ -150,7 +150,7 @@ function cleanMessage(message: string): string {
     .trim();
 }
 
-// 🎯 隨機推薦
+// Random recommendation
 export async function getRandomRecommendation(params: {
   restaurants: Restaurant[];
   count?: number;
@@ -165,21 +165,21 @@ export async function getRandomRecommendation(params: {
     .map((r) => r.id);
 }
 
-// 🌟 增強 AI 回應品質
+// Enhance AI response quality
 export function enhanceAIResponse(message: string): string {
-  // 過濾掉任何 Google Place ID (通常是 ChIJ 開頭的長字串)
+  // Filter out any Google Place ID (usually long strings starting with ChIJ)
   let cleanMessage = message.replace(/ChIJ[a-zA-Z0-9_-]{20,}/g, "");
 
-  // 過濾掉任何 ID 相關的文字
+  // Filter out any ID-related text
   cleanMessage = cleanMessage.replace(/ID:\s*[a-zA-Z0-9_-]+/g, "");
   cleanMessage = cleanMessage.replace(/\(ID:\s*[a-zA-Z0-9_-]+\)/g, "");
 
-  // 如果回應太短，添加一些友善的內容
+  // If response is too short, add some friendly content
   if (cleanMessage.length < 100) {
     return `${cleanMessage}\n\n💡 小提醒：建議您提前預約，特別是熱門時段。祝您用餐愉快！`;
   }
 
-  // 如果沒有結尾鼓勵語，添加一個
+  // If no ending encouragement, add one
   if (
     !cleanMessage.includes("祝您") &&
     !cleanMessage.includes("希望") &&

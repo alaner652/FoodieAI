@@ -30,7 +30,7 @@ export default function SearchInput({
   return (
     <div className="max-w-4xl mx-auto mb-8">
       <form onSubmit={handleSubmit} className="space-y-4">
-        {/* 搜尋輸入框 */}
+        {/* Search Input Box */}
         <Input
           type="text"
           value={value}
@@ -41,18 +41,18 @@ export default function SearchInput({
           disabled={isLoading}
         />
 
-        {/* 按鈕區域 */}
+        {/* Button Area */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          {/* 搜尋按鈕 */}
+          {/* Search Button */}
           <button
             type="submit"
             disabled={isLoading || !value.trim()}
             className="group relative inline-flex items-center justify-center px-8 py-4 xl:px-6 xl:py-3 text-lg xl:text-base font-semibold text-white bg-gradient-to-r from-orange-500 via-pink-500 to-red-500 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-lg overflow-hidden"
           >
-            {/* 背景動畫效果 */}
+            {/* Background Animation Effect */}
             <div className="absolute inset-0 bg-gradient-to-r from-orange-600 via-pink-600 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-            {/* 按鈕內容 */}
+            {/* Button Content */}
             <div className="relative flex items-center space-x-2">
               {isLoading ? (
                 <>
@@ -70,7 +70,7 @@ export default function SearchInput({
             </div>
           </button>
 
-          {/* 隨機選擇按鈕 */}
+          {/* Random Select Button */}
           {onRandomPick && (
             <button
               type="button"

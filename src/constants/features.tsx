@@ -1,6 +1,6 @@
 import { Clock, MapPin, Sparkles } from "lucide-react";
 
-// 功能特色類型定義
+// Feature types definition
 export interface Feature {
   icon: React.ReactNode;
   title: string;
@@ -9,7 +9,7 @@ export interface Feature {
   iconColor: string;
 }
 
-// 預設功能特色
+// Default features
 export const DEFAULT_FEATURES: Feature[] = [
   {
     icon: <Sparkles className="w-6 h-6" />,

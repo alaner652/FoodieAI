@@ -1,4 +1,4 @@
-// 星期名稱常數
+// Day name constants
 export const WEEKDAY_NAMES = [
   "週日",
   "週一",
@@ -9,15 +9,15 @@ export const WEEKDAY_NAMES = [
   "週六",
 ] as const;
 
-// 星期名稱類型
+// Day name types
 export type WeekdayName = (typeof WEEKDAY_NAMES)[number];
 
-// 營業狀態常數
+// Business status constants
 export const BUSINESS_STATUS = {
   OPEN: "營業中",
   CLOSED: "已關閉",
 } as const;
 
-// 營業狀態類型
+// Business status types
 export type BusinessStatus =
   (typeof BUSINESS_STATUS)[keyof typeof BUSINESS_STATUS];

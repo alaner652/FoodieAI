@@ -21,12 +21,12 @@ export default function UsePage() {
     useState<Restaurant | null>(null);
   const [hasAttemptedLocation, setHasAttemptedLocation] = useState(false);
 
-  // 使用自定義 Hooks
+  // Use custom hooks
   const location = useLocation();
   const apiKeys = useApiKeys();
   const recommendations = useRecommendations();
 
-  // 組件載入時自動獲取位置
+  // Auto-get location when component loads
   useEffect(() => {
     const autoGetLocation = async () => {
       if (hasAttemptedLocation) return;
@@ -40,20 +40,20 @@ export default function UsePage() {
       }
     };
 
-    // 如果沒有位置且還沒嘗試過，自動獲取
+    // If no location and haven't tried yet, auto-get
     if (!location.latitude || !location.longitude) {
       autoGetLocation();
     }
-  }, [location, hasAttemptedLocation]); // 包含完整的 location 物件
+  }, [location, hasAttemptedLocation]); // Include complete location object
 
   const handleSubmit = async () => {
     try {
-      // 每次發送請求時都重新獲取位置，確保位置是最新的
+      // Re-get location on each request to ensure it's current
       const loc = await location.getLocation();
       const lat = loc.lat;
       const lng = loc.lng;
 
-      // 驗證 API Keys
+      // Validate API Keys
       const validation = apiKeys.validateApiKeys();
       if (!validation.isValid) {
         recommendations.setError(validation.error);
@@ -65,12 +65,12 @@ export default function UsePage() {
         userInput,
         latitude: lat,
         longitude: lng,
-        radius: 1500, // 使用預設半徑
+        radius: 1500, // Use default radius
         userGoogleApiKey: keys.google,
         userGeminiApiKey: keys.gemini,
       });
     } catch (error) {
-      console.error("提交失敗:", error);
+      console.error("Submit failed:", error);
     }
   };
 
@@ -80,10 +80,10 @@ export default function UsePage() {
 
   const handleRandomRestaurants = async () => {
     try {
-      // 每次發送請求時都重新獲取位置，確保位置是最新的
+      // Re-get location on each request to ensure it's current
       const loc = await location.getLocation();
 
-      // 驗證 Google API Key
+      // Validate Google API Key
       const validation = apiKeys.validateApiKeys(["google"]);
       if (!validation.isValid) {
         recommendations.setError(validation.error);
@@ -94,12 +94,12 @@ export default function UsePage() {
       await recommendations.handleRandomRestaurants({
         latitude: loc.lat,
         longitude: loc.lng,
-        radius: 1500, // 使用預設半徑
+        radius: 1500, // Use default radius
         userGoogleApiKey: keys.google,
       });
     } catch (error) {
-      console.error("隨機餐廳選擇失敗:", error);
-      recommendations.setError("位置獲取失敗，請稍後再試");
+      console.error("Random restaurant selection failed:", error);
+      recommendations.setError("Location failed, please try again later");
     }
   };
 
@@ -114,7 +114,7 @@ export default function UsePage() {
 
         <main className="py-16">
           <Container maxWidth="6xl" className="px-4">
-            {/* 頁面標題區域 */}
+            {/* Page Title Area */}
             <div className="text-center mb-16">
               <div className="inline-flex items-center space-x-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <span>開始使用</span>
@@ -129,7 +129,7 @@ export default function UsePage() {
               </p>
             </div>
 
-            {/* 主要功能區域 */}
+            {/* Main Functionality Area */}
             <div className="mb-16">
               <SearchInput
                 value={userInput}
@@ -141,7 +141,7 @@ export default function UsePage() {
                 error={recommendations.error}
               />
 
-              {/* 推薦結果 - 顯示在搜尋框正下方 */}
+              {/* Recommendation Results - Display below search box */}
               {recommendations.showResults && (
                 <div className="mt-8">
                   <RecommendationResults
@@ -153,7 +153,7 @@ export default function UsePage() {
                 </div>
               )}
 
-              {/* 錯誤和成功訊息顯示 */}
+              {/* Error and Success Message Display */}
               {recommendations.error && (
                 <div className="mt-6">
                   <Alert
@@ -178,14 +178,14 @@ export default function UsePage() {
                 </div>
               )}
 
-              {/* 快速建議區域 */}
+              {/* Quick Suggestions Area */}
               <QuickSuggestions
                 onSuggestionClick={(suggestion) => setUserInput(suggestion)}
                 isLoading={recommendations.isLoading}
               />
             </div>
 
-            {/* 特色說明 */}
+            {/* Features Description */}
             <div className="mb-16">
               <Features />
             </div>
@@ -194,7 +194,7 @@ export default function UsePage() {
 
         <Footer />
 
-        {/* 餐廳詳情彈窗 */}
+        {/* Restaurant Details Modal */}
         {selectedRestaurant && (
           <RestaurantDetails
             restaurant={selectedRestaurant}

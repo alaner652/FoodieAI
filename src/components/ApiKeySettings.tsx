@@ -19,7 +19,7 @@ export default function ApiKeySettings({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
-  // 從 localStorage 讀取已保存的 API Keys
+  // Read saved API Keys from localStorage
   useEffect(() => {
     const savedGoogleKey = localStorage.getItem("userGoogleApiKey") || "";
     const savedGeminiKey = localStorage.getItem("userGeminiKey") || "";
@@ -32,7 +32,7 @@ export default function ApiKeySettings({
     localStorage.setItem("userGeminiKey", geminiApiKey);
     setIsSaved(true);
 
-    // 3秒後隱藏保存成功提示
+    // Hide success message after 3 seconds
     setTimeout(() => setIsSaved(false), 3000);
   }, [googleApiKey, geminiApiKey]);
 
@@ -49,7 +49,7 @@ export default function ApiKeySettings({
     <div
       className={`bg-white border border-gray-200 rounded-lg p-4 ${className}`}
     >
-      {/* 標題和展開按鈕 */}
+      {/* Title and Expand Button */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <Settings className="w-5 h-5 text-gray-600" />
@@ -68,7 +68,7 @@ export default function ApiKeySettings({
         </button>
       </div>
 
-      {/* 說明文字 */}
+      {/* Description Text */}
       <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
         <div className="flex items-start space-x-2">
           <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -122,7 +122,7 @@ export default function ApiKeySettings({
             </p>
           </div>
 
-          {/* 操作按鈕 */}
+          {/* Action Buttons */}
           <div className="flex space-x-3 pt-2">
             <Button
               onClick={handleSave}
@@ -136,7 +136,7 @@ export default function ApiKeySettings({
             </Button>
           </div>
 
-          {/* 保存成功提示 */}
+          {/* Save Success Message */}
           {isSaved && (
             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-800 text-center">
@@ -145,7 +145,7 @@ export default function ApiKeySettings({
             </div>
           )}
 
-          {/* 使用說明 */}
+          {/* Usage Instructions */}
           <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
             <h4 className="text-sm font-medium text-gray-900 mb-2">
               如何獲取 API Keys？

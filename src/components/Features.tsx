@@ -10,7 +10,7 @@ export default function Features({ features }: FeaturesProps) {
 
   return (
     <div>
-      {/* 標題區域 */}
+      {/* Title Area */}
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
           為什麼選擇 <span className="text-orange-600">FoodieAI</span>？
@@ -20,7 +20,7 @@ export default function Features({ features }: FeaturesProps) {
         </p>
       </div>
 
-      {/* 特色卡片 */}
+      {/* Feature Cards */}
       <div className="grid md:grid-cols-3 gap-8">
         {displayFeatures.map((feature, index) => (
           <Card key={index} variant="outlined" className="text-center p-8">

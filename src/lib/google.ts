@@ -1,6 +1,6 @@
 import { Restaurant } from "@/types";
 
-// 🗺️ Google Places API 配置
+// Google Places API Configuration
 const PLACES_CONFIG = {
   BASE_URL: "https://maps.googleapis.com/maps/api/place",
   LANGUAGE: "zh-TW",
@@ -8,7 +8,7 @@ const PLACES_CONFIG = {
   MAX_PHOTO_WIDTH: 800,
 } as const;
 
-// 📍 地點搜尋結果介面
+// Place search result interface
 interface PlaceSearchResult {
   place_id: string;
   name: string;
@@ -22,7 +22,7 @@ interface PlaceSearchResult {
   photos?: Array<{ photo_reference: string }>;
 }
 
-// 🔍 搜尋回應介面
+// Search response interface
 interface SearchResponse {
   results: PlaceSearchResult[];
   status: string;
@@ -30,7 +30,7 @@ interface SearchResponse {
   error_message?: string;
 }
 
-// 📝 地點詳情介面
+// Place details interface
 interface PlaceDetails {
   name?: string;
   formatted_address?: string;
@@ -58,14 +58,14 @@ interface PlaceDetails {
   editorial_summary?: { overview?: string };
 }
 
-// 📊 地點詳情回應介面
+// Place details response interface
 interface DetailsResponse {
   result?: PlaceDetails;
   status: string;
   error_message?: string;
 }
 
-// 🧮 計算兩點間距離
+// Calculate distance between two points
 function calculateDistance(
   lat1: number,
   lon1: number,
@@ -73,7 +73,7 @@ function calculateDistance(
   lon2: number
 ): number {
   const toRad = (v: number) => (v * Math.PI) / 180;
-  const R = 6371000; // 地球半徑 (公尺)
+  const R = 6371000; // Earth radius (meters)
 
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
@@ -89,14 +89,14 @@ function calculateDistance(
   return R * c;
 }
 
-// 🔑 取得 API Key
+// Get API Key
 function getApiKey(userApiKey?: string): string {
   const apiKey = userApiKey || process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) throw new Error("缺少 Google Places API Key");
   return apiKey;
 }
 
-// 🍽️ 搜尋附近餐廳
+// Search nearby restaurants
 export async function searchNearbyRestaurants(params: {
   latitude: number;
   longitude: number;
@@ -121,7 +121,7 @@ export async function searchNearbyRestaurants(params: {
   let pageCount = 0;
 
   do {
-    // 建立搜尋 URL
+    // Build search URL
     const url = new URL(`${PLACES_CONFIG.BASE_URL}/nearbysearch/json`);
     url.searchParams.set("key", apiKey);
     url.searchParams.set("location", `${latitude},${longitude}`);
@@ -133,18 +133,18 @@ export async function searchNearbyRestaurants(params: {
     if (keyword?.trim()) url.searchParams.set("keyword", keyword.trim());
     if (pageToken) url.searchParams.set("pagetoken", pageToken);
 
-    // 發送請求
+    // Send request
     const response = await fetch(url.toString(), { cache: "no-store" });
     if (!response.ok) throw new Error(`搜尋請求失敗: ${response.status}`);
 
     const data: SearchResponse = await response.json();
 
-    // 檢查回應狀態
+    // Check response status
     if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
       throw new Error(`搜尋錯誤: ${data.error_message || data.status}`);
     }
 
-    // 處理搜尋結果
+    // Process search results
     const pageRestaurants = (data.results || []).map((place, index) => {
       const placeLat = place.geometry?.location?.lat ?? 0;
       const placeLng = place.geometry?.location?.lng ?? 0;
@@ -178,10 +178,10 @@ export async function searchNearbyRestaurants(params: {
     pageToken = data.next_page_token;
     pageCount++;
 
-    // 檢查是否達到目標數量或頁數限制
+    // Check if target count or page limit reached
     if (allRestaurants.length >= maxResults || pageCount >= 3) break;
 
-    // 分頁請求間隔
+    // Pagination request interval
     if (pageToken) {
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
@@ -190,7 +190,7 @@ export async function searchNearbyRestaurants(params: {
   return allRestaurants.slice(0, maxResults);
 }
 
-// 📋 取得地點詳情
+// Get place details
 export async function getPlaceDetails(params: {
   placeId: string;
   language?: string;
@@ -232,12 +232,12 @@ export async function getPlaceDetails(params: {
   const place = data.result;
   if (!place) return {};
 
-  // 處理照片 URL
+  // Process photo URLs
   const photoUrl = place.photos?.[0]?.photo_reference
     ? `${PLACES_CONFIG.BASE_URL}/photo?maxwidth=${PLACES_CONFIG.MAX_PHOTO_WIDTH}&photoreference=${place.photos[0].photo_reference}&key=${apiKey}`
     : undefined;
 
-  // 處理營業時間
+  // Process opening hours
   const openingHours = place.opening_hours
     ? {
         periods: place.opening_hours.periods,
@@ -245,7 +245,7 @@ export async function getPlaceDetails(params: {
       }
     : undefined;
 
-  // 處理評論
+  // Process reviews
   const reviews = place.reviews?.slice(0, 3).map((review) => ({
     authorName: review.author_name,
     rating: review.rating,
@@ -269,7 +269,7 @@ export async function getPlaceDetails(params: {
   };
 }
 
-// 🎲 取得隨機餐廳推薦
+// Get random restaurant recommendations
 export async function getRandomRestaurants(params: {
   latitude: number;
   longitude: number;
@@ -299,7 +299,7 @@ export async function getRandomRestaurants(params: {
 
     if (!data.results?.length) return [];
 
-    // 轉換為 Restaurant 格式
+    // Convert to Restaurant format
     const restaurants: Restaurant[] = data.results.map((place, index) => {
       const placeLat = place.geometry?.location?.lat ?? 0;
       const placeLng = place.geometry?.location?.lng ?? 0;
@@ -329,7 +329,7 @@ export async function getRandomRestaurants(params: {
       };
     });
 
-    // 隨機打亂並選擇指定數量
+    // Randomly shuffle and select specified count
     const shuffled = [...restaurants].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, Math.min(count, restaurants.length));
   } catch (error) {
@@ -338,7 +338,7 @@ export async function getRandomRestaurants(params: {
   }
 }
 
-// 🍜 搜尋特定料理類型
+// Search specific cuisine types
 export async function searchByCuisine(params: {
   latitude: number;
   longitude: number;
@@ -366,7 +366,7 @@ export async function searchByCuisine(params: {
   });
 }
 
-// 💰 搜尋價格範圍內的餐廳
+// Search restaurants within price range
 export async function searchByPriceRange(params: {
   latitude: number;
   longitude: number;
@@ -392,7 +392,7 @@ export async function searchByPriceRange(params: {
     userApiKey,
   });
 
-  // 過濾價格範圍
+  // Filter by price range
   const filtered = allRestaurants.filter((restaurant) => {
     const priceLevel = restaurant.priceRange.length;
     return priceLevel <= maxPrice;

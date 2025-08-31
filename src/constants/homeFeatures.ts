@@ -1,6 +1,6 @@
 import { Brain, MapPin, Zap } from "lucide-react";
 
-// 主頁面特色類型定義
+// Home page feature types definition
 export interface HomeFeature {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
@@ -8,7 +8,7 @@ export interface HomeFeature {
   bgColor: string;
 }
 
-// 主頁面預覽特色
+// Home page preview features
 export const HOME_FEATURES: HomeFeature[] = [
   {
     icon: Brain,
@@ -30,7 +30,7 @@ export const HOME_FEATURES: HomeFeature[] = [
   },
 ];
 
-// 統計數據
+// Statistics data
 export const STATS_DATA = [
   { value: "40+", label: "餐廳選擇", color: "text-orange-600" },
   { value: "4", label: "精選推薦", color: "text-pink-600" },

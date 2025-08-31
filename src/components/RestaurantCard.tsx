@@ -28,7 +28,7 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
           }}
         />
       </div>
-      {/* 卡片頭部 */}
+      {/* Card Header */}
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
@@ -43,7 +43,7 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
           </div>
         </div>
 
-        {/* 餐廳信息 */}
+        {/* Restaurant Information */}
         <div className="space-y-2 mb-4">
           <div className="flex items-center text-sm text-gray-700">
             <MapPin className="w-4 h-4 mr-2 text-gray-500" />
@@ -78,7 +78,7 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
           </div>
         </div>
 
-        {/* 操作按鈕 */}
+        {/* Action Buttons */}
         <div className="flex space-x-2">
           <a
             href={

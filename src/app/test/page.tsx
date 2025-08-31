@@ -10,7 +10,7 @@ export default function TestPage() {
 
         <main className="py-16">
           <Container maxWidth="6xl" className="px-4">
-            {/* 頁面標題區域 */}
+            {/* Page Title Area */}
             <div className="text-center mb-16">
               <div className="inline-flex items-center space-x-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-full text-sm font-medium mb-6">
                 <span>API 設定</span>
@@ -26,7 +26,7 @@ export default function TestPage() {
               </p>
             </div>
 
-            {/* 功能說明卡片 */}
+            {/* Feature Description Card */}
             <div className="mb-12">
               <div className="bg-white border border-gray-200 rounded-2xl p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -43,12 +43,12 @@ export default function TestPage() {
               </div>
             </div>
 
-            {/* API 設定組件 */}
+            {/* API Settings Component */}
             <div className="mb-12">
               <ApiKeySettings />
             </div>
 
-            {/* 測試步驟 */}
+            {/* Test Steps */}
             <div className="mb-12">
               <div className="bg-orange-50 border border-orange-200 rounded-2xl p-8">
                 <h3 className="text-2xl font-bold text-orange-900 mb-6">
