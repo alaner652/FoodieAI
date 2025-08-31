@@ -138,9 +138,17 @@ export default function UsePage() {
                 error={recommendations.error}
               />
 
-              {/* Recommendation Results - Display below search box */}
+              {/* Quick Suggestions Area */}
+              <div className="mt-12">
+                <QuickSuggestions
+                  onSuggestionClick={(suggestion) => setUserInput(suggestion)}
+                  isLoading={recommendations.isLoading}
+                />
+              </div>
+
+              {/* Recommendation Results - Display below suggestions with proper spacing */}
               {recommendations.showResults && (
-                <div className="mt-8">
+                <div className="mt-16">
                   <RecommendationResults
                     recommendations={recommendations.recommendations}
                     onRandomPick={handleRandomPick}
@@ -149,12 +157,6 @@ export default function UsePage() {
                   />
                 </div>
               )}
-
-              {/* Quick Suggestions Area */}
-              <QuickSuggestions
-                onSuggestionClick={(suggestion) => setUserInput(suggestion)}
-                isLoading={recommendations.isLoading}
-              />
             </div>
 
             {/* Features Description */}

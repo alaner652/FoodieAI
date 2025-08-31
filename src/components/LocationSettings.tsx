@@ -2,7 +2,7 @@
 
 import { useToastContext } from "@/contexts/ToastContext";
 import { useLocation } from "@/hooks/useLocation";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { CheckCircle, MapPin, RefreshCw } from "lucide-react";
 import { useState } from "react";
 import Button from "./ui/Button";
 
@@ -11,13 +11,18 @@ export default function LocationSettings() {
   const { showSuccess, showError } = useToastContext();
   const [manualLat, setManualLat] = useState("");
   const [manualLng, setManualLng] = useState("");
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isAutoDetecting, setIsAutoDetecting] = useState(false);
 
   const handleAutoLocation = async () => {
     try {
+      setIsAutoDetecting(true);
       await location.handleGetLocation();
+      showSuccess("位置已自動偵測完成", "位置設定");
     } catch (error) {
       console.error("Auto location failed:", error);
+      showError("自動偵測失敗，請嘗試手動設定", "位置偵測");
+    } finally {
+      setIsAutoDetecting(false);
     }
   };
 
@@ -59,163 +64,108 @@ export default function LocationSettings() {
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center space-x-3">
-          <h3 className="text-lg font-semibold text-gray-900">位置偏好管理</h3>
-          {location.latitude && location.longitude && (
-            <span className="px-2 py-1 bg-green-100 text-green-700 text-sm rounded-full">
-              已設定
-            </span>
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">位置設定</h3>
+        <p className="text-sm text-gray-600">
+          設定您的位置以獲得附近的餐廳推薦
+        </p>
+      </div>
+
+      {/* Current Status */}
+      {location.latitude && location.longitude ? (
+        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center space-x-2 mb-2">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <span className="text-sm font-medium text-green-800">位置已設定</span>
+          </div>
+          <div className="text-xs text-green-700 space-y-1">
+            <p>緯度: {location.latitude.toFixed(6)}</p>
+            <p>經度: {location.longitude.toFixed(6)}</p>
+            <p>來源: {location.locationSource === "manual" ? "手動設定" : "自動偵測"}</p>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="text-sm text-gray-600">尚未設定位置</p>
+          {location.error && (
+            <p className="text-xs text-red-600 mt-1">錯誤: {location.error}</p>
           )}
         </div>
+      )}
 
+      {/* Auto Detection */}
+      <div className="mb-6">
+        <h4 className="text-sm font-medium text-gray-900 mb-3">自動偵測</h4>
         <Button
-          variant="outline"
-          onClick={() => setIsExpanded(!isExpanded)}
-          size="sm"
+          onClick={handleAutoLocation}
+          disabled={isAutoDetecting}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white"
         >
-          {isExpanded ? "收起" : "展開"}
+          {isAutoDetecting ? (
+            <>
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+              偵測中...
+            </>
+          ) : (
+            <>
+              <MapPin className="w-4 h-4 mr-2" />
+              自動偵測位置
+            </>
+          )}
         </Button>
       </div>
 
-      {/* Current Location Status */}
+      {/* Manual Input */}
       <div className="mb-6">
-        <h4 className="text-sm font-medium text-gray-900 mb-3">目前位置狀態</h4>
-
-        {location.latitude && location.longitude ? (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center space-x-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-green-800">
-                位置已設定
-              </span>
-            </div>
-            <div className="text-xs text-green-700 space-y-1">
-              <p>緯度: {location.latitude.toFixed(6)}</p>
-              <p>經度: {location.longitude.toFixed(6)}</p>
-              <p>
-                來源:{" "}
-                {location.locationSource === "manual" ? "手動設定" : "自動偵測"}
-              </p>
-            </div>
+        <h4 className="text-sm font-medium text-gray-900 mb-3">手動設定</h4>
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">緯度</label>
+            <input
+              type="number"
+              step="any"
+              placeholder="25.0330"
+              value={manualLat}
+              onChange={(e) => setManualLat(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-        ) : (
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 text-amber-600" />
-              <span className="text-sm text-amber-800">尚未設定位置</span>
-            </div>
-          </div>
-        )}
-
-        {location.permissionStatus && (
-          <div className="mt-3 text-xs text-gray-600">
-            權限狀態:{" "}
-            {location.permissionStatus === "granted"
-              ? "已允許"
-              : location.permissionStatus === "denied"
-              ? "已拒絕"
-              : "等待確認"}
-          </div>
-        )}
-
-        {location.error && (
-          <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="w-4 h-4 text-red-600" />
-              <span className="text-sm text-red-700">
-                錯誤: {location.error}
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {isExpanded && (
-        <div className="space-y-4">
-          {/* Auto Location */}
-          <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">
-              自動位置偵測
-            </h4>
-            <p className="text-xs text-gray-600 mb-3">
-              使用瀏覽器的地理位置 API 自動偵測您的位置
-            </p>
-            <div className="flex gap-2">
-              <Button
-                onClick={handleAutoLocation}
-                disabled={location.isGettingLocation}
-                size="sm"
-              >
-                {location.isGettingLocation ? "偵測中..." : "自動偵測位置"}
-              </Button>
-              {location.latitude && location.longitude && (
-                <Button
-                  variant="outline"
-                  onClick={handleClearLocation}
-                  size="sm"
-                >
-                  清除位置
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Manual Location */}
-          <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">
-              手動輸入位置
-            </h4>
-            <p className="text-xs text-gray-600 mb-3">
-              您可以手動輸入經緯度座標
-            </p>
-            <div className="grid grid-cols-2 gap-3 mb-3">
-              <div>
-                <label className="block text-xs text-gray-700 mb-1">緯度</label>
-                <input
-                  type="number"
-                  step="any"
-                  value={manualLat}
-                  onChange={(e) => setManualLat(e.target.value)}
-                  placeholder="例如: 25.0330"
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-700 mb-1">經度</label>
-                <input
-                  type="number"
-                  step="any"
-                  value={manualLng}
-                  onChange={(e) => setManualLng(e.target.value)}
-                  placeholder="例如: 121.5654"
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
-                />
-              </div>
-            </div>
-            <Button
-              onClick={handleManualLocation}
-              disabled={!manualLat || !manualLng}
-              size="sm"
-            >
-              設定手動位置
-            </Button>
-          </div>
-
-          {/* Instructions */}
-          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">
-              如何獲取座標？
-            </h4>
-            <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside">
-              <li>前往 Google Maps</li>
-              <li>搜尋或點擊您想要的位置</li>
-              <li>右鍵點擊該位置，選擇座標數值複製</li>
-              <li>將座標分別貼入上方的緯度和經度欄位</li>
-            </ol>
+          <div>
+            <label className="block text-xs text-gray-600 mb-1">經度</label>
+            <input
+              type="number"
+              step="any"
+              placeholder="121.5654"
+              value={manualLng}
+              onChange={(e) => setManualLng(e.target.value)}
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
         </div>
-      )}
+        <Button
+          onClick={handleManualLocation}
+          disabled={!manualLat || !manualLng}
+          className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+        >
+          設定位置
+        </Button>
+      </div>
+
+      {/* Actions */}
+      <div className="flex justify-between items-center">
+        <Button
+          onClick={handleClearLocation}
+          variant="outline"
+          size="sm"
+          className="text-red-600 border-red-200 hover:bg-red-50"
+        >
+          清除位置
+        </Button>
+        
+        <div className="text-xs text-gray-500">
+          💡 系統會自動偵測位置
+        </div>
+      </div>
     </div>
   );
 }
