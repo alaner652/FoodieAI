@@ -146,8 +146,7 @@ export const useRecommendations = () => {
           setState((prev) => ({
             ...prev,
             recommendations: result.data.restaurants,
-            aiReason:
-              "Random restaurant selection with no specific preference analysis.",
+            aiReason: "隨機餐廳選擇，無特定偏好分析。",
             aiRecommendedCount: result.data.totalFound,
             showResults: true,
           }));

@@ -1,65 +1,74 @@
 import ApiKeySettings from "@/components/ApiKeySettings";
 import Header from "@/components/Header";
+import LocationSettings from "@/components/LocationSettings";
 import Container from "@/components/ui/Container";
+import { Key, MapPin } from "lucide-react";
 
-export default function TestPage() {
+export default function SettingsPage() {
   return (
     <>
       <div className="min-h-screen bg-white">
         <Header showNav={true} />
 
         <main className="py-16">
-          <Container maxWidth="6xl" className="px-4">
-            {/* Page Title Area */}
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center space-x-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-full text-sm font-medium mb-6">
-                <span>API 設定</span>
-              </div>
-
-              <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-                🔑 API Keys 設定中心
+          <Container maxWidth="4xl" className="px-4">
+            {/* Page Title */}
+            <div className="text-center mb-12">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                設定中心
               </h1>
-
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                設定您的 Google Places API Key 和 Gemini API
-                Key，開始使用智能餐廳推薦功能
-              </p>
+              <p className="text-gray-600">設定您的 API 金鑰和位置偏好</p>
             </div>
 
-            {/* Feature Description Card */}
-            <div className="mb-12">
-              <div className="bg-white border border-gray-200 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                  功能說明
-                </h2>
-                <div className="text-gray-600 space-y-3 text-lg">
-                  <p>• 這個頁面用於測試 API Key 設定功能</p>
-                  <p>
-                    • 您可以輸入自己的 Google Places API Key 和 Gemini API Key
-                  </p>
-                  <p>• 設定會保存在瀏覽器的 localStorage 中</p>
-                  <p>• 返回主頁面時，這些設定會自動生效</p>
+            {/* Settings Sections */}
+            <div className="space-y-8">
+              {/* API Settings */}
+              <div>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <Key className="w-4 h-4 text-orange-600" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    API 設定
+                  </h2>
                 </div>
+                <ApiKeySettings />
+              </div>
+
+              {/* Location Settings */}
+              <div>
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    位置設定
+                  </h2>
+                </div>
+                <LocationSettings />
               </div>
             </div>
 
-            {/* API Settings Component */}
-            <div className="mb-12">
-              <ApiKeySettings />
-            </div>
-
-            {/* Test Steps */}
-            <div className="mb-12">
-              <div className="bg-orange-50 border border-orange-200 rounded-2xl p-8">
-                <h3 className="text-2xl font-bold text-orange-900 mb-6">
-                  測試步驟
-                </h3>
-                <ol className="text-orange-800 space-y-3 text-lg list-decimal list-inside">
-                  <li>點擊「展開」按鈕打開設定面板</li>
-                  <li>輸入您的 API Keys（如果有的話）</li>
-                  <li>點擊「保存設定」按鈕</li>
-                  <li>返回主頁面測試餐廳推薦功能</li>
-                </ol>
+            {/* Help Links */}
+            <div className="mt-12 text-center">
+              <p className="text-gray-600 mb-4">需要幫助？</p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href="https://console.cloud.google.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Google Cloud Console
+                </a>
+                <a
+                  href="https://makersuite.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                >
+                  Google AI Studio
+                </a>
               </div>
             </div>
           </Container>

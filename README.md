@@ -1,150 +1,151 @@
 # 🍽️ FoodieAI
 
-> AI-powered restaurant recommendation system that solves your dining indecision
+> AI 驅動的餐廳推薦系統，解決你的選擇困難症
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.0-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.0-blue?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
 
-## ✨ Features
+## ✨ 特色功能
 
-- **🤖 AI-Powered Analysis** - Uses Google Gemini AI to understand preferences and provide personalized recommendations
-- **🔍 Natural Language Search** - Describe your dining needs in everyday language
-- **📍 Auto-Location Detection** - Automatically detects your location for nearby restaurant searches
-- **🎯 Quick Suggestions** - One-click preset search conditions for common dining scenarios
-- **📱 Responsive Design** - Optimized for desktop, tablet, and mobile devices
+- **🤖 AI 智能分析** - 使用 Google Gemini AI 理解偏好，提供個人化推薦
+- **🔍 自然語言搜尋** - 用日常語言描述你的用餐需求
+- **📍 自動位置偵測** - 自動偵測位置，搜尋附近餐廳
+- **🎯 快速建議** - 一鍵設定常見用餐場景
+- **📱 響應式設計** - 支援桌面、平板和手機
 
-## 🚀 Quick Start
+## 🚀 快速開始
 
-### Prerequisites
+### 環境需求
 
 - Node.js 18.0+
-- npm or yarn
+- npm 或 yarn
 
-### Installation
+### 安裝步驟
 
 ```bash
-# Clone the repository
+# 克隆專案
 git clone https://github.com/yourusername/foodie-ai
 cd foodie-ai
 
-# Install dependencies
+# 安裝依賴
 npm install
 
-# Set up environment variables
+# 設定環境變數
 cp .env.example .env.local
-# Edit .env.local with your API keys
+# 編輯 .env.local 填入你的 API 金鑰
 
-# Start development server
+# 啟動開發伺服器
 npm run dev
 ```
 
-### Required API Keys
+### 必要的 API 金鑰
 
-1. **Google Places API Key** - For restaurant search and location data
-2. **Gemini API Key** - For AI-powered recommendations
+1. **Google Places API Key** - 用於餐廳搜尋和位置資料
+2. **Gemini API Key** - 用於 AI 智能推薦
 
-Get your API keys from:
+獲取 API 金鑰：
 
 - [Google Cloud Console](https://console.cloud.google.com/) (Places API)
 - [Google AI Studio](https://makersuite.google.com/app/apikey) (Gemini API)
 
-## 🏗️ Architecture
+## 🏗️ 技術架構
 
-### Tech Stack
+### 技術棧
 
-- **Frontend**: Next.js 15.5.0 (App Router), React 19.1.0, TypeScript 5.0
-- **Styling**: Tailwind CSS 4.0
-- **AI Services**: Google Gemini API
-- **Location Services**: Google Places API
-- **Build Tool**: Turbopack (dev mode)
+- **前端框架**: Next.js 15.5.0 (App Router), React 19.1.0
+- **開發語言**: TypeScript 5.0
+- **樣式框架**: Tailwind CSS 4.0
+- **AI 服務**: Google Gemini API
+- **位置服務**: Google Places API
+- **建置工具**: Turbopack
 
-### Project Structure
+### 專案結構
 
 ```
 src/
-├── app/                    # Next.js App Router pages
-│   ├── api/               # API routes
-│   ├── use/               # Main recommendation page
-│   └── test/              # API key configuration
-├── components/            # React components
-│   ├── ui/               # Base UI components
-│   └── ...               # Feature components
-├── hooks/                # Custom React hooks
-├── lib/                  # Utilities and configurations
-└── types/                # TypeScript type definitions
+├── app/                    # Next.js App Router 頁面
+│   ├── api/               # API 路由
+│   ├── use/               # 主要推薦頁面
+│   └── settings/          # 設定頁面
+├── components/            # React 組件
+│   ├── ui/               # 基礎 UI 組件
+│   └── ...               # 功能組件
+├── hooks/                # 自定義 React hooks
+├── lib/                  # 工具函數和配置
+└── types/                # TypeScript 類型定義
 ```
 
-## 📱 Usage
+## 📱 使用方式
 
-1. **Navigate to `/use`** - Main recommendation interface
-2. **Describe your preferences** - e.g., "Japanese food, not too expensive, good for dates"
-3. **Let AI analyze** - Click search to get AI-powered recommendations
-4. **Browse results** - View restaurant details, ratings, and locations
+1. **前往 `/use` 頁面** - 主要推薦介面
+2. **描述你的偏好** - 例如：「日式料理，不要太貴，適合約會」
+3. **讓 AI 分析** - 點擊搜尋獲得 AI 推薦
+4. **瀏覽結果** - 查看餐廳詳情、評分和位置
 
-## 🛠️ Development
+## 🛠️ 開發
 
-### Available Scripts
+### 可用指令
 
 ```bash
-npm run dev      # Start development server
-npm run build    # Build for production
-npm run start    # Start production server
-npm run lint     # Run ESLint
+npm run dev      # 啟動開發伺服器
+npm run build    # 建置生產版本
+npm run start    # 啟動生產伺服器
+npm run lint     # 執行 ESLint 檢查
 ```
 
-### Key Components
+### 核心組件
 
-- `SearchInput` - Smart search with natural language processing
-- `RestaurantCard` - Restaurant information display
-- `RecommendationResults` - AI recommendation results
-- `QuickSuggestions` - Preset search conditions
-- `ApiKeySettings` - API key configuration interface
+- `SearchInput` - 智能搜尋，支援自然語言
+- `RestaurantCard` - 餐廳資訊顯示
+- `RecommendationResults` - AI 推薦結果
+- `QuickSuggestions` - 預設搜尋條件
+- `ApiKeySettings` - API 金鑰設定介面
 
-## 🚀 Deployment
+## 🚀 部署
 
-### Vercel (Recommended)
+### Vercel (推薦)
 
-1. Push to GitHub
-2. Connect Vercel account
-3. Import project
-4. Set environment variables
-5. Deploy automatically
+1. 推送到 GitHub
+2. 連接 Vercel 帳戶
+3. 匯入專案
+4. 設定環境變數
+5. 自動部署
 
-### Environment Variables
+### 環境變數
 
 ```env
 GOOGLE_PLACES_API_KEY=your_key_here
 GEMINI_API_KEY=your_key_here
 ```
 
-## 🤝 Contributing
+## 🤝 貢獻
 
-1. Fork the project
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
+1. Fork 專案
+2. 建立功能分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交變更 (`git commit -m 'Add AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 開啟 Pull Request
 
-### Development Guidelines
+### 開發規範
 
-- Follow TypeScript best practices
-- Use Tailwind CSS for styling
-- Ensure component reusability
-- Add appropriate documentation
+- 遵循 TypeScript 最佳實踐
+- 使用 Tailwind CSS 進行樣式設計
+- 確保組件可重用性
+- 添加適當的文件說明
 
-## 📄 License
+## 📄 授權
 
-This project is licensed under the [MIT License](LICENSE).
+本專案採用 [MIT License](LICENSE) 授權。
 
-## 🙏 Acknowledgments
+## 🙏 致謝
 
-- [Next.js](https://nextjs.org/) - React framework
-- [Google Gemini AI](https://ai.google.dev/) - AI model
-- [Google Places API](https://developers.google.com/maps/documentation/places) - Location services
-- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [Next.js](https://nextjs.org/) - React 框架
+- [Google Gemini AI](https://ai.google.dev/) - AI 模型
+- [Google Places API](https://developers.google.com/maps/documentation/places) - 位置服務
+- [Tailwind CSS](https://tailwindcss.com/) - CSS 框架
 
 ---
 
-**Say goodbye to dining indecision with AI-powered recommendations!** 🍜✨
+**讓 AI 幫你解決用餐選擇困難症！** 🍜✨

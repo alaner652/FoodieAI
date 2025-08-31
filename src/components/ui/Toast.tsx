@@ -1,7 +1,7 @@
 "use client";
 
 import { AlertCircle, CheckCircle, Info, X, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export interface ToastProps {
   id: string;
@@ -68,6 +68,13 @@ export default function Toast({
   const Icon = toastIcons[type];
   const colors = toastColors[type];
 
+  const handleClose = useCallback(() => {
+    setIsLeaving(true);
+    setTimeout(() => {
+      onClose(id);
+    }, 300); // Match transition duration
+  }, [onClose, id]);
+
   useEffect(() => {
     // Show animation
     const showTimer = setTimeout(() => setIsVisible(true), 10);
@@ -81,14 +88,7 @@ export default function Toast({
       clearTimeout(showTimer);
       clearTimeout(dismissTimer);
     };
-  }, [duration]);
-
-  const handleClose = () => {
-    setIsLeaving(true);
-    setTimeout(() => {
-      onClose(id);
-    }, 300); // Match transition duration
-  };
+  }, [duration, handleClose]);
 
   return (
     <div

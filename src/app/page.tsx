@@ -47,7 +47,7 @@ export default function Home() {
                   </Button>
                 </Link>
 
-                <Link href="/test">
+                <Link href="/settings">
                   <Button
                     variant="outline"
                     className="px-8 py-4 text-lg font-semibold rounded-xl border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors duration-200"

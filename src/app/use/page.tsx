@@ -10,7 +10,6 @@ import RestaurantDetails from "@/components/RestaurantDetails";
 import SearchInput from "@/components/SearchInput";
 
 import Container from "@/components/ui/Container";
-import { useToastContext } from "@/contexts/ToastContext";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { useLocation } from "@/hooks/useLocation";
 import { useRecommendations } from "@/hooks/useRecommendations";
@@ -27,7 +26,6 @@ export default function UsePage() {
   const location = useLocation();
   const apiKeys = useApiKeys();
   const recommendations = useRecommendations();
-  const { showSuccess, showError, showWarning, showInfo } = useToastContext();
 
   // Check location permission on component load
   useEffect(() => {
@@ -36,7 +34,7 @@ export default function UsePage() {
       // Just check permission status, don't auto-request
       location.checkPermission();
     }
-  }, [hasAttemptedLocation, location.checkPermission]);
+  }, [hasAttemptedLocation, location]);
 
   const handleSubmit = async () => {
     try {
@@ -119,51 +117,16 @@ export default function UsePage() {
               <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                 告訴我們您的偏好，AI 會為您推薦最適合的餐廳
               </p>
-
-              {/* Toast Test Buttons */}
-              <div className="flex flex-wrap justify-center gap-2 mt-8">
-                <button
-                  onClick={() => showSuccess("這是成功訊息測試！", "成功")}
-                  className="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600"
-                >
-                  測試成功
-                </button>
-                <button
-                  onClick={() => showError("這是錯誤訊息測試！", "錯誤")}
-                  className="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600"
-                >
-                  測試錯誤
-                </button>
-                <button
-                  onClick={() => showWarning("這是警告訊息測試！", "警告")}
-                  className="px-3 py-1 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600"
-                >
-                  測試警告
-                </button>
-                <button
-                  onClick={() => showInfo("這是資訊訊息測試！", "資訊")}
-                  className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
-                >
-                  測試資訊
-                </button>
-              </div>
             </div>
 
             {/* Main Functionality Area */}
             <div className="mb-16">
-              {/* Location Permission Section */}
-              {(!location.latitude ||
-                !location.longitude ||
-                location.error) && (
-                <div className="mb-8">
-                  <LocationPermission
-                    showManualInput={true}
-                    onLocationObtained={(lat, lng) => {
-                      console.log("Location obtained in parent:", lat, lng);
-                    }}
-                  />
-                </div>
-              )}
+              {/* Hidden Location Permission Handler */}
+              <LocationPermission
+                onLocationObtained={(lat: number, lng: number) => {
+                  console.log("Location obtained in parent:", lat, lng);
+                }}
+              />
 
               <SearchInput
                 value={userInput}

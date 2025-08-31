@@ -33,6 +33,39 @@ export const useLocation = () => {
   // Track location watcher ID
   const watchIdRef = useRef<number | null>(null);
 
+  // Initialize location from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedLocation = localStorage.getItem("userLocation");
+      if (savedLocation) {
+        const locationData = JSON.parse(savedLocation);
+        const { latitude, longitude, locationSource, timestamp } = locationData;
+
+        // Check if location data is still valid (not older than 24 hours)
+        const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000;
+
+        if (!isExpired && validateLocation(latitude, longitude)) {
+          setState((prev) => ({
+            ...prev,
+            latitude,
+            longitude,
+            locationSource,
+            error: "",
+          }));
+          console.log("Location restored from localStorage:", locationData);
+        } else if (isExpired) {
+          // Remove expired location data
+          localStorage.removeItem("userLocation");
+          console.log("Expired location data removed from localStorage");
+        }
+      }
+    } catch (error) {
+      console.error("Failed to restore location from localStorage:", error);
+      // Remove corrupted data
+      localStorage.removeItem("userLocation");
+    }
+  }, []);
+
   const getLocation = useCallback(async (): Promise<{
     lat: number;
     lng: number;
@@ -49,6 +82,15 @@ export const useLocation = () => {
       if (!validateLocation(location.latitude, location.longitude)) {
         throw new Error("Invalid location obtained");
       }
+
+      // Save to localStorage for persistence
+      const locationData = {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        locationSource: location.source,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem("userLocation", JSON.stringify(locationData));
 
       setState((prev) => ({
         ...prev,
@@ -87,7 +129,7 @@ export const useLocation = () => {
       // Update permission status to granted after successful location get
       setState((prev) => ({ ...prev, permissionStatus: "granted" }));
 
-      // Show success toast
+      // Show success toast - only show once
       showSuccess("位置偵測成功！", "位置存取");
     } catch (error) {
       console.error("Failed to get location:", error);
@@ -98,7 +140,7 @@ export const useLocation = () => {
       if (error instanceof Error) {
         if (error.message.includes("denied")) {
           errorMessage =
-            "Location permission denied. Please allow location access in your browser and try again.";
+            "Location permission denied. Please allow location access in your browser settings.";
           errorTitle = "Permission Denied";
         } else if (error.message.includes("not supported")) {
           errorMessage = "Geolocation is not supported by this browser.";
@@ -118,6 +160,28 @@ export const useLocation = () => {
     }
   }, [getLocation, showError, showSuccess]);
 
+  // Silent location getter - no toasts, no user interaction
+  const handleGetLocationSilent = useCallback(async () => {
+    try {
+      // Check permission first
+      const permission = await checkLocationPermission();
+      setState((prev) => ({ ...prev, permissionStatus: permission }));
+
+      if (permission === "denied") {
+        return; // Silently fail for denied permission
+      }
+
+      const loc = await getLocation();
+      console.log("Location obtained silently:", loc);
+
+      // Update permission status to granted after successful location get
+      setState((prev) => ({ ...prev, permissionStatus: "granted" }));
+    } catch (error) {
+      console.error("Silent location get failed:", error);
+      // Don't show error toast, just log it
+    }
+  }, [getLocation]);
+
   const startLocationWatch = useCallback(() => {
     try {
       // If there's already a watcher running, stop it first
@@ -128,12 +192,38 @@ export const useLocation = () => {
       watchIdRef.current = startLocationTracking(
         (location: LocationResult) => {
           if (validateLocation(location.latitude, location.longitude)) {
-            setState((prev) => ({
-              ...prev,
-              latitude: location.latitude,
-              longitude: location.longitude,
-              locationSource: location.source,
-            }));
+            // Only update if location has changed significantly (more than 10 meters)
+            setState((prev) => {
+              if (prev.latitude && prev.longitude) {
+                const distance = Math.sqrt(
+                  Math.pow(location.latitude - prev.latitude, 2) +
+                    Math.pow(location.longitude - prev.longitude, 2)
+                );
+                // 0.0001 degrees ≈ 11 meters
+                if (distance < 0.0001) {
+                  return prev; // No significant change
+                }
+              }
+
+              // Save to localStorage only when location changes significantly
+              const locationData = {
+                latitude: location.latitude,
+                longitude: location.longitude,
+                locationSource: location.source,
+                timestamp: Date.now(),
+              };
+              localStorage.setItem(
+                "userLocation",
+                JSON.stringify(locationData)
+              );
+
+              return {
+                ...prev,
+                latitude: location.latitude,
+                longitude: location.longitude,
+                locationSource: location.source,
+              };
+            });
             console.log("Location updated:", location);
           }
         },
@@ -163,6 +253,15 @@ export const useLocation = () => {
         return false;
       }
 
+      // Save to localStorage for persistence
+      const locationData = {
+        latitude: lat,
+        longitude: lng,
+        locationSource: "manual" as const,
+        timestamp: Date.now(),
+      };
+      localStorage.setItem("userLocation", JSON.stringify(locationData));
+
       setState((prev) => ({
         ...prev,
         latitude: lat,
@@ -172,14 +271,25 @@ export const useLocation = () => {
       }));
 
       console.log("Manual location set successfully:", { lat, lng });
-      showSuccess(
-        `Location set to ${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-        "Manual Location"
-      );
+      // Don't show success toast here to avoid duplicate notifications
       return true;
     },
-    [showError, showSuccess]
+    [showError]
   );
+
+  const clearLocation = useCallback(() => {
+    // Remove from localStorage
+    localStorage.removeItem("userLocation");
+
+    setState((prev) => ({
+      ...prev,
+      latitude: null,
+      longitude: null,
+      locationSource: null,
+      error: "",
+    }));
+    console.log("Location cleared");
+  }, []);
 
   const clearError = useCallback(() => {
     setState((prev) => ({ ...prev, error: "" }));
@@ -216,9 +326,11 @@ export const useLocation = () => {
     ...state,
     getLocation,
     handleGetLocation,
+    handleGetLocationSilent,
     startLocationWatch,
     stopLocationWatch,
     setManualLocation,
+    clearLocation,
     clearError,
     checkPermission,
   };
