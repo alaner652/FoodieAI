@@ -1,3 +1,4 @@
+import Card from "@/components/ui/Card";
 import { Clock, MapPin, Sparkles } from "lucide-react";
 
 interface Feature {
@@ -46,7 +47,7 @@ export default function Features({ features }: FeaturesProps) {
       </h3>
       <div className="grid md:grid-cols-3 gap-4">
         {displayFeatures.map((feature, index) => (
-          <div key={index} className="text-center p-3">
+          <Card key={index} variant="outlined" className="text-center p-3">
             <div
               className={`w-10 h-10 ${feature.bgColor} rounded flex items-center justify-center mx-auto mb-2`}
             >
@@ -56,7 +57,7 @@ export default function Features({ features }: FeaturesProps) {
               {feature.title}
             </h4>
             <p className="text-gray-800 text-sm">{feature.description}</p>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

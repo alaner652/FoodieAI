@@ -1,5 +1,6 @@
 "use client";
 
+import Container from "@/components/ui/Container";
 import { APP_CONFIG } from "@/lib/config";
 import { Menu, Settings, Sparkles, X } from "lucide-react";
 import Link from "next/link";
@@ -18,12 +19,12 @@ export default function Header({
 
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <Container maxWidth="7xl" className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo 和標題 */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
+              <div className="w-9 h-9 bg-gradient-to-br from-orange-500 via-pink-500 to-red-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div className="flex flex-col">
@@ -40,7 +41,7 @@ export default function Header({
             <nav className="hidden md:flex items-center space-x-1">
               <Link
                 href="/test"
-                className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-blue-600 transition-all duration-200 rounded-lg hover:bg-blue-50 group"
+                className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:text-orange-600 transition-all duration-200 rounded-lg hover:bg-orange-50 group"
               >
                 <Settings className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
                 <span className="font-medium text-sm">設定</span>
@@ -52,7 +53,7 @@ export default function Header({
           {showNav && (
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-gray-100 transition-all duration-200"
+              className="md:hidden p-2 rounded-lg text-gray-700 hover:text-orange-600 hover:bg-orange-50 transition-all duration-200"
             >
               {isMobileMenuOpen ? (
                 <X className="w-5 h-5" />
@@ -70,7 +71,7 @@ export default function Header({
               <Link
                 href="/test"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-3 py-3 text-gray-700 hover:text-blue-600 transition-all duration-200 rounded-lg hover:bg-blue-50 group"
+                className="flex items-center space-x-3 px-3 py-3 text-gray-700 hover:text-orange-600 transition-all duration-200 rounded-lg hover:bg-orange-50 group"
               >
                 <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                 <span className="font-medium">設定</span>
@@ -78,7 +79,7 @@ export default function Header({
             </div>
           </div>
         )}
-      </div>
+      </Container>
     </header>
   );
 }

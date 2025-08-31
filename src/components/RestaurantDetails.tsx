@@ -1,3 +1,5 @@
+import Button from "@/components/ui/Button";
+import Card from "@/components/ui/Card";
 import { getPriceRangeText } from "@/lib/utils";
 import { Restaurant } from "@/types";
 import { Calendar, ExternalLink, Globe, MapPin, Star, X } from "lucide-react";
@@ -27,7 +29,10 @@ export default function RestaurantDetails({
 
   return (
     <div className="fixed inset-0 backdrop-blur-sm bg-black/20 flex items-center justify-center p-4 z-[9999]">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+      <Card
+        variant="outlined"
+        className="max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl"
+      >
         {/* 頭部 */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-900">餐廳詳情</h2>
@@ -168,29 +173,31 @@ export default function RestaurantDetails({
           {/* 外部連結 */}
           <div className="flex space-x-3 pt-4 border-t border-gray-200">
             {restaurant.mapsUrl && (
-              <a
-                href={restaurant.mapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                <ExternalLink className="w-4 h-4 mr-2" />在 Google Maps 查看
-              </a>
+              <Button asChild className="flex items-center">
+                <a
+                  href={restaurant.mapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink className="w-4 h-4 mr-2" />在 Google Maps 查看
+                </a>
+              </Button>
             )}
             {restaurant.website && (
-              <a
-                href={restaurant.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                <Globe className="w-4 h-4 mr-2" />
-                官方網站
-              </a>
+              <Button variant="outline" asChild className="flex items-center">
+                <a
+                  href={restaurant.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Globe className="w-4 h-4 mr-2" />
+                  官方網站
+                </a>
+              </Button>
             )}
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -201,10 +201,10 @@ export default function HomeClient() {
       {/* 重新設計的地圖設定區域 */}
       <div className="mt-6">
         {/* 位置設定卡片 */}
-        <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200 rounded-xl p-2 md:p-1.5 shadow-md">
+        <div className="bg-gradient-to-br from-orange-50 via-pink-50 to-red-50 border border-orange-200 rounded-xl p-2 md:p-1.5 shadow-md">
           {/* 標題區域 */}
           <div className="text-center mb-3 md:mb-2">
-            <div className="inline-flex items-center justify-center w-10 h-10 md:w-8 md:h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg shadow-sm mb-2 md:mb-1">
+            <div className="inline-flex items-center justify-center w-10 h-10 md:w-8 md:h-8 bg-gradient-to-br from-orange-500 to-pink-500 rounded-lg shadow-sm mb-2 md:mb-1">
               <Globe className="w-5 h-5 md:w-4 md:h-4 text-white" />
             </div>
             <h3 className="text-lg md:text-base font-bold text-gray-900 mb-1">
@@ -220,7 +220,7 @@ export default function HomeClient() {
             <div className="space-y-2 md:space-y-1.5">
               <div className="bg-white rounded-lg p-4 md:p-3.5 border border-gray-100 shadow-sm h-full flex flex-col">
                 <div className="flex items-center space-x-2 mb-3 md:mb-2.5">
-                  <div className="w-6 h-6 md:w-5 md:h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-md flex items-center justify-center shadow-sm">
+                  <div className="w-6 h-6 md:w-5 md:h-5 bg-gradient-to-br from-orange-500 to-orange-600 rounded-md flex items-center justify-center shadow-sm">
                     <Compass className="w-3 h-3 md:w-2.5 md:h-2.5 text-white" />
                   </div>
                   <div>
@@ -237,7 +237,7 @@ export default function HomeClient() {
                   <button
                     onClick={handleGetLocation}
                     disabled={isGettingLocation || isLoading}
-                    className="group w-full flex items-center justify-center space-x-2 px-3 py-2.5 md:px-2.5 md:py-2 bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-600 text-white rounded-md hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md transform hover:scale-105 disabled:transform-none"
+                    className="group w-full flex items-center justify-center space-x-2 px-3 py-2.5 md:px-2.5 md:py-2 bg-gradient-to-r from-orange-500 via-orange-600 to-pink-500 text-white rounded-md hover:from-orange-600 hover:via-pink-600 hover:to-red-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md transform hover:scale-105 disabled:transform-none"
                   >
                     {isGettingLocation ? (
                       <>
@@ -345,8 +345,8 @@ export default function HomeClient() {
 
           {/* 底部提示 */}
           <div className="mt-3 md:mt-2 text-center">
-            <div className="inline-flex items-center space-x-2 bg-blue-50 text-blue-700 px-2 py-1 md:px-1.5 md:py-0.5 rounded-full text-xs">
-              <span className="w-1 h-1 bg-blue-500 rounded-full animate-pulse"></span>
+            <div className="inline-flex items-center space-x-2 bg-orange-50 text-orange-700 px-2 py-1 md:px-1.5 md:py-0.5 rounded-full text-xs">
+              <span className="w-1 h-1 bg-orange-500 rounded-full animate-pulse"></span>
               <span>設定完成後，在搜尋框輸入需求即可開始搜尋</span>
             </div>
           </div>

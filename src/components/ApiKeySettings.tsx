@@ -1,5 +1,7 @@
 "use client";
 
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 import { Eye, EyeOff, Info, Key, Save, Settings } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
@@ -73,10 +75,12 @@ export default function ApiKeySettings({
           <div className="text-sm text-blue-800">
             <p className="font-medium mb-1">重要：API Keys 是必要的</p>
             <p className="text-blue-700 mb-2">
-              為了提供更好的服務體驗，請設定您的 Google Places API Key 和 Gemini API Key。
+              為了提供更好的服務體驗，請設定您的 Google Places API Key 和 Gemini
+              API Key。
             </p>
             <p className="text-blue-700 text-xs">
-              <strong>注意：</strong> 如果沒有設定 API Keys，餐廳推薦功能將無法使用。
+              <strong>注意：</strong> 如果沒有設定 API
+              Keys，餐廳推薦功能將無法使用。
             </p>
           </div>
         </div>
@@ -86,32 +90,16 @@ export default function ApiKeySettings({
         <div className="space-y-4">
           {/* Google Places API Key */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Google Places API Key
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Key className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type={showGoogleKey ? "text" : "password"}
-                value={googleApiKey}
-                onChange={(e) => setGoogleApiKey(e.target.value)}
-                placeholder="輸入您的 Google Places API Key"
-                className="block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                type="button"
-                onClick={() => setShowGoogleKey(!showGoogleKey)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-              >
-                {showGoogleKey ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </button>
-            </div>
+            <Input
+              type={showGoogleKey ? "text" : "password"}
+              value={googleApiKey}
+              onChange={(e) => setGoogleApiKey(e.target.value)}
+              placeholder="輸入您的 Google Places API Key"
+              label="Google Places API Key"
+              leftIcon={Key}
+              rightIcon={showGoogleKey ? EyeOff : Eye}
+              onRightIconClick={() => setShowGoogleKey(!showGoogleKey)}
+            />
             <p className="mt-1 text-xs text-gray-500">
               用於搜尋附近餐廳和獲取餐廳詳細資訊
             </p>
@@ -119,32 +107,16 @@ export default function ApiKeySettings({
 
           {/* Gemini API Key */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Gemini API Key
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Key className="h-4 w-4 text-gray-400" />
-              </div>
-              <input
-                type={showGeminiKey ? "text" : "password"}
-                value={geminiApiKey}
-                onChange={(e) => setGeminiApiKey(e.target.value)}
-                placeholder="輸入您的 Gemini API Key"
-                className="block w-full pl-10 pr-12 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                type="button"
-                onClick={() => setShowGeminiKey(!showGeminiKey)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-              >
-                {showGeminiKey ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </button>
-            </div>
+            <Input
+              type={showGeminiKey ? "text" : "password"}
+              value={geminiApiKey}
+              onChange={(e) => setGeminiApiKey(e.target.value)}
+              placeholder="輸入您的 Gemini API Key"
+              label="Gemini API Key"
+              leftIcon={Key}
+              rightIcon={showGeminiKey ? EyeOff : Eye}
+              onRightIconClick={() => setShowGeminiKey(!showGeminiKey)}
+            />
             <p className="mt-1 text-xs text-gray-500">
               用於 AI 智能推薦和餐廳排序分析
             </p>
@@ -152,19 +124,16 @@ export default function ApiKeySettings({
 
           {/* 操作按鈕 */}
           <div className="flex space-x-3 pt-2">
-            <button
+            <Button
               onClick={handleSave}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center space-x-2"
             >
               <Save className="w-4 h-4" />
               <span>保存設定</span>
-            </button>
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
+            </Button>
+            <Button variant="outline" onClick={handleReset}>
               重置
-            </button>
+            </Button>
           </div>
 
           {/* 保存成功提示 */}

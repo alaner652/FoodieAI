@@ -1,7 +1,9 @@
+import Badge from "@/components/ui/Badge";
+import Card from "@/components/ui/Card";
+import { UI_CONFIG } from "@/lib/config";
 import { Restaurant } from "@/types";
 import { RefreshCw, Sparkles } from "lucide-react";
 import RestaurantCard from "./RestaurantCard";
-import { UI_CONFIG } from "@/lib/config";
 
 interface RecommendationResultsProps {
   recommendations: Restaurant[];
@@ -16,9 +18,9 @@ interface RecommendationResultsProps {
  */
 function renderAIReason(aiReason: string): React.ReactNode {
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
+    <div className="bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200 rounded-lg p-6">
       <div className="flex items-start space-x-3">
-        <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+        <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
           <Sparkles className="w-4 h-4 text-white" />
         </div>
         <div className="flex-1">
@@ -43,15 +45,15 @@ function renderAIReason(aiReason: string): React.ReactNode {
 
           {/* 簡化的標籤 */}
           <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-blue-200">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-700">
+            <Badge variant="primary" size="sm">
               🎯 智能排序
-            </span>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-green-100 text-green-700">
+            </Badge>
+            <Badge variant="success" size="sm">
               📍 距離優先
-            </span>
-            <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-purple-100 text-purple-700">
+            </Badge>
+            <Badge variant="secondary" size="sm">
               ⭐ 評價參考
-            </span>
+            </Badge>
           </div>
         </div>
       </div>
@@ -69,7 +71,7 @@ export default function RecommendationResults({
   if (recommendations.length === 0) {
     return (
       <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <Card variant="outlined" className="p-6">
           <div className="text-center mb-4">
             <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center mx-auto mb-3">
               <Sparkles className="w-6 h-6 text-gray-500" />
@@ -78,7 +80,7 @@ export default function RecommendationResults({
               沒有找到符合條件的餐廳
             </h3>
           </div>
-          
+
           {/* 顯示 AI 建議 */}
           {aiReason && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -97,14 +99,14 @@ export default function RecommendationResults({
               </div>
             </div>
           )}
-        </div>
+        </Card>
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <Card variant="outlined" className="shadow-sm overflow-hidden">
         {/* 結果標題 */}
         <div className="bg-white border-b border-gray-100 px-6 py-5">
           <div className="flex items-center justify-between">
@@ -179,7 +181,7 @@ export default function RecommendationResults({
             <span>推薦完成</span>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

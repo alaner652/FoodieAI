@@ -11,7 +11,7 @@ export const API_CONFIG = {
   MIN_RADIUS: 200, // 最小搜尋半徑（公尺）
 
   // 推薦配置
-  MAX_RECOMMENDATIONS: 4, // 最大推薦數量
+  MAX_RECOMMENDATIONS: 4, // 最大推薦數量（保持4間，但從40間中選擇）
 
   // 快速選擇半徑
   QUICK_RADIUS_OPTIONS: [500, 1000, 2000, 3000] as const,
@@ -74,7 +74,7 @@ export const AI_CONFIG = {
 
   // 提示詞配置
   PROMPT: {
-    MAX_RESTAURANTS: 10, // 最大餐廳數量用於 AI 分析
+    MAX_RESTAURANTS: 40, // 最大餐廳數量用於 AI 分析（從 10 增加到 40）
   } as const,
 } as const;
 

@@ -49,6 +49,7 @@ export async function searchNearbyRestaurants(params: {
   openNow?: boolean;
   language?: string;
   userApiKey?: string; // 新增：使用者提供的 API Key
+  maxResults?: number; // 新增：最大結果數量
 }): Promise<Restaurant[]> {
   const {
     latitude,
@@ -58,6 +59,7 @@ export async function searchNearbyRestaurants(params: {
     openNow = MAP_CONFIG.GOOGLE_PLACES.OPEN_NOW,
     language = MAP_CONFIG.GOOGLE_PLACES.LANGUAGE,
     userApiKey, // 新增：使用者提供的 API Key
+    maxResults = 40, // 預設最多 40 間餐廳
   } = params;
 
   // 優先使用使用者提供的 API Key，否則使用環境變數
@@ -66,75 +68,127 @@ export async function searchNearbyRestaurants(params: {
     throw new Error("Missing Google Places API Key");
   }
 
-  const url = new URL(
-    "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
-  );
-  url.searchParams.set("key", apiKey);
-  url.searchParams.set("location", `${latitude},${longitude}`);
-  url.searchParams.set("radius", String(radius));
-  url.searchParams.set("type", MAP_CONFIG.GOOGLE_PLACES.TYPE);
-  url.searchParams.set("language", language);
-  if (openNow) url.searchParams.set("opennow", "true");
-  if (keyword && keyword.trim().length > 0)
-    url.searchParams.set("keyword", keyword.trim());
+  let allRestaurants: Restaurant[] = [];
+  let pageToken: string | undefined;
+  let pageCount = 0;
+  const maxPages = Math.ceil(maxResults / 20); // 每頁 20 間，計算需要幾頁
 
-  const res = await fetch(url.toString(), { cache: "no-store" });
-  if (!res.ok) {
-    throw new Error(`Google Places request failed: ${res.status}`);
-  }
-  const data: NearbySearchResponse = await res.json();
-
-  // 改進錯誤處理和日誌記錄
-  if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
-    const msg = data.error_message || data.status;
-    console.error("Google Places API error:", {
-      status: data.status,
-      error_message: data.error_message,
-      request_url: url.toString().replace(apiKey, "API_KEY_HIDDEN"),
-      params: { latitude, longitude, radius, keyword, openNow },
-    });
-    throw new Error(`Google Places error: ${msg}`);
-  }
-
-  // 記錄搜尋結果
-  console.log("Google Places search result:", {
-    status: data.status,
-    results_count: data.results?.length || 0,
-    radius_km: (radius / 1000).toFixed(1),
-    keyword: keyword || "無",
-  });
-
-  const restaurants: Restaurant[] = (data.results || []).map((p, index) => {
-    const placeLat = p.geometry?.location?.lat ?? 0;
-    const placeLng = p.geometry?.location?.lng ?? 0;
-    const distanceMeters = haversineDistanceMeters(
-      latitude,
-      longitude,
-      placeLat,
-      placeLng
+  do {
+    const url = new URL(
+      "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
     );
+    url.searchParams.set("key", apiKey);
+    url.searchParams.set("location", `${latitude},${longitude}`);
+    url.searchParams.set("radius", String(radius));
+    url.searchParams.set("type", MAP_CONFIG.GOOGLE_PLACES.TYPE);
+    url.searchParams.set("language", language);
+    if (openNow) url.searchParams.set("opennow", "true");
+    if (keyword && keyword.trim().length > 0)
+      url.searchParams.set("keyword", keyword.trim());
+    
+    // 添加分頁 token
+    if (pageToken) {
+      url.searchParams.set("pagetoken", pageToken);
+    }
 
-    return {
-      id: p.place_id || String(index),
-      name: p.name,
-      address: p.vicinity || p.formatted_address || "",
-      rating: typeof p.rating === "number" ? p.rating : 0,
-      distance: Math.round(distanceMeters / 10) / 100, // km with 2 decimals
-      cuisine: "restaurant",
-      priceRange:
-        typeof p.price_level === "number"
-          ? "$".repeat(Math.max(1, Math.min(4, p.price_level)))
-          : "$$",
-      openNow: !!openNow,
-      placeId: p.place_id,
-      photoUrl:
-        p.photos && p.photos.length > 0
-          ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${p.photos[0].photo_reference}&key=${apiKey}`
-          : undefined,
-    };
+    const res = await fetch(url.toString(), { cache: "no-store" });
+    if (!res.ok) {
+      throw new Error(`Google Places request failed: ${res.status}`);
+    }
+    const data: NearbySearchResponse = await res.json();
+
+    // 改進錯誤處理和日誌記錄
+    if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+      const msg = data.error_message || data.status;
+      console.error("Google Places API error:", {
+        status: data.status,
+        error_message: data.error_message,
+        request_url: url.toString().replace(apiKey, "API_KEY_HIDDEN"),
+        params: { latitude, longitude, radius, keyword, openNow, pageCount },
+      });
+      throw new Error(`Google Places error: ${msg}`);
+    }
+
+    // 記錄搜尋結果
+    console.log(`Google Places search result (page ${pageCount + 1}):`, {
+      status: data.status,
+      results_count: data.results?.length || 0,
+      radius_km: (radius / 1000).toFixed(1),
+      keyword: keyword || "無",
+      page_token: !!data.next_page_token,
+    });
+
+    // 處理當前頁的餐廳
+    const pageRestaurants: Restaurant[] = (data.results || []).map((p, index) => {
+      const placeLat = p.geometry?.location?.lat ?? 0;
+      const placeLng = p.geometry?.location?.lng ?? 0;
+      const distanceMeters = haversineDistanceMeters(
+        latitude,
+        longitude,
+        placeLat,
+        placeLng
+      );
+
+      return {
+        id: p.place_id || String(index),
+        name: p.name,
+        address: p.vicinity || p.formatted_address || "",
+        rating: typeof p.rating === "number" ? p.rating : 0,
+        distance: Math.round(distanceMeters / 10) / 100, // km with 2 decimals
+        cuisine: "restaurant",
+        priceRange:
+          typeof p.price_level === "number"
+            ? "$".repeat(Math.max(1, Math.min(4, p.price_level)))
+            : "$$",
+        openNow: !!openNow,
+        placeId: p.place_id,
+        photoUrl:
+          p.photos && p.photos.length > 0
+            ? `https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=${p.photos[0].photo_reference}&key=${apiKey}`
+            : undefined,
+      };
+    });
+
+    // 添加到總結果中
+    allRestaurants.push(...pageRestaurants);
+    
+    // 更新分頁 token 和計數
+    pageToken = data.next_page_token;
+    pageCount++;
+
+    // 如果已經達到目標數量，停止分頁
+    if (allRestaurants.length >= maxResults) {
+      break;
+    }
+
+    // 如果沒有更多頁面，停止分頁
+    if (!pageToken) {
+      break;
+    }
+
+    // 如果達到最大頁數限制，停止分頁
+    if (pageCount >= maxPages) {
+      break;
+    }
+
+    // Google API 要求分頁請求之間有短暫延遲
+    if (pageToken) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+
+  } while (pageToken && pageCount < maxPages);
+
+  // 限制最終結果數量
+  const finalResults = allRestaurants.slice(0, maxResults);
+
+  console.log(`Final search result:`, {
+    total_found: allRestaurants.length,
+    final_results: finalResults.length,
+    pages_searched: pageCount,
+    max_results_requested: maxResults,
   });
 
-  return restaurants;
+  return finalResults;
 }
 
 interface PlaceReview {

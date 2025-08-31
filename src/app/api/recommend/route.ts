@@ -136,6 +136,7 @@ export async function POST(request: NextRequest) {
       keyword: userInput,
       openNow: true,
       userApiKey: userGoogleApiKey, // 傳遞使用者的 Google API Key
+      maxResults: 40, // 最多搜尋 40 間餐廳
     });
 
     // 檢查是否找到餐廳

@@ -1,8 +1,9 @@
+import Card from "@/components/ui/Card";
+import { UI_CONFIG } from "@/lib/config";
 import { getPriceRangeText } from "@/lib/utils";
 import { Restaurant } from "@/types";
 import { Clock, MapPin, Star } from "lucide-react";
 import Image from "next/image";
-import { UI_CONFIG } from "@/lib/config";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -14,7 +15,10 @@ export default function RestaurantCard({
   onViewDetails,
 }: RestaurantCardProps) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors overflow-hidden">
+    <Card
+      variant="outlined"
+      className="hover:border-gray-300 transition-colors overflow-hidden"
+    >
       <div className="w-full h-44 bg-gray-100 relative">
         <Image
           src={restaurant.photoUrl || "/window.svg"}
@@ -91,6 +95,6 @@ export default function RestaurantCard({
           )}
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

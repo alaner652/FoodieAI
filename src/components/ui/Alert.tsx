@@ -1,6 +1,6 @@
-import { HTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { AlertCircle, CheckCircle, Info, XCircle } from "lucide-react";
+import { HTMLAttributes, forwardRef } from "react";
 
 export interface AlertProps extends HTMLAttributes<HTMLDivElement> {
   variant?: "info" | "success" | "warning" | "error";
@@ -9,10 +9,13 @@ export interface AlertProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const Alert = forwardRef<HTMLDivElement, AlertProps>(
-  ({ className, variant = "info", title, children, onClose, ...props }, ref) => {
+  (
+    { className, variant = "info", title, children, onClose, ...props },
+    ref
+  ) => {
     const variants = {
       info: {
-        container: "bg-blue-50 border-blue-200 text-blue-800",
+        container: "bg-orange-50 border-orange-200 text-orange-800",
         icon: "text-blue-600",
         iconComponent: Info,
       },
@@ -38,19 +41,15 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
     return (
       <div
         ref={ref}
-        className={cn(
-          "border rounded-lg p-4",
-          container,
-          className
-        )}
+        className={cn("border rounded-lg p-4", container, className)}
         {...props}
       >
         <div className="flex items-start">
-          <IconComponent className={cn("h-5 w-5 mt-0.5 flex-shrink-0 mr-3", icon)} />
+          <IconComponent
+            className={cn("h-5 w-5 mt-0.5 flex-shrink-0 mr-3", icon)}
+          />
           <div className="flex-1">
-            {title && (
-              <h3 className="font-medium mb-1">{title}</h3>
-            )}
+            {title && <h3 className="font-medium mb-1">{title}</h3>}
             <div className="text-sm">{children}</div>
           </div>
           {onClose && (

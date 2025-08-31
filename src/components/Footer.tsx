@@ -1,3 +1,4 @@
+import Container from "@/components/ui/Container";
 import { APP_CONFIG } from "@/lib/config";
 
 interface FooterProps {
@@ -9,9 +10,9 @@ export default function Footer({
 }: FooterProps) {
   return (
     <footer className="bg-gray-50 border-t border-gray-200 mt-12">
-      <div className="max-w-4xl mx-auto px-4 py-6 text-center text-gray-700">
+      <Container maxWidth="4xl" className="px-4 py-6 text-center text-gray-700">
         <p>{copyright}</p>
-      </div>
+      </Container>
     </footer>
   );
 }
