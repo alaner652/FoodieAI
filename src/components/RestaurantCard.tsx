@@ -1,5 +1,4 @@
 import Card from "@/components/ui/Card";
-import { UI_CONFIG } from "@/lib/config";
 import { getPriceRangeText } from "@/lib/utils";
 import { Restaurant } from "@/types";
 import { Clock, MapPin, Star } from "lucide-react";
@@ -7,13 +6,9 @@ import Image from "next/image";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
-  onViewDetails?: (restaurant: Restaurant) => void;
 }
 
-export default function RestaurantCard({
-  restaurant,
-  onViewDetails,
-}: RestaurantCardProps) {
+export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
   return (
     <Card
       variant="outlined"
@@ -85,14 +80,19 @@ export default function RestaurantCard({
 
         {/* 操作按鈕 */}
         <div className="flex space-x-2">
-          {onViewDetails && (
-            <button
-              onClick={() => onViewDetails(restaurant)}
-              className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
-              {UI_CONFIG.BUTTON_TEXTS.VIEW_DETAILS}
-            </button>
-          )}
+          <a
+            href={
+              restaurant.mapsUrl ||
+              `https://www.google.com/maps/search/${encodeURIComponent(
+                restaurant.name + " " + restaurant.address
+              )}`
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded text-sm font-medium hover:bg-blue-700 transition-colors text-center"
+          >
+            在 Google Maps 查看
+          </a>
         </div>
       </div>
     </Card>

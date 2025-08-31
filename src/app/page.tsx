@@ -60,7 +60,7 @@ export default function Home() {
               <div className="mt-10 flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-2 whitespace-nowrap">
                   <Users className="w-4 h-4 text-green-500 flex-shrink-0" />
-                  <span>數千用戶信賴</span>
+                  <span>解決使用者痛點</span>
                 </div>
                 <div className="hidden sm:block w-px h-4 bg-gray-300"></div>
                 <div className="flex items-center space-x-2 whitespace-nowrap">
@@ -110,10 +110,7 @@ export default function Home() {
 
             {/* Stats */}
             <div className="text-center mb-20">
-              <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                  數據會說話
-                </h3>
+              <div className="bg-white rounded-2xl p-8 border border-gray-200">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {STATS_DATA.map((stat, index) => (
                     <div key={index} className="text-center">
@@ -133,9 +130,6 @@ export default function Home() {
             <div className="text-center">
               <div className="relative overflow-hidden bg-gradient-to-br from-orange-50 to-pink-50 rounded-3xl p-12 border border-orange-200">
                 {/* 裝飾元素 */}
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-100 to-pink-100 rounded-full -translate-y-16 translate-x-16 opacity-60"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-br from-pink-100 to-orange-100 rounded-full translate-y-12 -translate-x-12 opacity-60"></div>
-
                 <div className="relative z-10">
                   {/* 標題 */}
                   <div className="mb-6">
@@ -147,22 +141,6 @@ export default function Home() {
                     </p>
                   </div>
 
-                  {/* 特色點 */}
-                  <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm text-gray-600">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-                      <span>智能分析偏好</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                      <span>精準定位推薦</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-red-400 rounded-full"></div>
-                      <span>即時獲得結果</span>
-                    </div>
-                  </div>
-
                   {/* 主要按鈕 */}
                   <Link href="/use">
                     <Button className="group relative px-10 py-5 text-xl font-bold rounded-2xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
@@ -172,11 +150,6 @@ export default function Home() {
                       </span>
                     </Button>
                   </Link>
-
-                  {/* 額外提示 */}
-                  <p className="mt-4 text-sm text-gray-500">
-                    完全免費 • 無需註冊 • 立即體驗
-                  </p>
                 </div>
               </div>
             </div>

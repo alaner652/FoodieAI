@@ -1,5 +1,6 @@
 "use client";
 
+import QuickSuggestions from "@/components/QuickSuggestions";
 import RecommendationResults from "@/components/RecommendationResults";
 import RestaurantDetails from "@/components/RestaurantDetails";
 import SearchInput from "@/components/SearchInput";
@@ -11,6 +12,7 @@ import { useCallback, useEffect, useState } from "react";
 export default function HomeClient() {
   const [userInput, setUserInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRandomLoading, setIsRandomLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<Restaurant[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [aiReason, setAiReason] = useState<string>("");
@@ -180,6 +182,58 @@ export default function HomeClient() {
     setRecommendations([selected]);
   }, [recommendations]);
 
+  const handleRandomRestaurants = useCallback(async () => {
+    if (!latitude || !longitude) {
+      setError("請先設定位置");
+      return;
+    }
+
+    setIsRandomLoading(true);
+    setError("");
+    setShowResults(false);
+
+    try {
+      // 從 localStorage 讀取使用者的 API Keys
+      const userGoogleApiKey = localStorage.getItem("userGoogleApiKey") || "";
+
+      if (!userGoogleApiKey.trim()) {
+        setError("請先設定您的 Google Places API Key，前往測試頁面進行設定。");
+        setIsRandomLoading(false);
+        return;
+      }
+
+      const response = await fetch("/api/random", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          latitude,
+          longitude,
+          radius,
+          count: 4, // 隨機選擇4間餐廳
+          userGoogleApiKey,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setRecommendations(result.data.restaurants);
+        setAiReason("這是隨機選擇的餐廳，沒有特定的偏好分析。");
+        setAiRecommendedCount(result.data.totalFound);
+        setShowResults(true);
+      } else {
+        setError(result.error || "隨機選擇失敗");
+      }
+    } catch (error) {
+      setError("隨機選擇失敗，請稍後再試");
+      console.error("隨機選擇失敗:", error);
+    } finally {
+      setIsRandomLoading(false);
+    }
+  }, [latitude, longitude, radius]);
+
   const handleViewDetails = useCallback((restaurant: Restaurant) => {
     setSelectedRestaurant(restaurant);
   }, []);
@@ -194,14 +248,33 @@ export default function HomeClient() {
         value={userInput}
         onChange={setUserInput}
         onSubmit={handleSubmit}
+        onRandomPick={handleRandomRestaurants}
         isLoading={isLoading}
+        isRandomLoading={isRandomLoading}
         error={error}
       />
 
-      {/* 重新設計的地圖設定區域 */}
-      <div className="mt-6">
-        {/* 位置設定卡片 */}
-        <div className="bg-gradient-to-br from-orange-50 via-pink-50 to-red-50 border border-orange-200 rounded-xl p-2 md:p-1.5 shadow-md">
+      {/* 推薦結果 - 顯示在搜尋框正下方 */}
+      {showResults && (
+        <div className="mt-8">
+          <RecommendationResults
+            recommendations={recommendations}
+            onRandomPick={handleRandomPick}
+            aiReason={aiReason}
+            aiRecommendedCount={aiRecommendedCount}
+          />
+        </div>
+      )}
+
+      {/* 快速建議區域 */}
+      <QuickSuggestions
+        onSuggestionClick={(suggestion) => setUserInput(suggestion)}
+        isLoading={isLoading}
+      />
+
+      {/* 範圍設定區域 */}
+      <div className="max-w-4xl mx-auto">
+        <div className="mt-6 bg-gradient-to-br from-orange-50 via-pink-50 to-red-50 border border-orange-200 rounded-xl p-2 md:p-1.5 shadow-md">
           {/* 標題區域 */}
           <div className="text-center mb-3 md:mb-2">
             <div className="inline-flex items-center justify-center w-10 h-10 md:w-8 md:h-8 bg-gradient-to-br from-orange-500 to-pink-500 rounded-lg shadow-sm mb-2 md:mb-1">
@@ -359,18 +432,6 @@ export default function HomeClient() {
           restaurant={selectedRestaurant}
           onClose={handleCloseDetails}
         />
-      )}
-
-      {showResults && (
-        <div className="mt-8">
-          <RecommendationResults
-            recommendations={recommendations}
-            onRandomPick={handleRandomPick}
-            onViewDetails={handleViewDetails}
-            aiReason={aiReason}
-            aiRecommendedCount={aiRecommendedCount}
-          />
-        </div>
       )}
     </>
   );
