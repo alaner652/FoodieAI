@@ -26,7 +26,7 @@
 
 ```bash
 # 克隆專案
-git clone https://github.com/yourusername/foodie-ai
+git clone https://github.com/alaner652/foodie-ai
 cd foodie-ai
 
 # 安裝依賴
