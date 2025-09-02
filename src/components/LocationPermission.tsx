@@ -54,7 +54,9 @@ export default function LocationPermission({
         (position) => {
           console.log("Position obtained:", position.coords);
           const { latitude, longitude } = position.coords;
-          const success = location.setManualLocation(latitude, longitude);
+          
+          // 使用智能位置設定，會自動詢問用戶是否要切換
+          const success = location.setSmartLocation(latitude, longitude, "gps");
 
           if (success) {
             console.log("Location set successfully");
@@ -64,6 +66,9 @@ export default function LocationPermission({
               )}`,
               "位置設定成功"
             );
+          } else if (location.pendingLocationUpdate) {
+            console.log("Location update pending user confirmation");
+            // 用戶需要確認位置更新，不需要顯示額外的 toast
           } else {
             console.log("Failed to set location");
           }
@@ -101,7 +106,8 @@ export default function LocationPermission({
     hasAttemptedAutoLocation,
     location.latitude,
     location.longitude,
-    location.setManualLocation,
+    location.setSmartLocation,
+    location.pendingLocationUpdate,
     showError,
     showSuccess,
     location,

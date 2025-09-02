@@ -6,6 +6,7 @@ import { useLocation } from "@/hooks/useLocation";
 import { CheckCircle, MapPin, Target } from "lucide-react";
 import { useState } from "react";
 import LocationMap from "./LocationMap";
+import LocationUpdateDialog from "./LocationUpdateDialog";
 import Card from "./ui/Card";
 import { Slider } from "./ui/slider";
 
@@ -46,7 +47,9 @@ export default function LocationSettings() {
       );
 
       const { latitude, longitude } = position.coords;
-      const success = location.setManualLocation(latitude, longitude);
+
+      // 使用智能位置設定，會自動詢問用戶是否要切換
+      const success = location.setSmartLocation(latitude, longitude, "gps");
 
       if (success) {
         showSuccess(
@@ -55,6 +58,9 @@ export default function LocationSettings() {
           )}`,
           "位置設定成功"
         );
+      } else if (location.pendingLocationUpdate) {
+        // 用戶需要確認位置更新，不需要顯示額外的 toast
+        console.log("Location update pending user confirmation");
       }
     } catch (error) {
       console.error("Failed to get location:", error);
@@ -91,172 +97,146 @@ export default function LocationSettings() {
       return;
     }
 
-    // 直接設定地圖點擊的位置
-    const success = location.setManualLocation(lat, lng);
+    // 使用智能位置設定，會自動詢問用戶是否要切換
+    const success = location.setSmartLocation(lat, lng, "network");
+
     if (success) {
       showSuccess(
         `位置已設定為：${lat.toFixed(4)}, ${lng.toFixed(4)}`,
         "位置設定成功"
       );
+    } else if (location.pendingLocationUpdate) {
+      // 用戶需要確認位置更新，不需要顯示額外的 toast
+      console.log("Location update pending user confirmation");
     }
   };
 
+  const handleConfirmLocationUpdate = () => {
+    if (location.pendingLocationUpdate) {
+      const { lat, lng, source } = location.pendingLocationUpdate;
+      location.confirmLocationUpdate(lat, lng, source);
+      showSuccess("位置已更新", "位置更新成功");
+    }
+  };
+
+  const handleRejectLocationUpdate = () => {
+    location.rejectLocationUpdate();
+  };
+
+  // 檢查是否有待確認的位置更新
+  const hasPendingUpdate = !!location.pendingLocationUpdate;
+
   return (
-    <Card variant="outlined" className="p-6">
-      {/* Status & Radius Combined */}
-      <div className="mb-4">
-        {location.latitude && location.longitude ? (
-          <div className="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="font-semibold text-gray-900">
-                    位置已設定
-                  </span>
-                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">
-                    {location.locationSource === "manual"
-                      ? "手動設定"
-                      : "自動偵測"}
-                  </span>
-                </div>
-                <div className="text-sm text-gray-600 mt-1">
-                  {location.latitude.toFixed(4)},{" "}
-                  {location.longitude.toFixed(4)}
-                </div>
-                {/* 簡化的手動設定保護狀態提示 */}
-                {location.lastManualLocation && (
-                  <div className="text-xs text-blue-600 mt-1">
-                    🛡️ 7天內受保護
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-green-600">
-                {location.radius} km
-              </div>
-              <div className="text-xs text-gray-500">半徑</div>
-            </div>
+    <div className="space-y-6">
+      {/* 位置狀態顯示 */}
+      <Card variant="outlined" className="p-6">
+        <div className="flex items-center space-x-3 mb-4">
+          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+            <CheckCircle className="w-5 h-5 text-green-600" />
           </div>
-        ) : (
-          <div className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <MapPin className="w-5 h-5 text-gray-500" />
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">位置設定</h3>
+            <p className="text-sm text-gray-500">
+              {location.latitude && location.longitude
+                ? "位置已設定"
+                : "尚未設定位置"}
+            </p>
+          </div>
+        </div>
+
+        {location.latitude && location.longitude && (
+          <div className="bg-gray-50 rounded-lg p-4 mb-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <div className="font-semibold text-gray-700">尚未設定位置</div>
-                <div className="text-sm text-gray-600">
-                  請輸入座標或使用地圖選擇
-                </div>
-                {location.error && (
-                  <div className="text-xs text-red-600 mt-1">
-                    ⚠️ {location.error}
-                  </div>
-                )}
+                <span className="text-gray-500">緯度：</span>
+                <span className="font-mono text-gray-900">
+                  {location.latitude.toFixed(6)}
+                </span>
               </div>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-bold text-gray-400">
-                {location.radius} km
+              <div>
+                <span className="text-gray-500">經度：</span>
+                <span className="font-mono text-gray-900">
+                  {location.longitude.toFixed(6)}
+                </span>
               </div>
-              <div className="text-xs text-gray-500">半徑</div>
+              <div>
+                <span className="text-gray-500">來源：</span>
+                <span className="text-gray-900">
+                  {location.locationSource === "gps"
+                    ? "GPS"
+                    : location.locationSource === "network"
+                    ? "網路"
+                    : location.locationSource === "manual"
+                    ? "手動設定"
+                    : "未知"}
+                </span>
+              </div>
+              <div>
+                <span className="text-gray-500">搜尋半徑：</span>
+                <span className="text-gray-900">{location.radius} 公里</span>
+              </div>
             </div>
           </div>
         )}
-      </div>
 
-      {/* Radius Control */}
-      <div className="mb-4">
-        <div className="flex items-center space-x-3 mb-3">
-          <Target className="w-5 h-5 text-orange-600" />
-          <h4 className="text-lg font-semibold text-gray-900">搜尋範圍</h4>
-        </div>
-
-        <div className="space-y-3">
-          {/* Slider */}
-          <div className="px-2">
-            <Slider
-              value={[location.radius]}
-              onValueChange={(values) => {
-                const newRadius = values[0];
-                if (newRadius !== undefined) {
-                  location.setRadius(newRadius);
-                }
-              }}
-              min={0.2}
-              max={5}
-              step={0.1}
-              className="w-full"
-            />
-            <div className="flex justify-between text-xs text-gray-500 mt-2">
-              <span>0.2 km</span>
-              <span>5 km</span>
-            </div>
+        {/* 搜尋半徑設定 */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            搜尋半徑：{location.radius} 公里
+          </label>
+          <Slider
+            value={[location.radius]}
+            onValueChange={(value) => location.setRadius(value[0])}
+            min={0.2}
+            max={5}
+            step={0.1}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>0.2 km</span>
+            <span>5 km</span>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Location Input */}
-      <div className="mb-4">
-        <div className="flex items-center space-x-3 mb-3">
-          <MapPin className="w-5 h-5 text-orange-600" />
-          <h4 className="text-lg font-semibold text-gray-900">設定位置</h4>
+      {/* 地圖 */}
+      <Card variant="outlined" className="p-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <MapPin className="w-5 h-5 text-gray-600" />
+          <h3 className="text-lg font-semibold text-gray-900">地圖選擇</h3>
         </div>
 
-        <div className="space-y-4">
-          {/* Interactive Map - 始終顯示 */}
-          <div className="relative">
-            <LocationMap
-              latitude={location.latitude || defaultLat}
-              longitude={location.longitude || defaultLng}
-              onLocationChange={handleMapLocationChange}
-              className="mb-4"
-            />
+        <div className="relative">
+          <LocationMap
+            latitude={location.latitude || defaultLat}
+            longitude={location.longitude || defaultLng}
+            onLocationChange={handleMapLocationChange}
+          />
 
-            {/* 定位按鈕 - 放在地圖右下角，更顯眼 */}
-            <button
-              onClick={handleGetCurrentLocation}
-              disabled={isGettingLocation}
-              className="absolute bottom-4 right-4 w-12 h-12 bg-orange-500 hover:bg-orange-600 border-2 border-white rounded-full shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center"
-              title="定位到目前位置"
-            >
-              {isGettingLocation ? (
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <svg
-                  className="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-              )}
-            </button>
-          </div>
-
-          {/* 提示說明 */}
-          <div className="text-center text-sm text-gray-500">
-            💡 點擊地圖選擇位置，或點擊右上角定位圖示自動獲取
-          </div>
+          {/* 自動定位按鈕 */}
+          <button
+            onClick={handleGetCurrentLocation}
+            disabled={isGettingLocation}
+            className="absolute bottom-4 right-4 w-12 h-12 bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 transform hover:scale-110 disabled:transform-none"
+            title="自動定位"
+          >
+            {isGettingLocation ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Target className="w-5 h-5 text-white" />
+            )}
+          </button>
         </div>
-      </div>
+      </Card>
 
-      {/* Actions */}
-      <div className="flex justify-center items-center">
-        <div className="text-xs text-gray-500">設定會自動暫存</div>
-      </div>
-    </Card>
+      {/* 位置更新確認對話框 */}
+      <LocationUpdateDialog
+        isOpen={hasPendingUpdate}
+        onClose={handleRejectLocationUpdate}
+        onConfirm={handleConfirmLocationUpdate}
+        distance={location.pendingLocationUpdate?.distance || 0}
+        source={location.pendingLocationUpdate?.source || "gps"}
+      />
+    </div>
   );
 }
