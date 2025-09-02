@@ -1,3 +1,4 @@
+import Button from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
 import { getPriceRangeText } from "@/lib/utils";
 import { Restaurant } from "@/types";
@@ -82,31 +83,37 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
 
         {/* Action Buttons */}
         <div className="flex space-x-2">
-          <a
-            href={
-              restaurant.mapsUrl ||
-              `https://www.google.com/maps/search/${encodeURIComponent(
-                restaurant.name + " " + restaurant.address
-              )}`
-            }
-            target="_blank"
-            rel="noopener noreferrer"
+          <Button
+            variant="gradient"
             className={`bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 text-center shadow-sm hover:shadow-md transform hover:scale-[1.02] ${
               restaurant.website ? "flex-1" : "w-full"
             }`}
+            onClick={() => {
+              const url =
+                restaurant.mapsUrl ||
+                `https://www.google.com/maps/search/${encodeURIComponent(
+                  restaurant.name + " " + restaurant.address
+                )}`;
+              window.open(url, "_blank", "noopener,noreferrer");
+            }}
           >
             在 Google Maps 查看
-          </a>
+          </Button>
 
           {restaurant.website && (
-            <a
-              href={restaurant.website}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Button
+              variant="gradient"
               className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 text-center shadow-sm hover:shadow-md transform hover:scale-[1.02]"
+              onClick={() => {
+                window.open(
+                  restaurant.website,
+                  "_blank",
+                  "noopener,noreferrer"
+                );
+              }}
             >
               官方網站
-            </a>
+            </Button>
           )}
         </div>
       </div>
