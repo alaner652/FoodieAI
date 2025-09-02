@@ -12,8 +12,9 @@ interface LocationState {
   pendingLocationUpdate: {
     lat: number;
     lng: number;
-    source: "gps" | "network";
+    source: "gps" | "network" | "manual";
     distance: number;
+    updateDirection?: "toReal" | "toManual";
   } | null;
 }
 
@@ -166,7 +167,7 @@ export const useLocation = () => {
 
   // 新增：確認位置更新
   const confirmLocationUpdate = useCallback(
-    (lat: number, lng: number, source: "gps" | "network") => {
+    (lat: number, lng: number, source: "gps" | "network" | "manual") => {
       const locationData = {
         latitude: lat,
         longitude: lng,
@@ -203,7 +204,7 @@ export const useLocation = () => {
 
   // 新增：智能位置設定函數，會詢問用戶是否要切換
   const setSmartLocation = useCallback(
-    (lat: number, lng: number, source: "gps" | "network") => {
+    (lat: number, lng: number, source: "gps" | "network" | "manual") => {
       // 檢查是否有手動設定的位置
       if (state.lastManualLocation && state.latitude && state.longitude) {
         const distance = calculateDistance(
@@ -276,6 +277,139 @@ export const useLocation = () => {
     return timeSinceManual > 7 * 24 * 60 * 60 * 1000;
   }, [state.lastManualLocation]);
 
+  // 新增：檢查位置準確性，在找餐廳之前調用（雙向檢查）
+  const checkLocationAccuracy = useCallback(async () => {
+    console.log("🔍 Starting location accuracy check...");
+    console.log("Current state:", {
+      hasLocation: !!(state.latitude && state.longitude),
+      hasManualLocation: !!state.lastManualLocation,
+      currentLat: state.latitude,
+      currentLng: state.longitude,
+      manualLat: state.lastManualLocation?.lat,
+      manualLng: state.lastManualLocation?.lng,
+    });
+
+    // 如果沒有位置設定，不需要檢查
+    if (!state.latitude || !state.longitude) {
+      console.log("❌ No current location set, skipping check");
+      return { needsUpdate: false };
+    }
+
+    // 檢查瀏覽器是否支援地理位置
+    if (!navigator.geolocation) {
+      console.log("❌ Geolocation not supported");
+      return { needsUpdate: false };
+    }
+
+    try {
+      console.log("📍 Getting current GPS position...");
+      // 獲取當前真實位置
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 60000,
+          });
+        }
+      );
+
+      const { latitude, longitude } = position.coords;
+      console.log("✅ GPS position obtained:", { latitude, longitude });
+
+      // 計算當前設定位置與真實位置的距離
+      const currentDistance = calculateDistance(
+        state.latitude,
+        state.longitude,
+        latitude,
+        longitude
+      );
+
+      console.log(
+        `📏 Distance: current vs real = ${currentDistance.toFixed(2)} km`
+      );
+
+      // 調整觸發條件：距離超過 0.5 公里就建議更新（更容易觸發）
+      if (currentDistance > 0.5) {
+        console.log("🚨 Distance > 0.5km, suggesting update...");
+
+        // 判斷更新方向
+        let updateDirection: "toReal" | "toManual" = "toReal";
+        let suggestedLocation = { lat: latitude, lng: longitude };
+        let source: "gps" | "network" | "manual" = "gps";
+
+        // 如果有手動設定的位置，檢查哪個更合適
+        if (state.lastManualLocation) {
+          const manualDistance = calculateDistance(
+            state.lastManualLocation.lat,
+            state.lastManualLocation.lng,
+            latitude,
+            longitude
+          );
+
+          console.log(
+            `📏 Manual vs real distance: ${manualDistance.toFixed(2)} km`
+          );
+
+          // 如果手動設定位置比當前設定位置更接近真實位置，建議更新到手動設定位置
+          if (manualDistance < currentDistance) {
+            updateDirection = "toManual";
+            suggestedLocation = {
+              lat: state.lastManualLocation.lat,
+              lng: state.lastManualLocation.lng,
+            };
+            source = "manual";
+            console.log(
+              "🔄 Suggesting update to manual location (closer to real)"
+            );
+          } else {
+            console.log(
+              "📍 Suggesting update to real location (closer to manual)"
+            );
+          }
+        }
+
+        console.log("💾 Setting pendingLocationUpdate:", {
+          lat: suggestedLocation.lat,
+          lng: suggestedLocation.lng,
+          source,
+          distance: Math.round(currentDistance * 10) / 10,
+          updateDirection,
+        });
+
+        setState((prev) => ({
+          ...prev,
+          pendingLocationUpdate: {
+            lat: suggestedLocation.lat,
+            lng: suggestedLocation.lng,
+            source,
+            distance: Math.round(currentDistance * 10) / 10,
+            updateDirection,
+          },
+        }));
+
+        return {
+          needsUpdate: true,
+          suggestedLocation,
+          distance: Math.round(currentDistance * 10) / 10,
+          updateDirection,
+        };
+      } else {
+        console.log("✅ Distance <= 0.5km, no update needed");
+      }
+
+      return { needsUpdate: false };
+    } catch (error) {
+      console.error("❌ Failed to check location accuracy:", error);
+      return { needsUpdate: false };
+    }
+  }, [
+    state.lastManualLocation,
+    state.latitude,
+    state.longitude,
+    calculateDistance,
+  ]);
+
   return {
     ...state,
     setManualLocation,
@@ -286,5 +420,6 @@ export const useLocation = () => {
     clearError,
     setRadius,
     shouldAllowAutoOverride,
+    checkLocationAccuracy, // 新增
   };
 };

@@ -4,6 +4,7 @@ import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import LocationPermission from "@/components/LocationPermission";
+import LocationUpdateDialog from "@/components/LocationUpdateDialog";
 import QuickSuggestions from "@/components/QuickSuggestions";
 import RecommendationResults from "@/components/RecommendationResults";
 import SearchInput from "@/components/SearchInput";
@@ -24,7 +25,7 @@ export default function UsePage() {
   const location = useLocation();
   const apiKeys = useApiKeys();
   const recommendations = useRecommendations();
-  const { showError, showInfo } = useToastContext();
+  const { showError, showInfo, showSuccess } = useToastContext();
 
   // Check location permission on component load
   useEffect(() => {
@@ -51,6 +52,26 @@ export default function UsePage() {
   }, [apiKeys, hasShownApiKeyReminder, showInfo]);
 
   const handleSubmit = async () => {
+    if (!location.latitude || !location.longitude) {
+      showError("請先設定位置", "位置未設定");
+      return;
+    }
+
+    // 在找餐廳之前檢查位置準確性
+    const accuracyCheck = await location.checkLocationAccuracy();
+    if (accuracyCheck.needsUpdate) {
+      // 如果位置需要更新，等待用戶確認
+      console.log("Location accuracy check: waiting for user confirmation");
+      return;
+    }
+
+    // 執行搜尋邏輯
+    await executeSearch();
+  };
+
+  // 新增：執行搜尋的實際邏輯
+  const executeSearch = async () => {
+    // 確保位置存在
     if (!location.latitude || !location.longitude) {
       showError("請先設定位置", "位置未設定");
       return;
@@ -88,6 +109,26 @@ export default function UsePage() {
       return;
     }
 
+    // 在找餐廳之前檢查位置準確性
+    const accuracyCheck = await location.checkLocationAccuracy();
+    if (accuracyCheck.needsUpdate) {
+      // 如果位置需要更新，等待用戶確認
+      console.log("Location accuracy check: waiting for user confirmation");
+      return;
+    }
+
+    // 執行隨機選擇邏輯
+    await executeRandomPick();
+  };
+
+  // 新增：執行隨機選擇的實際邏輯
+  const executeRandomPick = async () => {
+    // 確保位置存在
+    if (!location.latitude || !location.longitude) {
+      showError("請先設定位置", "位置未設定");
+      return;
+    }
+
     // Validate Google API Key
     const validation = apiKeys.validateApiKeys(["google"]);
     if (!validation.isValid) {
@@ -108,6 +149,34 @@ export default function UsePage() {
       showError("隨機選擇失敗，請稍後再試", "錯誤");
     }
   };
+
+  // 新增：處理位置更新確認
+  const handleConfirmLocationUpdate = () => {
+    if (location.pendingLocationUpdate) {
+      const { lat, lng, source } = location.pendingLocationUpdate;
+      location.confirmLocationUpdate(lat, lng, source);
+      showSuccess("位置已更新", "位置更新成功");
+    }
+  };
+
+  // 新增：處理位置更新拒絕
+  const handleRejectLocationUpdate = () => {
+    location.rejectLocationUpdate();
+    // 拒絕位置更新後，直接使用原設定位置執行原本的操作
+    console.log("Location update rejected, using original location");
+
+    // 直接執行搜尋或隨機選擇，不再次檢查位置
+    if (userInput.trim()) {
+      // 如果有輸入內容，直接執行搜尋
+      executeSearch();
+    } else {
+      // 如果沒有輸入內容，直接執行隨機選擇
+      executeRandomPick();
+    }
+  };
+
+  // 檢查是否有待確認的位置更新
+  const hasPendingUpdate = !!location.pendingLocationUpdate;
 
   return (
     <>
@@ -179,6 +248,16 @@ export default function UsePage() {
         </main>
 
         <Footer />
+
+        {/* 位置更新確認對話框 */}
+        <LocationUpdateDialog
+          isOpen={hasPendingUpdate}
+          onClose={handleRejectLocationUpdate}
+          onConfirm={handleConfirmLocationUpdate}
+          distance={location.pendingLocationUpdate?.distance || 0}
+          source={location.pendingLocationUpdate?.source || "gps"}
+          updateDirection={location.pendingLocationUpdate?.updateDirection}
+        />
       </div>
     </>
   );

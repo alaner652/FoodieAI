@@ -236,6 +236,7 @@ export default function LocationSettings() {
         onConfirm={handleConfirmLocationUpdate}
         distance={location.pendingLocationUpdate?.distance || 0}
         source={location.pendingLocationUpdate?.source || "gps"}
+        updateDirection={location.pendingLocationUpdate?.updateDirection}
       />
     </div>
   );
