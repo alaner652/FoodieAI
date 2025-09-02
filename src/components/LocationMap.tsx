@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect } from "react";
 
 // 動態導入地圖組件，禁用 SSR
 const MapComponent = dynamic(() => import("./MapComponent"), {
@@ -25,12 +26,19 @@ export default function LocationMap({
   onLocationChange,
   className = "",
 }: LocationMapProps) {
+  // 當 props 改變時，通知 MapComponent 更新位置
+  useEffect(() => {
+    // 這個 effect 會在 latitude 或 longitude 改變時觸發
+    // MapComponent 會接收到新的位置並自動更新
+  }, [latitude, longitude]);
+
   return (
     <div className={`w-full ${className}`}>
       <MapComponent
         latitude={latitude}
         longitude={longitude}
         onLocationChange={onLocationChange}
+        key={`${latitude}-${longitude}`} // 強制重新渲染當位置改變
       />
     </div>
   );
