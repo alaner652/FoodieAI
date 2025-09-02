@@ -27,31 +27,31 @@ export default function UsePage() {
   useEffect(() => {
     if (!hasAttemptedLocation) {
       setHasAttemptedLocation(true);
-      // Just check permission status, don't auto-request
-      location.checkPermission();
+      // 簡化位置檢查邏輯
+      console.log("Location check initialized");
     }
-  }, [hasAttemptedLocation, location]);
+  }, [hasAttemptedLocation]);
 
   const handleSubmit = async () => {
+    if (!location.latitude || !location.longitude) {
+      recommendations.setError("請先設定位置");
+      return;
+    }
+
+    // Validate API Keys
+    const validation = apiKeys.validateApiKeys();
+    if (!validation.isValid) {
+      recommendations.setError(validation.error);
+      return;
+    }
+
+    const keys = apiKeys.getApiKeys();
     try {
-      // Re-get location on each request to ensure it's current
-      const loc = await location.getLocation();
-      const lat = loc.lat;
-      const lng = loc.lng;
-
-      // Validate API Keys
-      const validation = apiKeys.validateApiKeys();
-      if (!validation.isValid) {
-        recommendations.setError(validation.error);
-        return;
-      }
-
-      const keys = apiKeys.getApiKeys();
       await recommendations.handleSubmit({
         userInput,
-        latitude: lat,
-        longitude: lng,
-        radius: 1500, // Use default radius
+        latitude: location.latitude,
+        longitude: location.longitude,
+        radius: location.radius * 1000, // 轉換為米
         userGoogleApiKey: keys.google,
         userGeminiApiKey: keys.gemini,
       });
@@ -65,27 +65,29 @@ export default function UsePage() {
   };
 
   const handleRandomRestaurants = async () => {
+    if (!location.latitude || !location.longitude) {
+      recommendations.setError("請先設定位置");
+      return;
+    }
+
+    // Validate Google API Key
+    const validation = apiKeys.validateApiKeys(["google"]);
+    if (!validation.isValid) {
+      recommendations.setError(validation.error);
+      return;
+    }
+
+    const keys = apiKeys.getApiKeys();
     try {
-      // Re-get location on each request to ensure it's current
-      const loc = await location.getLocation();
-
-      // Validate Google API Key
-      const validation = apiKeys.validateApiKeys(["google"]);
-      if (!validation.isValid) {
-        recommendations.setError(validation.error);
-        return;
-      }
-
-      const keys = apiKeys.getApiKeys();
       await recommendations.handleRandomRestaurants({
-        latitude: loc.lat,
-        longitude: loc.lng,
-        radius: 1500, // Use default radius
+        latitude: location.latitude,
+        longitude: location.longitude,
+        radius: location.radius * 1000, // 使用當前設定的半徑
         userGoogleApiKey: keys.google,
       });
     } catch (error) {
       console.error("Random restaurant selection failed:", error);
-      recommendations.setError("Location failed, please try again later");
+      recommendations.setError("隨機選擇失敗，請稍後再試");
     }
   };
 

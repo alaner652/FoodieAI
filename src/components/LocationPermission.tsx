@@ -23,12 +23,10 @@ export default function LocationPermission({
       !location.longitude
     ) {
       setHasAttemptedAutoLocation(true);
-      // Silently attempt to get location
-      if (location.permissionStatus !== "denied") {
-        location.handleGetLocationSilent();
-      }
+      // 簡化位置檢查邏輯
+      console.log("Location permission check initialized");
     }
-  }, [hasAttemptedAutoLocation, location.permissionStatus, location]);
+  }, [hasAttemptedAutoLocation, location.latitude, location.longitude]);
 
   useEffect(() => {
     // Call callback when location is obtained
@@ -44,25 +42,16 @@ export default function LocationPermission({
       location.error &&
       !location.isGettingLocation
     ) {
-      if (location.permissionStatus === "denied") {
-        showError(
-          "位置存取被拒絕，請前往設定頁面手動輸入位置，或在瀏覽器設定中允許位置存取",
-          "位置存取失敗",
-          10000
-        );
-      } else {
-        showError(
-          "無法自動取得位置，請前往設定頁面手動輸入位置",
-          "位置偵測失敗",
-          8000
-        );
-      }
+      showError(
+        "無法自動取得位置，請前往設定頁面手動輸入位置",
+        "位置偵測失敗",
+        8000
+      );
     }
   }, [
     hasAttemptedAutoLocation,
     location.error,
     location.isGettingLocation,
-    location.permissionStatus,
     showError,
   ]);
 

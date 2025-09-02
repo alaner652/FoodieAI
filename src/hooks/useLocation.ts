@@ -1,14 +1,5 @@
 import { useToastContext } from "@/contexts/ToastContext";
-import { UI_CONFIG } from "@/lib/config";
-import {
-  checkLocationPermission,
-  getSmartLocation,
-  LocationResult,
-  startLocationTracking,
-  stopLocationTracking,
-  validateLocation,
-} from "@/lib/utils";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface LocationState {
   latitude: number | null;
@@ -16,22 +7,22 @@ interface LocationState {
   locationSource: "gps" | "network" | "manual" | null;
   isGettingLocation: boolean;
   error: string;
-  permissionStatus: PermissionState | null;
+  radius: number; // 新增半徑設定
 }
 
 export const useLocation = () => {
-  const { showError, showSuccess } = useToastContext();
+  const { showError } = useToastContext();
   const [state, setState] = useState<LocationState>({
     latitude: null,
     longitude: null,
     locationSource: null,
     isGettingLocation: false,
     error: "",
-    permissionStatus: null,
+    radius: 1.5, // 預設半徑為 1.5 公里
   });
 
   // Track location watcher ID
-  const watchIdRef = useRef<number | null>(null);
+  // const watchIdRef = useRef<number | null>(null); // This line was removed
 
   // Initialize location from localStorage on mount
   useEffect(() => {
@@ -39,17 +30,19 @@ export const useLocation = () => {
       const savedLocation = localStorage.getItem("userLocation");
       if (savedLocation) {
         const locationData = JSON.parse(savedLocation);
-        const { latitude, longitude, locationSource, timestamp } = locationData;
+        const { latitude, longitude, locationSource, timestamp, radius } =
+          locationData;
 
         // Check if location data is still valid (not older than 24 hours)
         const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000;
 
-        if (!isExpired && validateLocation(latitude, longitude)) {
+        if (!isExpired && latitude && longitude) {
           setState((prev) => ({
             ...prev,
             latitude,
             longitude,
             locationSource,
+            radius: radius || 1.5, // 如果沒有半徑設定，使用預設值 1.5 公里
             error: "",
           }));
           console.log("Location restored from localStorage:", locationData);
@@ -66,184 +59,39 @@ export const useLocation = () => {
     }
   }, []);
 
-  const getLocation = useCallback(async (): Promise<{
-    lat: number;
-    lng: number;
-  }> => {
-    try {
-      const location = await getSmartLocation({
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 30000,
-        fallbackToLowAccuracy: true,
-        maxRetries: 2,
-      });
-
-      if (!validateLocation(location.latitude, location.longitude)) {
-        throw new Error("Invalid location obtained");
+  const setRadius = useCallback(
+    (newRadius: number) => {
+      // 驗證半徑範圍 (0.2 公里到 5 公里)
+      if (newRadius < 0.2 || newRadius > 5) {
+        showError("半徑必須在 0.2 到 5 公里之間", "半徑設定錯誤");
+        return false;
       }
 
-      // Save to localStorage for persistence
-      const locationData = {
-        latitude: location.latitude,
-        longitude: location.longitude,
-        locationSource: location.source,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem("userLocation", JSON.stringify(locationData));
+      setState((prev) => ({ ...prev, radius: newRadius }));
 
-      setState((prev) => ({
-        ...prev,
-        latitude: location.latitude,
-        longitude: location.longitude,
-        locationSource: location.source,
-        error: "",
-      }));
-
-      return { lat: location.latitude, lng: location.longitude };
-    } catch (error) {
-      console.error("Smart location failed:", error);
-      throw error;
-    }
-  }, []);
-
-  const handleGetLocation = useCallback(async () => {
-    setState((prev) => ({ ...prev, isGettingLocation: true, error: "" }));
-
-    try {
-      // Check permission first
-      const permission = await checkLocationPermission();
-      setState((prev) => ({ ...prev, permissionStatus: permission }));
-
-      console.log("Permission status:", permission);
-
-      if (permission === "denied") {
-        throw new Error(
-          "Location permission denied. Please enable location access in your browser settings."
-        );
-      }
-
-      const loc = await getLocation();
-      console.log("Location obtained successfully:", loc);
-
-      // Update permission status to granted after successful location get
-      setState((prev) => ({ ...prev, permissionStatus: "granted" }));
-
-      // Show success toast - only show once
-      showSuccess("位置偵測成功！", "位置存取");
-    } catch (error) {
-      console.error("Failed to get location:", error);
-
-      let errorMessage: string = UI_CONFIG.ERROR_MESSAGES.LOCATION_FAILED;
-      let errorTitle = "Location Error";
-
-      if (error instanceof Error) {
-        if (error.message.includes("denied")) {
-          errorMessage =
-            "Location permission denied. Please allow location access in your browser settings.";
-          errorTitle = "Permission Denied";
-        } else if (error.message.includes("not supported")) {
-          errorMessage = "Geolocation is not supported by this browser.";
-          errorTitle = "Not Supported";
-        }
-      }
-
-      setState((prev) => ({
-        ...prev,
-        error: errorMessage,
-      }));
-
-      // Show error toast
-      showError(errorMessage, errorTitle, 7000); // Longer duration for errors
-    } finally {
-      setState((prev) => ({ ...prev, isGettingLocation: false }));
-    }
-  }, [getLocation, showError, showSuccess]);
-
-  // Silent location getter - no toasts, no user interaction
-  const handleGetLocationSilent = useCallback(async () => {
-    try {
-      // Check permission first
-      const permission = await checkLocationPermission();
-      setState((prev) => ({ ...prev, permissionStatus: permission }));
-
-      if (permission === "denied") {
-        return; // Silently fail for denied permission
-      }
-
-      const loc = await getLocation();
-      console.log("Location obtained silently:", loc);
-
-      // Update permission status to granted after successful location get
-      setState((prev) => ({ ...prev, permissionStatus: "granted" }));
-    } catch (error) {
-      console.error("Silent location get failed:", error);
-      // Don't show error toast, just log it
-    }
-  }, [getLocation]);
-
-  const startLocationWatch = useCallback(() => {
-    try {
-      // If there's already a watcher running, stop it first
-      if (watchIdRef.current !== null) {
-        stopLocationTracking(watchIdRef.current);
-      }
-
-      watchIdRef.current = startLocationTracking(
-        (location: LocationResult) => {
-          if (validateLocation(location.latitude, location.longitude)) {
-            // Only update if location has changed significantly (more than 10 meters)
-            setState((prev) => {
-              if (prev.latitude && prev.longitude) {
-                const distance = Math.sqrt(
-                  Math.pow(location.latitude - prev.latitude, 2) +
-                    Math.pow(location.longitude - prev.longitude, 2)
-                );
-                // 0.0001 degrees ≈ 11 meters
-                if (distance < 0.0001) {
-                  return prev; // No significant change
-                }
-              }
-
-              // Save to localStorage only when location changes significantly
-              const locationData = {
-                latitude: location.latitude,
-                longitude: location.longitude,
-                locationSource: location.source,
-                timestamp: Date.now(),
-              };
-              localStorage.setItem(
-                "userLocation",
-                JSON.stringify(locationData)
-              );
-
-              return {
-                ...prev,
-                latitude: location.latitude,
-                longitude: location.longitude,
-                locationSource: location.source,
-              };
-            });
-            console.log("Location updated:", location);
+      // 如果已經有位置設定，更新 localStorage
+      if (state.latitude && state.longitude) {
+        try {
+          const savedLocation = localStorage.getItem("userLocation");
+          if (savedLocation) {
+            const locationData = JSON.parse(savedLocation);
+            locationData.radius = newRadius;
+            localStorage.setItem("userLocation", JSON.stringify(locationData));
           }
-        },
-        (error: Error) => {
-          console.error("Location tracking failed:", error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 30000,
+        } catch (error) {
+          console.error("Failed to update radius in localStorage:", error);
         }
-      );
-    } catch (error) {
-      console.error("Failed to start location tracking:", error);
-    }
-  }, []);
+      }
+
+      console.log("Radius updated to:", newRadius, "km");
+      return true;
+    },
+    [state.latitude, state.longitude, showError]
+  );
 
   const setManualLocation = useCallback(
     (lat: number, lng: number) => {
-      if (!validateLocation(lat, lng)) {
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
         const errorMsg = "Coordinates out of valid range";
         setState((prev) => ({
           ...prev,
@@ -258,6 +106,7 @@ export const useLocation = () => {
         latitude: lat,
         longitude: lng,
         locationSource: "manual" as const,
+        radius: state.radius,
         timestamp: Date.now(),
       };
       localStorage.setItem("userLocation", JSON.stringify(locationData));
@@ -271,10 +120,9 @@ export const useLocation = () => {
       }));
 
       console.log("Manual location set successfully:", { lat, lng });
-      // Don't show success toast here to avoid duplicate notifications
       return true;
     },
-    [showError]
+    [state.radius, showError]
   );
 
   const clearLocation = useCallback(() => {
@@ -295,43 +143,11 @@ export const useLocation = () => {
     setState((prev) => ({ ...prev, error: "" }));
   }, []);
 
-  const checkPermission = useCallback(async () => {
-    try {
-      const permission = await checkLocationPermission();
-      setState((prev) => ({ ...prev, permissionStatus: permission }));
-      return permission;
-    } catch (error) {
-      console.error("Failed to check permission:", error);
-      return "prompt";
-    }
-  }, []);
-
-  const stopLocationWatch = useCallback(() => {
-    if (watchIdRef.current !== null) {
-      stopLocationTracking(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-  }, []);
-
-  // Clean up location tracking when component unmounts
-  useEffect(() => {
-    return () => {
-      if (watchIdRef.current !== null) {
-        stopLocationTracking(watchIdRef.current);
-      }
-    };
-  }, []);
-
   return {
     ...state,
-    getLocation,
-    handleGetLocation,
-    handleGetLocationSilent,
-    startLocationWatch,
-    stopLocationWatch,
     setManualLocation,
     clearLocation,
     clearError,
-    checkPermission,
+    setRadius,
   };
 };
