@@ -9,6 +9,7 @@ import RecommendationResults from "@/components/RecommendationResults";
 import SearchInput from "@/components/SearchInput";
 
 import Container from "@/components/ui/Container";
+import { useToastContext } from "@/contexts/ToastContext";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { useLocation } from "@/hooks/useLocation";
 import { useRecommendations } from "@/hooks/useRecommendations";
@@ -22,6 +23,7 @@ export default function UsePage() {
   const location = useLocation();
   const apiKeys = useApiKeys();
   const recommendations = useRecommendations();
+  const { showError } = useToastContext();
 
   // Check location permission on component load
   useEffect(() => {
@@ -34,14 +36,14 @@ export default function UsePage() {
 
   const handleSubmit = async () => {
     if (!location.latitude || !location.longitude) {
-      recommendations.setError("請先設定位置");
+      showError("請先設定位置", "位置未設定");
       return;
     }
 
     // Validate API Keys
     const validation = apiKeys.validateApiKeys();
     if (!validation.isValid) {
-      recommendations.setError(validation.error);
+      showError(validation.error, "API Key 未設定");
       return;
     }
 
@@ -66,14 +68,14 @@ export default function UsePage() {
 
   const handleRandomRestaurants = async () => {
     if (!location.latitude || !location.longitude) {
-      recommendations.setError("請先設定位置");
+      showError("請先設定位置", "位置未設定");
       return;
     }
 
     // Validate Google API Key
     const validation = apiKeys.validateApiKeys(["google"]);
     if (!validation.isValid) {
-      recommendations.setError(validation.error);
+      showError(validation.error, "API Key 未設定");
       return;
     }
 
@@ -87,7 +89,7 @@ export default function UsePage() {
       });
     } catch (error) {
       console.error("Random restaurant selection failed:", error);
-      recommendations.setError("隨機選擇失敗，請稍後再試");
+      showError("隨機選擇失敗，請稍後再試", "錯誤");
     }
   };
 

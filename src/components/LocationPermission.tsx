@@ -12,28 +12,18 @@ export default function LocationPermission({
   const location = useLocation();
   const { showError } = useToastContext();
 
-  const [hasAttemptedAutoLocation, setHasAttemptedAutoLocation] = useState(false);
+  const [hasAttemptedAutoLocation, setHasAttemptedAutoLocation] =
+    useState(false);
 
   useEffect(() => {
-    // 只在沒有位置設定且允許自動覆蓋時才嘗試自動抓取位置
-    if (
-      !hasAttemptedAutoLocation &&
-      !location.latitude &&
-      !location.longitude &&
-      location.shouldAllowAutoOverride()
-    ) {
+    // 不再自動嘗試抓取位置，只記錄狀態
+    if (!hasAttemptedAutoLocation) {
       setHasAttemptedAutoLocation(true);
-      console.log("Location permission check initialized - auto-detection allowed");
-    } else if (
-      !hasAttemptedAutoLocation &&
-      !location.latitude &&
-      !location.longitude &&
-      !location.shouldAllowAutoOverride()
-    ) {
-      setHasAttemptedAutoLocation(true);
-      console.log("Location permission check initialized - auto-detection blocked due to recent manual setting");
+      console.log(
+        "Location permission component initialized - no auto-detection"
+      );
     }
-  }, [hasAttemptedAutoLocation, location.latitude, location.longitude, location.shouldAllowAutoOverride]);
+  }, [hasAttemptedAutoLocation]);
 
   useEffect(() => {
     // 當位置被設定時調用回調
@@ -72,7 +62,7 @@ export default function LocationPermission({
     showError,
   ]);
 
-  // 這個組件完全不可見 - 它只處理自動位置抓取
-  // 並在需要時顯示錯誤提示
+  // 這個組件完全不可見 - 它只處理位置狀態監聽
+  // 不再自動抓取位置，等待用戶主動操作
   return null;
 }
