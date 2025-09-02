@@ -86,6 +86,12 @@ export default function LocationSettings() {
                   {location.latitude.toFixed(4)},{" "}
                   {location.longitude.toFixed(4)}
                 </div>
+                {/* 新增：手動設定保護狀態提示 */}
+                {location.lastManualLocation && (
+                  <div className="text-xs text-blue-600 mt-1">
+                    🛡️ 您的手動設定受到保護，7天內不會被自動覆蓋
+                  </div>
+                )}
               </div>
             </div>
             <div className="text-right">

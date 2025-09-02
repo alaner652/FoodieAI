@@ -7,7 +7,8 @@ interface LocationState {
   locationSource: "gps" | "network" | "manual" | null;
   isGettingLocation: boolean;
   error: string;
-  radius: number; // 新增半徑設定
+  radius: number;
+  lastManualLocation: { lat: number; lng: number; timestamp: number } | null; // 新增：記錄最後手動設定的位置
 }
 
 export const useLocation = () => {
@@ -18,11 +19,9 @@ export const useLocation = () => {
     locationSource: null,
     isGettingLocation: false,
     error: "",
-    radius: 1.5, // 預設半徑為 1.5 公里
+    radius: 1.5,
+    lastManualLocation: null, // 新增
   });
-
-  // Track location watcher ID
-  // const watchIdRef = useRef<number | null>(null); // This line was removed
 
   // Initialize location from localStorage on mount
   useEffect(() => {
@@ -30,10 +29,9 @@ export const useLocation = () => {
       const savedLocation = localStorage.getItem("userLocation");
       if (savedLocation) {
         const locationData = JSON.parse(savedLocation);
-        const { latitude, longitude, locationSource, timestamp, radius } =
-          locationData;
+        const { latitude, longitude, locationSource, timestamp, radius, lastManualLocation } = locationData;
 
-        // Check if location data is still valid (not older than 24 hours)
+        // 檢查位置資料是否仍然有效（不超過 24 小時）
         const isExpired = Date.now() - timestamp > 24 * 60 * 60 * 1000;
 
         if (!isExpired && latitude && longitude) {
@@ -42,19 +40,20 @@ export const useLocation = () => {
             latitude,
             longitude,
             locationSource,
-            radius: radius || 1.5, // 如果沒有半徑設定，使用預設值 1.5 公里
+            radius: radius || 1.5,
+            lastManualLocation: lastManualLocation || null, // 恢復手動設定記錄
             error: "",
           }));
           console.log("Location restored from localStorage:", locationData);
         } else if (isExpired) {
-          // Remove expired location data
+          // 移除過期的位置資料
           localStorage.removeItem("userLocation");
           console.log("Expired location data removed from localStorage");
         }
       }
     } catch (error) {
       console.error("Failed to restore location from localStorage:", error);
-      // Remove corrupted data
+      // 移除損壞的資料
       localStorage.removeItem("userLocation");
     }
   }, []);
@@ -101,13 +100,19 @@ export const useLocation = () => {
         return false;
       }
 
-      // Save to localStorage for persistence
+      const now = Date.now();
+      
+      // 記錄手動設定的位置和時間
+      const manualLocation = { lat, lng, timestamp: now };
+
+      // 儲存到 localStorage 以保持持久性
       const locationData = {
         latitude: lat,
         longitude: lng,
         locationSource: "manual" as const,
         radius: state.radius,
-        timestamp: Date.now(),
+        timestamp: now,
+        lastManualLocation: manualLocation, // 記錄手動設定
       };
       localStorage.setItem("userLocation", JSON.stringify(locationData));
 
@@ -116,6 +121,7 @@ export const useLocation = () => {
         latitude: lat,
         longitude: lng,
         locationSource: "manual",
+        lastManualLocation: manualLocation, // 更新狀態
         error: "",
       }));
 
@@ -125,8 +131,52 @@ export const useLocation = () => {
     [state.radius, showError]
   );
 
+  // 新增：智能位置設定函數
+  const setSmartLocation = useCallback(
+    (lat: number, lng: number, source: "gps" | "network") => {
+      // 檢查是否有手動設定的位置
+      if (state.lastManualLocation) {
+        const manualTime = state.lastManualLocation.timestamp;
+        const now = Date.now();
+        const timeSinceManual = now - manualTime;
+        
+        // 如果手動設定在 7 天內，則不覆蓋
+        if (timeSinceManual < 7 * 24 * 60 * 60 * 1000) {
+          console.log("Manual location is recent, not overriding with auto-detection");
+          return false;
+        }
+        
+        // 如果手動設定超過 7 天，詢問用戶是否要更新
+        console.log("Manual location is old, suggesting update");
+      }
+
+      // 儲存自動偵測的位置
+      const locationData = {
+        latitude: lat,
+        longitude: lng,
+        locationSource: source,
+        radius: state.radius,
+        timestamp: Date.now(),
+        lastManualLocation: state.lastManualLocation, // 保持手動設定記錄
+      };
+      localStorage.setItem("userLocation", JSON.stringify(locationData));
+
+      setState((prev) => ({
+        ...prev,
+        latitude: lat,
+        longitude: lng,
+        locationSource: source,
+        error: "",
+      }));
+
+      console.log("Smart location set successfully:", { lat, lng, source });
+      return true;
+    },
+    [state.radius, state.lastManualLocation]
+  );
+
   const clearLocation = useCallback(() => {
-    // Remove from localStorage
+    // 從 localStorage 移除
     localStorage.removeItem("userLocation");
 
     setState((prev) => ({
@@ -134,6 +184,7 @@ export const useLocation = () => {
       latitude: null,
       longitude: null,
       locationSource: null,
+      lastManualLocation: null, // 清除手動設定記錄
       error: "",
     }));
     console.log("Location cleared");
@@ -143,11 +194,22 @@ export const useLocation = () => {
     setState((prev) => ({ ...prev, error: "" }));
   }, []);
 
+  // 新增：檢查是否應該允許自動位置覆蓋
+  const shouldAllowAutoOverride = useCallback(() => {
+    if (!state.lastManualLocation) return true;
+    
+    const timeSinceManual = Date.now() - state.lastManualLocation.timestamp;
+    // 手動設定超過 7 天才允許自動覆蓋
+    return timeSinceManual > 7 * 24 * 60 * 60 * 1000;
+  }, [state.lastManualLocation]);
+
   return {
     ...state,
     setManualLocation,
+    setSmartLocation, // 新增
     clearLocation,
     clearError,
     setRadius,
+    shouldAllowAutoOverride, // 新增
   };
 };
