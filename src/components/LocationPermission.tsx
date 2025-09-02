@@ -12,8 +12,13 @@ export default function LocationPermission({
   const location = useLocation();
   const { showError, showSuccess } = useToastContext();
 
-  const [hasAttemptedAutoLocation, setHasAttemptedAutoLocation] =
-    useState(false);
+  const [hasAttemptedAutoLocation, setHasAttemptedAutoLocation] = useState(() => {
+    // 從 localStorage 檢查是否已經嘗試過自動抓取
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("hasAttemptedAutoLocation") === "true";
+    }
+    return false;
+  });
 
   useEffect(() => {
     console.log("LocationPermission useEffect triggered", {
@@ -23,7 +28,7 @@ export default function LocationPermission({
       longitude: location.longitude,
     });
 
-    // 第一次進入網站時自動嘗試抓取位置
+    // 只在第一次進入網站且沒有位置設定時嘗試自動抓取
     if (
       !hasAttemptedAutoLocation &&
       !location.latitude &&
@@ -31,6 +36,9 @@ export default function LocationPermission({
     ) {
       console.log("Attempting to get location automatically...");
       setHasAttemptedAutoLocation(true);
+      
+      // 記錄到 localStorage，避免下次進入時重複嘗試
+      localStorage.setItem("hasAttemptedAutoLocation", "true");
 
       // 檢查瀏覽器是否支援地理位置
       if (!navigator.geolocation) {
@@ -86,6 +94,8 @@ export default function LocationPermission({
           maximumAge: 60000,
         }
       );
+    } else if (hasAttemptedAutoLocation) {
+      console.log("Auto location already attempted, skipping...");
     }
   }, [
     hasAttemptedAutoLocation,
