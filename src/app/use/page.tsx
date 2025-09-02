@@ -18,12 +18,13 @@ import { useEffect, useState } from "react";
 export default function UsePage() {
   const [userInput, setUserInput] = useState("");
   const [hasAttemptedLocation, setHasAttemptedLocation] = useState(false);
+  const [hasShownApiKeyReminder, setHasShownApiKeyReminder] = useState(false);
 
   // Use custom hooks
   const location = useLocation();
   const apiKeys = useApiKeys();
   const recommendations = useRecommendations();
-  const { showError } = useToastContext();
+  const { showError, showInfo } = useToastContext();
 
   // Check location permission on component load
   useEffect(() => {
@@ -33,6 +34,21 @@ export default function UsePage() {
       console.log("Location check initialized");
     }
   }, [hasAttemptedLocation]);
+
+  // 檢查 API keys 並顯示提醒
+  useEffect(() => {
+    if (!hasShownApiKeyReminder) {
+      const validation = apiKeys.validateApiKeys();
+      if (!validation.isValid) {
+        showInfo(
+          "請先前往設定頁面設定您的 API Keys，這樣才能使用推薦功能",
+          "設定提醒",
+          8000
+        );
+        setHasShownApiKeyReminder(true);
+      }
+    }
+  }, [apiKeys, hasShownApiKeyReminder, showInfo]);
 
   const handleSubmit = async () => {
     if (!location.latitude || !location.longitude) {

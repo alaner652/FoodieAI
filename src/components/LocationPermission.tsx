@@ -10,20 +10,61 @@ export default function LocationPermission({
   onLocationObtained,
 }: LocationPermissionnProps) {
   const location = useLocation();
-  const { showError } = useToastContext();
+  const { showError, showSuccess } = useToastContext();
 
   const [hasAttemptedAutoLocation, setHasAttemptedAutoLocation] =
     useState(false);
 
   useEffect(() => {
-    // 不再自動嘗試抓取位置，只記錄狀態
-    if (!hasAttemptedAutoLocation) {
+    // 第一次進入網站時自動嘗試抓取位置
+    if (
+      !hasAttemptedAutoLocation &&
+      !location.latitude &&
+      !location.longitude
+    ) {
       setHasAttemptedAutoLocation(true);
-      console.log(
-        "Location permission component initialized - no auto-detection"
+
+      // 檢查瀏覽器是否支援地理位置
+      if (!navigator.geolocation) {
+        showError("您的瀏覽器不支援地理位置功能", "功能不支援");
+        return;
+      }
+
+      // 嘗試自動獲取位置
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const success = location.setManualLocation(latitude, longitude);
+
+          if (success) {
+            showSuccess(
+              `已自動獲取您的位置：${latitude.toFixed(4)}, ${longitude.toFixed(
+                4
+              )}`,
+              "位置設定成功"
+            );
+          }
+        },
+        (error) => {
+          console.log("Auto location failed:", error);
+          // 不顯示錯誤 toast，因為這是自動嘗試，用戶可能不知道
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 60000,
+        }
       );
     }
-  }, [hasAttemptedAutoLocation]);
+  }, [
+    hasAttemptedAutoLocation,
+    location.latitude,
+    location.longitude,
+    location.setManualLocation,
+    showError,
+    showSuccess,
+    location,
+  ]);
 
   useEffect(() => {
     // 當位置被設定時調用回調
@@ -32,37 +73,7 @@ export default function LocationPermission({
     }
   }, [location.latitude, location.longitude, onLocationObtained]);
 
-  useEffect(() => {
-    // 只在有問題且用戶嘗試過位置偵測時顯示錯誤提示
-    if (
-      hasAttemptedAutoLocation &&
-      location.error &&
-      !location.isGettingLocation
-    ) {
-      // 根據是否有手動設定來決定錯誤訊息
-      if (location.lastManualLocation) {
-        showError(
-          "自動偵測位置失敗，但您有手動設定的位置可以使用",
-          "位置偵測提示",
-          5000
-        );
-      } else {
-        showError(
-          "無法自動取得位置，請前往設定頁面手動輸入位置",
-          "位置偵測失敗",
-          8000
-        );
-      }
-    }
-  }, [
-    hasAttemptedAutoLocation,
-    location.error,
-    location.isGettingLocation,
-    location.lastManualLocation,
-    showError,
-  ]);
-
-  // 這個組件完全不可見 - 它只處理位置狀態監聽
-  // 不再自動抓取位置，等待用戶主動操作
+  // 這個組件完全不可見 - 它只處理自動位置抓取
+  // 並在需要時顯示錯誤提示
   return null;
 }
