@@ -1,12 +1,11 @@
 "use client";
 
 import { useToastContext } from "@/contexts/ToastContext";
-import { useLocation } from "@/hooks/useLocation";
 import { useApiKeys } from "@/hooks/useApiKeys";
+import { useLocation } from "@/hooks/useLocation";
 import { CheckCircle, MapPin, Target } from "lucide-react";
 import { useState } from "react";
 import LocationMap from "./LocationMap";
-import Button from "./ui/Button";
 import Card from "./ui/Card";
 import { Slider } from "./ui/slider";
 
