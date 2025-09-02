@@ -1,5 +1,5 @@
-import { InputHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
+import { InputHTMLAttributes, forwardRef } from "react";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -37,10 +37,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           <input
             className={cn(
-              "block w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-500",
+              "block w-full border border-gray-300 rounded-lg transition-colors bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent",
               LeftIcon && "pl-10",
-              RightIcon && "pr-10",
-              error && "border-red-300 focus:ring-red-500 focus:border-red-300",
+              RightIcon && "pl-10",
+              error && "border-red-300 focus:ring-red-500",
               className
             )}
             ref={ref}
@@ -56,9 +56,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             </button>
           )}
         </div>
-        {error && (
-          <p className="mt-1 text-sm text-red-600">{error}</p>
-        )}
+        {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       </div>
     );
   }
