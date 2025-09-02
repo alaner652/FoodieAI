@@ -2,14 +2,17 @@
 
 import { useToastContext } from "@/contexts/ToastContext";
 import { useLocation } from "@/hooks/useLocation";
+import { useApiKeys } from "@/hooks/useApiKeys";
 import { CheckCircle, MapPin, Target } from "lucide-react";
 import { useState } from "react";
 import LocationMap from "./LocationMap";
+import Button from "./ui/Button";
 import Card from "./ui/Card";
 import { Slider } from "./ui/slider";
 
 export default function LocationSettings() {
   const location = useLocation();
+  const apiKeys = useApiKeys();
   const { showSuccess, showError } = useToastContext();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
 
@@ -18,6 +21,13 @@ export default function LocationSettings() {
   const defaultLng = 121.5654;
 
   const handleGetCurrentLocation = async () => {
+    // 檢查 API keys
+    const validation = apiKeys.validateApiKeys();
+    if (!validation.isValid) {
+      showError(validation.error, "API Key 未設定");
+      return;
+    }
+
     if (!navigator.geolocation) {
       showError("您的瀏覽器不支援地理位置功能", "功能不支援");
       return;
@@ -75,6 +85,13 @@ export default function LocationSettings() {
   };
 
   const handleMapLocationChange = (lat: number, lng: number) => {
+    // 檢查 API keys
+    const validation = apiKeys.validateApiKeys();
+    if (!validation.isValid) {
+      showError(validation.error, "API Key 未設定");
+      return;
+    }
+
     // 直接設定地圖點擊的位置
     const success = location.setManualLocation(lat, lng);
     if (success) {
