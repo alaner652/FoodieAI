@@ -14,7 +14,7 @@ export default function Hero({
       <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 mb-4">
         {title}
         <br />
-        <span className="text-blue-600">{subtitle}</span>
+        <span className="text-orange-600">{subtitle}</span>
       </h2>
       <p className="text-lg text-gray-700 max-w-2xl mx-auto">{description}</p>
     </div>

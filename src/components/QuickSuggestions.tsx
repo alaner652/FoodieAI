@@ -91,7 +91,7 @@ export default function QuickSuggestions({
                   <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     {category.category}
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {category.suggestions.map((suggestion) => (
                       <button
                         key={suggestion.text}

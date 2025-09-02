@@ -95,9 +95,9 @@ export default function RecommendationResults({
   return (
     <div className="max-w-4xl mx-auto">
       {/* Restaurant Card List */}
-      <div className="grid gap-6 mb-12">
+      <div className="grid gap-6 mb-12 grid-cols-1">
         {recommendations.map((restaurant, index) => (
-          <div key={restaurant.id} className="relative">
+          <div key={restaurant.id} className="relative w-full">
             {/* Ranking Tag */}
             <div className="absolute -top-3 -left-3 z-10">
               <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">

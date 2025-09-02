@@ -14,7 +14,7 @@ export default function Home() {
         <Header showNav={false} />
 
         <main className="py-16">
-          <Container maxWidth="6xl" className="px-4">
+          <Container maxWidth="6xl" className="px-4 sm:px-6">
             {/* Hero Section */}
             <div className="text-center mb-20">
               {/* Badge */}

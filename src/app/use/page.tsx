@@ -6,20 +6,16 @@ import Header from "@/components/Header";
 import LocationPermission from "@/components/LocationPermission";
 import QuickSuggestions from "@/components/QuickSuggestions";
 import RecommendationResults from "@/components/RecommendationResults";
-import RestaurantDetails from "@/components/RestaurantDetails";
 import SearchInput from "@/components/SearchInput";
 
 import Container from "@/components/ui/Container";
 import { useApiKeys } from "@/hooks/useApiKeys";
 import { useLocation } from "@/hooks/useLocation";
 import { useRecommendations } from "@/hooks/useRecommendations";
-import { Restaurant } from "@/types";
 import { useEffect, useState } from "react";
 
 export default function UsePage() {
   const [userInput, setUserInput] = useState("");
-  const [selectedRestaurant, setSelectedRestaurant] =
-    useState<Restaurant | null>(null);
   const [hasAttemptedLocation, setHasAttemptedLocation] = useState(false);
 
   // Use custom hooks
@@ -93,17 +89,13 @@ export default function UsePage() {
     }
   };
 
-  const handleCloseDetails = () => {
-    setSelectedRestaurant(null);
-  };
-
   return (
     <>
       <div className="min-h-screen bg-white">
         <Header showNav={true} />
 
         <main className="py-16">
-          <Container maxWidth="6xl" className="px-4">
+          <Container maxWidth="6xl" className="px-4 sm:px-6">
             {/* Page Title Area */}
             <div className="text-center mb-16">
               <div className="inline-flex items-center space-x-2 bg-orange-50 text-orange-600 px-4 py-2 rounded-full text-sm font-medium mb-6">
@@ -167,14 +159,6 @@ export default function UsePage() {
         </main>
 
         <Footer />
-
-        {/* Restaurant Details Modal */}
-        {selectedRestaurant && (
-          <RestaurantDetails
-            restaurant={selectedRestaurant}
-            onClose={handleCloseDetails}
-          />
-        )}
       </div>
     </>
   );
