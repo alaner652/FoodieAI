@@ -91,7 +91,9 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
             }
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-1 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white py-2 px-3 rounded text-sm font-medium transition-all duration-200 text-center shadow-sm hover:shadow-md transform hover:scale-[1.02]"
+            className={`bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 text-center shadow-sm hover:shadow-md transform hover:scale-[1.02] ${
+              restaurant.website ? "flex-1" : "w-full"
+            }`}
           >
             在 Google Maps 查看
           </a>
@@ -101,7 +103,7 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
               href={restaurant.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-2 px-3 rounded text-sm font-medium transition-all duration-200 text-center shadow-sm hover:shadow-md transform hover:scale-[1.02]"
+              className="flex-1 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 text-center shadow-sm hover:shadow-md transform hover:scale-[1.02]"
             >
               官方網站
             </a>
