@@ -3,6 +3,7 @@
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import LocationDistanceChecker from "@/components/LocationDisplay";
 import LocationPermission from "@/components/LocationPermission";
 import LocationUpdateDialog from "@/components/LocationUpdateDialog";
 import QuickSuggestions from "@/components/QuickSuggestions";
@@ -199,6 +200,9 @@ export default function UsePage() {
                 告訴我們您的偏好，AI 會為您推薦最適合的餐廳
               </p>
             </div>
+
+            {/* 背景位置距離檢查 - 無 UI，只在距離太遠時用 Toast 提醒 */}
+            <LocationDistanceChecker />
 
             {/* Main Functionality Area */}
             <div className="mb-16">

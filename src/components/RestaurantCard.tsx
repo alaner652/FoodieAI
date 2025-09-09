@@ -15,20 +15,22 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
       variant="outlined"
       className="hover:border-orange-300 hover:shadow-md transition-all duration-200 overflow-hidden w-full max-w-full group"
     >
-      <div className="w-full h-44 bg-gray-100 relative">
-        <Image
-          src={restaurant.photoUrl || "/window.svg"}
-          alt={restaurant.name}
-          fill
-          className="object-cover"
-          loading="lazy"
-          onError={(e) => {
-            const img = e.currentTarget as HTMLImageElement;
-            if (img.src.endsWith("/window.svg")) return;
-            img.src = "/window.svg";
-          }}
-        />
-      </div>
+      {restaurant.photoUrl && (
+        <div className="w-full h-44 bg-gray-100 relative">
+          <Image
+            src={restaurant.photoUrl}
+            alt={restaurant.name}
+            fill
+            className="object-cover"
+            loading="lazy"
+            onError={(e) => {
+              const img = e.currentTarget as HTMLImageElement;
+              if (img.src.endsWith("/window.svg")) return;
+              img.src = "/window.svg";
+            }}
+          />
+        </div>
+      )}
       {/* Card Header */}
       <div className="p-4">
         <div className="flex items-start justify-between mb-3">
