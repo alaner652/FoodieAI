@@ -119,7 +119,6 @@ export default function QuickSuggestions({
                       disabled={isLoading}
                       className="p-2 bg-gray-50 border border-gray-200 rounded-md text-xs text-gray-600 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 disabled:opacity-50 transition-all duration-200 text-center"
                     >
-                      <span className="mr-1">{combo.emoji}</span>
                       {combo.text}
                     </button>
                   ))}
