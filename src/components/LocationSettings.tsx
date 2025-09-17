@@ -97,17 +97,14 @@ export default function LocationSettings() {
       return;
     }
 
-    // 使用智能位置設定，會自動詢問用戶是否要切換
-    const success = location.setSmartLocation(lat, lng, "network");
+    // 地圖上的位置變更應該直接設定，不需要智能檢查
+    const success = location.setManualLocation(lat, lng);
 
     if (success) {
       showSuccess(
         `位置已設定為：${lat.toFixed(4)}, ${lng.toFixed(4)}`,
         "位置設定成功"
       );
-    } else if (location.pendingLocationUpdate) {
-      // 用戶需要確認位置更新，不需要顯示額外的 toast
-      console.log("Location update pending user confirmation");
     }
   };
 
