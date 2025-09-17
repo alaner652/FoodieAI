@@ -2,7 +2,7 @@
 
 import { useToastContext } from "@/contexts/ToastContext";
 import { useLocation } from "@/hooks/useLocation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface LocationDistanceCheckerProps {
   autoCheck?: boolean; // 是否自動檢查
@@ -15,30 +15,28 @@ export default function LocationDistanceChecker({
 }: LocationDistanceCheckerProps) {
   const location = useLocation();
   const { showWarning } = useToastContext();
-  const [lastCheckTime, setLastCheckTime] = useState<number | null>(null);
+  const [, setLastCheckTime] = useState<number | null>(null);
 
   // 計算兩個位置之間的距離（公里）
-  const calculateDistance = (
-    lat1: number,
-    lng1: number,
-    lat2: number,
-    lng2: number
-  ): number => {
-    const R = 6371; // 地球半徑（公里）
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLng = ((lng2 - lng1) * Math.PI) / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLng / 2) *
-        Math.sin(dLng / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  };
+  const calculateDistance = useCallback(
+    (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+      const R = 6371; // 地球半徑（公里）
+      const dLat = ((lat2 - lat1) * Math.PI) / 180;
+      const dLng = ((lng2 - lng1) * Math.PI) / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos((lat1 * Math.PI) / 180) *
+          Math.cos((lat2 * Math.PI) / 180) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    },
+    []
+  );
 
   // 檢查位置距離
-  const checkLocationDistance = async () => {
+  const checkLocationDistance = useCallback(async () => {
     // 如果沒有設定位置，不檢查
     if (!location.latitude || !location.longitude) {
       return;
@@ -83,7 +81,13 @@ export default function LocationDistanceChecker({
       // 靜默處理錯誤，不打擾用戶
       console.log("Location check failed (silent):", error);
     }
-  };
+  }, [
+    location.latitude,
+    location.longitude,
+    showWarning,
+    calculateDistance,
+    setLastCheckTime,
+  ]);
 
   // 自動檢查邏輯
   useEffect(() => {
@@ -103,7 +107,7 @@ export default function LocationDistanceChecker({
       clearTimeout(initialTimer);
       clearInterval(intervalTimer);
     };
-  }, [autoCheck, checkInterval, location.latitude, location.longitude]);
+  }, [autoCheck, checkInterval, checkLocationDistance]);
 
   // 這個組件不渲染任何 UI，只是背景運行
   return null;
