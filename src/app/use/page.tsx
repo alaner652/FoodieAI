@@ -2,7 +2,6 @@
 
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
-import Header from "@/components/Header";
 import LocationDistanceChecker from "@/components/LocationDisplay";
 import LocationPermission from "@/components/LocationPermission";
 import LocationUpdateDialog from "@/components/LocationUpdateDialog";
@@ -182,8 +181,6 @@ export default function UsePage() {
   return (
     <>
       <div className="min-h-screen bg-white">
-        <Header showNav={true} />
-
         <main className="py-16">
           <Container maxWidth="6xl" className="px-4 sm:px-6">
             {/* Page Title Area */}

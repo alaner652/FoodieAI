@@ -2,6 +2,7 @@ import { recommendRestaurantsWithAI } from "@/lib/ai";
 import { API_CONFIG } from "@/lib/config";
 import { getPlaceDetails, searchNearbyRestaurants } from "@/lib/google";
 import { RecommendationRequest, Restaurant } from "@/types";
+import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 /**
@@ -116,6 +117,15 @@ function generateFallbackReason(
 
 export async function POST(request: NextRequest) {
   try {
+    // Check authentication
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json(
+        { success: false, error: "未授權訪問" },
+        { status: 401 }
+      );
+    }
+
     const body: RecommendationRequest = await request.json();
 
     // Validate request

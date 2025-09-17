@@ -1,5 +1,4 @@
 import ApiKeySettings from "@/components/ApiKeySettings";
-import Header from "@/components/Header";
 import LocationSettings from "@/components/LocationSettings";
 import Container from "@/components/ui/Container";
 import { Key, MapPin } from "lucide-react";
@@ -8,8 +7,6 @@ export default function SettingsPage() {
   return (
     <>
       <div className="min-h-screen bg-white">
-        <Header showNav={true} />
-
         <main className="py-16">
           <Container maxWidth="4xl" className="px-4">
             {/* Page Title */}
