@@ -17,6 +17,15 @@ export const useApiKeys = () => {
     return { google: "", gemini: "" };
   });
 
+  // Get effective API keys with fallback to environment variables
+  const getEffectiveApiKeys = useCallback((): ApiKeys => {
+    return {
+      google:
+        apiKeys.google || process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "",
+      gemini: apiKeys.gemini || process.env.NEXT_PUBLIC_GEMINI_API_KEY || "",
+    };
+  }, [apiKeys]);
+
   const updateApiKey = useCallback((type: keyof ApiKeys, value: string) => {
     setApiKeys((prev) => ({ ...prev, [type]: value }));
     localStorage.setItem(
@@ -27,7 +36,10 @@ export const useApiKeys = () => {
 
   const validateApiKeys = useCallback(
     (requiredKeys: (keyof ApiKeys)[] = ["google", "gemini"]) => {
-      const missingKeys = requiredKeys.filter((key) => !apiKeys[key].trim());
+      const effectiveKeys = getEffectiveApiKeys();
+      const missingKeys = requiredKeys.filter(
+        (key) => !effectiveKeys[key].trim()
+      );
 
       if (missingKeys.length > 0) {
         const keyNames = {
@@ -46,15 +58,20 @@ export const useApiKeys = () => {
 
       return { isValid: true, error: "" };
     },
-    [apiKeys]
+    [getEffectiveApiKeys]
   );
 
-  const getApiKeys = useCallback(() => apiKeys, [apiKeys]);
+  const getApiKeys = useCallback(
+    () => getEffectiveApiKeys(),
+    [getEffectiveApiKeys]
+  );
 
   return {
-    apiKeys,
+    apiKeys, // 原始用戶設定的 keys (用於 UI 顯示)
+    effectiveApiKeys: getEffectiveApiKeys(), // 實際使用的 keys (包含 fallback)
     updateApiKey,
     validateApiKeys,
-    getApiKeys,
+    getApiKeys, // 返回實際使用的 keys
+    getEffectiveApiKeys,
   };
 };

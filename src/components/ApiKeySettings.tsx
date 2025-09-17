@@ -2,7 +2,16 @@
 
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { Eye, EyeOff, Info, Key, Save, RefreshCw, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle,
+  Eye,
+  EyeOff,
+  Info,
+  Key,
+  RefreshCw,
+  Save,
+} from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 interface ApiKeySettingsProps {
@@ -27,6 +36,15 @@ export default function ApiKeySettings({
     setGeminiApiKey(savedGeminiKey);
   }, []);
 
+  // Check if we have environment variables as fallback
+  const hasGoogleEnvKey = !!process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
+  const hasGeminiEnvKey = !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+
+  const effectiveGoogleKey =
+    googleApiKey || (hasGoogleEnvKey ? "使用預設金鑰" : "");
+  const effectiveGeminiKey =
+    geminiApiKey || (hasGeminiEnvKey ? "使用預設金鑰" : "");
+
   const handleSave = useCallback(() => {
     localStorage.setItem("userGoogleApiKey", googleApiKey);
     localStorage.setItem("userGeminiKey", geminiApiKey);
@@ -41,10 +59,12 @@ export default function ApiKeySettings({
     localStorage.removeItem("userGeminiKey");
   }, []);
 
-  const isConfigured = googleApiKey && geminiApiKey;
+  const isConfigured = effectiveGoogleKey && effectiveGeminiKey;
 
   return (
-    <div className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}>
+    <div
+      className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-3">
@@ -55,7 +75,7 @@ export default function ApiKeySettings({
             </span>
           )}
         </div>
-        
+
         <Button
           variant="outline"
           onClick={() => setIsExpanded(!isExpanded)}
@@ -67,32 +87,50 @@ export default function ApiKeySettings({
 
       {/* Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <div className={`p-3 rounded-lg border ${
-          googleApiKey ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
-        }`}>
+        <div
+          className={`p-3 rounded-lg border ${
+            effectiveGoogleKey
+              ? "bg-green-50 border-green-200"
+              : "bg-amber-50 border-amber-200"
+          }`}
+        >
           <div className="flex items-center space-x-2">
-            {googleApiKey ? (
+            {effectiveGoogleKey ? (
               <CheckCircle className="w-4 h-4 text-green-600" />
             ) : (
               <AlertCircle className="w-4 h-4 text-amber-600" />
             )}
             <span className="text-sm font-medium">
-              Google Places API: {googleApiKey ? '已設定' : '未設定'}
+              Google Places API:{" "}
+              {effectiveGoogleKey
+                ? googleApiKey
+                  ? "已設定"
+                  : "使用預設"
+                : "未設定"}
             </span>
           </div>
         </div>
 
-        <div className={`p-3 rounded-lg border ${
-          geminiApiKey ? 'bg-green-50 border-green-200' : 'bg-amber-50 border-amber-200'
-        }`}>
+        <div
+          className={`p-3 rounded-lg border ${
+            effectiveGeminiKey
+              ? "bg-green-50 border-green-200"
+              : "bg-amber-50 border-amber-200"
+          }`}
+        >
           <div className="flex items-center space-x-2">
-            {geminiApiKey ? (
+            {effectiveGeminiKey ? (
               <CheckCircle className="w-4 h-4 text-green-600" />
             ) : (
               <AlertCircle className="w-4 h-4 text-amber-600" />
             )}
             <span className="text-sm font-medium">
-              Gemini AI API: {geminiApiKey ? '已設定' : '未設定'}
+              Gemini AI API:{" "}
+              {effectiveGeminiKey
+                ? geminiApiKey
+                  ? "已設定"
+                  : "使用預設"
+                : "未設定"}
             </span>
           </div>
         </div>
@@ -103,7 +141,9 @@ export default function ApiKeySettings({
         <div className="flex items-start space-x-2">
           <Info className="w-4 h-4 text-blue-600 mt-0.5" />
           <p className="text-sm text-blue-800">
-            設定 API 金鑰以啟用完整的餐廳推薦功能
+            {isConfigured
+              ? "API 金鑰已配置完成，可以使用完整的餐廳推薦功能"
+              : "設定個人 API 金鑰以獲得最佳體驗，或使用預設金鑰（如果可用）"}
           </p>
         </div>
       </div>
@@ -148,13 +188,29 @@ export default function ApiKeySettings({
             </p>
           </div>
 
+          {/* Environment Keys Status */}
+          {(hasGoogleEnvKey || hasGeminiEnvKey) && (
+            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+              <h4 className="text-sm font-medium text-green-900 mb-2">
+                🔧 預設金鑰狀態
+              </h4>
+              <div className="space-y-1 text-xs text-green-800">
+                {hasGoogleEnvKey && <p>✅ Google Places API 預設金鑰已配置</p>}
+                {hasGeminiEnvKey && <p>✅ Gemini AI API 預設金鑰已配置</p>}
+                <p className="text-green-700 font-medium mt-2">
+                  如果未設定個人金鑰，將自動使用預設金鑰
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex gap-3 pt-2">
             <Button onClick={handleSave} size="sm">
               <Save className="w-4 h-4 mr-2" />
               保存設定
             </Button>
-            
+
             <Button variant="outline" onClick={handleReset} size="sm">
               <RefreshCw className="w-4 h-4 mr-2" />
               重置
@@ -172,17 +228,29 @@ export default function ApiKeySettings({
 
           {/* Help Links */}
           <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-900 mb-2">如何獲取 API Keys？</h4>
+            <h4 className="text-sm font-medium text-gray-900 mb-2">
+              如何獲取 API Keys？
+            </h4>
             <div className="space-y-2 text-xs text-gray-600">
               <p>
                 <strong>Google Places API:</strong>{" "}
-                <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                <a
+                  href="https://console.cloud.google.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
                   前往 Google Cloud Console
                 </a>
               </p>
               <p>
                 <strong>Gemini API:</strong>{" "}
-                <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                <a
+                  href="https://makersuite.google.com/app/apikey"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline"
+                >
                   前往 Google AI Studio
                 </a>
               </p>
