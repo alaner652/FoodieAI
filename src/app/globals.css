@@ -395,3 +395,46 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Clerk CAPTCHA 和驗證相關樣式 */
+@layer clerk {
+  /* CAPTCHA 容器樣式 */
+  .cl-captcha {
+    @apply rounded-lg border border-gray-300 overflow-hidden;
+  }
+
+  /* 確保 CAPTCHA iframe 有適當的樣式 */
+  .cl-captcha iframe {
+    @apply rounded-lg;
+  }
+
+  /* 驗證步驟的樣式 */
+  .cl-formFieldAction {
+    @apply text-orange-600 hover:text-orange-700 font-medium text-sm transition-colors;
+  }
+
+  /* 確保所有 Clerk 模態框都有適當的 z-index */
+  .cl-modalContent {
+    @apply z-50;
+  }
+
+  /* 自定義 Clerk 載入動畫 */
+  .cl-spinner {
+    @apply text-orange-500;
+  }
+
+  /* 確保錯誤訊息有適當的樣式 */
+  .cl-formFieldErrorText {
+    @apply text-red-600 text-sm mt-1;
+  }
+
+  /* 成功訊息樣式 */
+  .cl-formFieldSuccessText {
+    @apply text-green-600 text-sm mt-1;
+  }
+
+  /* 確保驗證碼輸入框有適當的樣式 */
+  .cl-formFieldInput[data-type="verification-code"] {
+    @apply text-center font-mono text-lg tracking-widest;
+  }
+}
