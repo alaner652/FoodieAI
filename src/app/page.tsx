@@ -1,6 +1,6 @@
 import Features from "@/components/Features";
 import Footer from "@/components/Footer";
-import Header from "@/components/Header";
+
 import Button from "@/components/ui/Button";
 import Container from "@/components/ui/Container";
 import { STATS_DATA } from "@/constants/homeFeatures";
@@ -11,8 +11,6 @@ export default function Home() {
   return (
     <>
       <div className="min-h-screen bg-white">
-        <Header showNav={false} />
-
         <main className="py-16">
           <Container maxWidth="6xl" className="px-4 sm:px-6">
             {/* Hero Section */}
