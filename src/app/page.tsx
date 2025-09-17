@@ -44,15 +44,6 @@ export default function Home() {
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
-
-                <Link href="/settings">
-                  <Button
-                    variant="outline"
-                    className="px-8 py-4 text-lg font-semibold rounded-xl border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-colors duration-200"
-                  >
-                    設定 API Key
-                  </Button>
-                </Link>
               </div>
 
               {/* Trust Indicators */}

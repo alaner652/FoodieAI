@@ -398,16 +398,6 @@
 
 /* Clerk CAPTCHA 和驗證相關樣式 */
 @layer clerk {
-  /* CAPTCHA 容器樣式 */
-  .cl-captcha {
-    @apply rounded-lg border border-gray-300 overflow-hidden;
-  }
-
-  /* 確保 CAPTCHA iframe 有適當的樣式 */
-  .cl-captcha iframe {
-    @apply rounded-lg;
-  }
-
   /* 驗證步驟的樣式 */
   .cl-formFieldAction {
     @apply text-orange-600 hover:text-orange-700 font-medium text-sm transition-colors;
