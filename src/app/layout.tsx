@@ -1,4 +1,5 @@
 import Header from "@/components/Header";
+import { LocationProvider } from "@/contexts/LocationContext";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { APP_CONFIG } from "@/lib/config";
 import type { Metadata } from "next";
@@ -59,8 +60,10 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
           <ToastProvider>
-            <Header />
-            {children}
+            <LocationProvider>
+              <Header />
+              {children}
+            </LocationProvider>
           </ToastProvider>
         </body>
       </html>

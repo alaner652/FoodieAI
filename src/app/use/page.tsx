@@ -134,31 +134,6 @@ export default function UsePage() {
     }
   };
 
-  // 新增：處理位置更新確認
-  const handleConfirmLocationUpdate = () => {
-    if (location.pendingLocationUpdate) {
-      const { lat, lng, source } = location.pendingLocationUpdate;
-      location.confirmLocationUpdate(lat, lng, source);
-      showSuccess("位置已更新", "位置更新成功");
-    }
-  };
-
-  // 新增：處理位置更新拒絕
-  const handleRejectLocationUpdate = () => {
-    location.rejectLocationUpdate();
-    // 拒絕位置更新後，直接使用原設定位置執行原本的操作
-    console.log("Location update rejected, using original location");
-
-    // 直接執行搜尋或隨機選擇，不再次檢查位置
-    if (userInput.trim()) {
-      // 如果有輸入內容，直接執行搜尋
-      executeSearch();
-    } else {
-      // 如果沒有輸入內容，直接執行隨機選擇
-      executeRandomPick();
-    }
-  };
-
   // 檢查是否有待確認的位置更新
   const hasPendingUpdate = !!location.pendingLocationUpdate;
 
@@ -237,8 +212,14 @@ export default function UsePage() {
         {/* 位置更新確認對話框 */}
         <LocationUpdateDialog
           isOpen={hasPendingUpdate}
-          onClose={handleRejectLocationUpdate}
-          onConfirm={handleConfirmLocationUpdate}
+          onClose={location.rejectLocationUpdate}
+          onConfirm={() => {
+            if (location.pendingLocationUpdate) {
+              const { lat, lng, source } = location.pendingLocationUpdate;
+              location.confirmLocationUpdate(lat, lng, source);
+              showSuccess("位置已更新", "位置更新成功");
+            }
+          }}
           distance={location.pendingLocationUpdate?.distance || 0}
           source={location.pendingLocationUpdate?.source || "gps"}
           updateDirection={location.pendingLocationUpdate?.updateDirection}
