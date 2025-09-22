@@ -26,7 +26,11 @@
 ```bash
 # 克隆專案
 git clone https://github.com/alaner652/FoodieAI
+<<<<<<< HEAD
 cd FoodieAI
+=======
+cd foodie-ai
+>>>>>>> 4ab26d6f03213e146f18df54ac79870fac7e051a
 
 # 安裝依賴
 npm install
