@@ -90,21 +90,17 @@ export default function LocationSettings() {
   };
 
   const handleMapLocationChange = (lat: number, lng: number) => {
-    // 檢查 API keys
-    const validation = apiKeys.validateApiKeys();
-    if (!validation.isValid) {
-      showError(validation.error, "API Key 未設定");
-      return;
-    }
-
-    // 地圖上的位置變更應該直接設定，不需要智能檢查
+    // 地圖上的位置變更應該直接設定，不需要 API key 檢查
     const success = location.setManualLocation(lat, lng);
 
     if (success) {
+      // 顯示簡短的成功提示
       showSuccess(
         `位置已設定為：${lat.toFixed(4)}, ${lng.toFixed(4)}`,
-        "位置設定成功"
+        "位置更新"
       );
+    } else {
+      showError("位置設定失敗", "錯誤");
     }
   };
 

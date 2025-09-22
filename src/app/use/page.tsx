@@ -52,29 +52,24 @@ export default function UsePage() {
   }, [apiKeys, hasShownApiKeyReminder, showInfo]);
 
   const handleSubmit = async () => {
-    if (!location.latitude || !location.longitude) {
-      showError("請先設定位置", "位置未設定");
-      return;
-    }
-
-    // 在找餐廳之前檢查位置準確性
-    const accuracyCheck = await location.checkLocationAccuracy();
-    if (accuracyCheck.needsUpdate) {
-      // 如果位置需要更新，等待用戶確認
-      console.log("Location accuracy check: waiting for user confirmation");
-      return;
-    }
-
-    // 執行搜尋邏輯
+    // 直接執行搜尋邏輯
     await executeSearch();
   };
 
   // 新增：執行搜尋的實際邏輯
   const executeSearch = async () => {
-    // 確保位置存在
-    if (!location.latitude || !location.longitude) {
-      showError("請先設定位置", "位置未設定");
+    // 如果正在獲取位置，稍等片刻
+    if (location.isGettingLocation) {
+      showInfo("正在獲取您的位置，請稍候...", "位置獲取中");
       return;
+    }
+
+    // 如果沒有位置，使用預設位置（台北市中心）
+    const searchLat = location.latitude || 25.033;
+    const searchLng = location.longitude || 121.5654;
+
+    if (!location.latitude || !location.longitude) {
+      showInfo("使用預設位置（台北市中心）進行搜尋", "位置提示");
     }
 
     // Validate API Keys
@@ -88,8 +83,8 @@ export default function UsePage() {
     try {
       await recommendations.handleSubmit({
         userInput,
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: searchLat,
+        longitude: searchLng,
         radius: location.radius * 1000, // 轉換為米
         userGoogleApiKey: keys.google,
         userGeminiApiKey: keys.gemini,
@@ -104,29 +99,18 @@ export default function UsePage() {
   };
 
   const handleRandomRestaurants = async () => {
-    if (!location.latitude || !location.longitude) {
-      showError("請先設定位置", "位置未設定");
-      return;
-    }
-
-    // 在找餐廳之前檢查位置準確性
-    const accuracyCheck = await location.checkLocationAccuracy();
-    if (accuracyCheck.needsUpdate) {
-      // 如果位置需要更新，等待用戶確認
-      console.log("Location accuracy check: waiting for user confirmation");
-      return;
-    }
-
-    // 執行隨機選擇邏輯
+    // 直接執行隨機選擇邏輯，不做位置檢查
     await executeRandomPick();
   };
 
   // 新增：執行隨機選擇的實際邏輯
   const executeRandomPick = async () => {
-    // 確保位置存在
+    // 使用預設位置如果沒有設定位置
+    const searchLat = location.latitude || 25.033;
+    const searchLng = location.longitude || 121.5654;
+
     if (!location.latitude || !location.longitude) {
-      showError("請先設定位置", "位置未設定");
-      return;
+      showInfo("使用預設位置（台北市中心）進行搜尋", "位置提示");
     }
 
     // Validate Google API Key
@@ -139,8 +123,8 @@ export default function UsePage() {
     const keys = apiKeys.getApiKeys();
     try {
       await recommendations.handleRandomRestaurants({
-        latitude: location.latitude,
-        longitude: location.longitude,
+        latitude: searchLat,
+        longitude: searchLng,
         radius: location.radius * 1000, // 使用當前設定的半徑
         userGoogleApiKey: keys.google,
       });

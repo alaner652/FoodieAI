@@ -18,6 +18,23 @@ interface LocationState {
   } | null;
 }
 
+// 全域位置變更監聽器
+const locationChangeListeners = new Set<(lat: number, lng: number) => void>();
+
+export const addLocationChangeListener = (callback: (lat: number, lng: number) => void) => {
+  locationChangeListeners.add(callback);
+  return () => {
+    locationChangeListeners.delete(callback);
+  };
+};
+
+const notifyLocationChange = (lat: number, lng: number) => {
+  // 延遲到下一個事件循環，避免在渲染期間更新狀態
+  setTimeout(() => {
+    locationChangeListeners.forEach(callback => callback(lat, lng));
+  }, 0);
+};
+
 export const useLocation = () => {
   const { showError } = useToastContext();
   const [state, setState] = useState<LocationState>({
@@ -31,26 +48,11 @@ export const useLocation = () => {
     pendingLocationUpdate: null,
   });
 
-  // 計算兩個位置之間的距離（公里）
-  const calculateDistance = useCallback(
-    (lat1: number, lng1: number, lat2: number, lng2: number): number => {
-      const R = 6371; // 地球半徑（公里）
-      const dLat = ((lat2 - lat1) * Math.PI) / 180;
-      const dLng = ((lng2 - lng1) * Math.PI) / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-          Math.cos((lat2 * Math.PI) / 180) *
-          Math.sin(dLng / 2) *
-          Math.sin(dLng / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    },
-    []
-  );
 
-  // Initialize location from localStorage on mount
+  // Initialize location from localStorage on mount and auto-get location
   useEffect(() => {
+    let hasLocation = false;
+
     try {
       const savedLocation = localStorage.getItem("userLocation");
       if (savedLocation) {
@@ -77,6 +79,7 @@ export const useLocation = () => {
             lastManualLocation: lastManualLocation || null,
             error: "",
           }));
+          hasLocation = true;
           console.log("Location restored from localStorage:", locationData);
         } else if (isExpired) {
           // 移除過期的位置資料
@@ -89,6 +92,63 @@ export const useLocation = () => {
       // 移除損壞的資料
       localStorage.removeItem("userLocation");
     }
+
+    // 如果沒有有效的儲存位置，自動嘗試獲取當前位置
+    if (!hasLocation && navigator.geolocation) {
+      setState((prev) => ({ ...prev, isGettingLocation: true }));
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+
+          setState((prev) => {
+            const now = Date.now();
+            const newState = {
+              ...prev,
+              latitude,
+              longitude,
+              locationSource: "gps" as const,
+              isGettingLocation: false,
+              error: "",
+            };
+
+            // 自動儲存獲取的位置
+            const locationData = {
+              latitude,
+              longitude,
+              locationSource: "gps" as const,
+              radius: prev.radius,
+              timestamp: now,
+              lastManualLocation: prev.lastManualLocation,
+            };
+
+            try {
+              localStorage.setItem("userLocation", JSON.stringify(locationData));
+              console.log("Auto-location set successfully:", { latitude, longitude });
+              // 通知所有監聽器位置已變更
+              notifyLocationChange(latitude, longitude);
+            } catch (error) {
+              console.error("Failed to save auto-location:", error);
+            }
+
+            return newState;
+          });
+        },
+        (error) => {
+          setState((prev) => ({
+            ...prev,
+            isGettingLocation: false,
+            error: "無法獲取位置，請手動設定"
+          }));
+          console.log("Auto-location failed (silent):", error);
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 300000,
+        }
+      );
+    }
   }, []);
 
   const setRadius = useCallback(
@@ -99,26 +159,31 @@ export const useLocation = () => {
         return false;
       }
 
-      setState((prev) => ({ ...prev, radius: newRadius }));
+      setState((prev) => {
+        // 立即更新狀態，然後更新 localStorage
+        const newState = { ...prev, radius: newRadius };
 
-      // 如果已經有位置設定，更新 localStorage
-      if (state.latitude && state.longitude) {
-        try {
-          const savedLocation = localStorage.getItem("userLocation");
-          if (savedLocation) {
-            const locationData = JSON.parse(savedLocation);
-            locationData.radius = newRadius;
-            localStorage.setItem("userLocation", JSON.stringify(locationData));
+        // 如果已經有位置設定，更新 localStorage
+        if (prev.latitude && prev.longitude) {
+          try {
+            const savedLocation = localStorage.getItem("userLocation");
+            if (savedLocation) {
+              const locationData = JSON.parse(savedLocation);
+              locationData.radius = newRadius;
+              localStorage.setItem("userLocation", JSON.stringify(locationData));
+            }
+          } catch (error) {
+            console.error("Failed to update radius in localStorage:", error);
           }
-        } catch (error) {
-          console.error("Failed to update radius in localStorage:", error);
         }
-      }
+
+        return newState;
+      });
 
       console.log("Radius updated to:", newRadius, "km");
       return true;
     },
-    [state.latitude, state.longitude, showError]
+    [showError]
   );
 
   const setManualLocation = useCallback(
@@ -135,62 +200,88 @@ export const useLocation = () => {
 
       const now = Date.now();
 
-      // 記錄手動設定的位置和時間
-      const manualLocation = { lat, lng, timestamp: now };
+      setState((prev) => {
+        // 記錄手動設定的位置和時間
+        const manualLocation = { lat, lng, timestamp: now };
 
-      // 儲存到 localStorage 以保持持久性
-      const locationData = {
-        latitude: lat,
-        longitude: lng,
-        locationSource: "manual" as const,
-        radius: state.radius,
-        timestamp: now,
-        lastManualLocation: manualLocation,
-      };
-      localStorage.setItem("userLocation", JSON.stringify(locationData));
+        // 建立新狀態
+        const newState = {
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+          locationSource: "manual" as const,
+          lastManualLocation: manualLocation,
+          pendingLocationUpdate: null, // 清除待確認的更新
+          error: "",
+        };
 
-      setState((prev) => ({
-        ...prev,
-        latitude: lat,
-        longitude: lng,
-        locationSource: "manual",
-        lastManualLocation: manualLocation,
-        pendingLocationUpdate: null, // 清除待確認的更新
-        error: "",
-      }));
+        // 同步儲存到 localStorage
+        const locationData = {
+          latitude: lat,
+          longitude: lng,
+          locationSource: "manual" as const,
+          radius: prev.radius,
+          timestamp: now,
+          lastManualLocation: manualLocation,
+        };
 
-      console.log("Manual location set successfully:", { lat, lng });
+        try {
+          localStorage.setItem("userLocation", JSON.stringify(locationData));
+          console.log("Manual location set successfully:", { lat, lng });
+          // 通知所有監聽器位置已變更
+          notifyLocationChange(lat, lng);
+        } catch (error) {
+          console.error("Failed to save location to localStorage:", error);
+        }
+
+        return newState;
+      });
+
       return true;
     },
-    [state.radius, showError]
+    [showError]
   );
 
   // 新增：確認位置更新
   const confirmLocationUpdate = useCallback(
     (lat: number, lng: number, source: "gps" | "network" | "manual") => {
-      const locationData = {
-        latitude: lat,
-        longitude: lng,
-        locationSource: source,
-        radius: state.radius,
-        timestamp: Date.now(),
-        lastManualLocation: state.lastManualLocation, // 保持手動設定記錄
-      };
-      localStorage.setItem("userLocation", JSON.stringify(locationData));
+      const now = Date.now();
 
-      setState((prev) => ({
-        ...prev,
-        latitude: lat,
-        longitude: lng,
-        locationSource: source,
-        pendingLocationUpdate: null,
-        error: "",
-      }));
+      setState((prev) => {
+        const newState = {
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+          locationSource: source,
+          pendingLocationUpdate: null,
+          error: "",
+        };
 
-      console.log("Smart location updated successfully:", { lat, lng, source });
+        // 同步更新 localStorage
+        const locationData = {
+          latitude: lat,
+          longitude: lng,
+          locationSource: source,
+          radius: prev.radius,
+          timestamp: now,
+          lastManualLocation: prev.lastManualLocation,
+        };
+
+        try {
+          localStorage.setItem("userLocation", JSON.stringify(locationData));
+          // 通知所有監聽器位置已變更
+          notifyLocationChange(lat, lng);
+        } catch (error) {
+          console.error("Failed to save location to localStorage:", error);
+        }
+
+        console.log("Location updated successfully:", { lat, lng, source });
+        return newState;
+      });
+
       return true;
     },
-    [state.radius, state.lastManualLocation]
+    []
   );
 
   // 新增：拒絕位置更新
@@ -202,50 +293,13 @@ export const useLocation = () => {
     console.log("Location update rejected by user");
   }, []);
 
-  // 新增：智能位置設定函數，會詢問用戶是否要切換
+  // 簡化的智能位置設定函數
   const setSmartLocation = useCallback(
     (lat: number, lng: number, source: "gps" | "network" | "manual") => {
-      // 檢查是否有手動設定的位置
-      if (state.lastManualLocation && state.latitude && state.longitude) {
-        const distance = calculateDistance(
-          state.lastManualLocation.lat,
-          state.lastManualLocation.lng,
-          lat,
-          lng
-        );
-
-        console.log(
-          `Distance between manual and detected location: ${distance.toFixed(
-            2
-          )} km`
-        );
-
-        // 如果距離超過 2 公里，詢問用戶是否要切換
-        if (distance > 2) {
-          setState((prev) => ({
-            ...prev,
-            pendingLocationUpdate: {
-              lat,
-              lng,
-              source,
-              distance: Math.round(distance * 10) / 10, // 四捨五入到小數點後一位
-            },
-          }));
-
-          return false; // 等待用戶確認
-        }
-      }
-
-      // 直接設定位置（距離不遠或沒有手動設定）
+      // 直接更新位置，不做復雜的檢查
       return confirmLocationUpdate(lat, lng, source);
     },
-    [
-      state.lastManualLocation,
-      state.latitude,
-      state.longitude,
-      calculateDistance,
-      confirmLocationUpdate,
-    ]
+    [confirmLocationUpdate]
   );
 
   const clearLocation = useCallback(() => {
@@ -277,138 +331,22 @@ export const useLocation = () => {
     return timeSinceManual > 7 * 24 * 60 * 60 * 1000;
   }, [state.lastManualLocation]);
 
-  // 新增：檢查位置準確性，在找餐廳之前調用（雙向檢查）
+  // 簡化的位置檢查函數 - 僅在必要時使用
   const checkLocationAccuracy = useCallback(async () => {
-    console.log("🔍 Starting location accuracy check...");
-    console.log("Current state:", {
-      hasLocation: !!(state.latitude && state.longitude),
-      hasManualLocation: !!state.lastManualLocation,
-      currentLat: state.latitude,
-      currentLng: state.longitude,
-      manualLat: state.lastManualLocation?.lat,
-      manualLng: state.lastManualLocation?.lng,
-    });
-
     // 如果沒有位置設定，不需要檢查
     if (!state.latitude || !state.longitude) {
-      console.log("❌ No current location set, skipping check");
       return { needsUpdate: false };
     }
 
-    // 檢查瀏覽器是否支援地理位置
-    if (!navigator.geolocation) {
-      console.log("❌ Geolocation not supported");
-      return { needsUpdate: false };
+    // 如果已經有待處理的位置更新，不重複檢查
+    if (state.pendingLocationUpdate) {
+      return { needsUpdate: true };
     }
 
-    try {
-      console.log("📍 Getting current GPS position...");
-      // 獲取當前真實位置
-      const position = await new Promise<GeolocationPosition>(
-        (resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 60000,
-          });
-        }
-      );
-
-      const { latitude, longitude } = position.coords;
-      console.log("✅ GPS position obtained:", { latitude, longitude });
-
-      // 計算當前設定位置與真實位置的距離
-      const currentDistance = calculateDistance(
-        state.latitude,
-        state.longitude,
-        latitude,
-        longitude
-      );
-
-      console.log(
-        `📏 Distance: current vs real = ${currentDistance.toFixed(2)} km`
-      );
-
-      // 調整觸發條件：距離超過 0.5 公里就建議更新（更容易觸發）
-      if (currentDistance > 0.5) {
-        console.log("🚨 Distance > 0.5km, suggesting update...");
-
-        // 判斷更新方向
-        let updateDirection: "toReal" | "toManual" = "toReal";
-        let suggestedLocation = { lat: latitude, lng: longitude };
-        let source: "gps" | "network" | "manual" = "gps";
-
-        // 如果有手動設定的位置，檢查哪個更合適
-        if (state.lastManualLocation) {
-          const manualDistance = calculateDistance(
-            state.lastManualLocation.lat,
-            state.lastManualLocation.lng,
-            latitude,
-            longitude
-          );
-
-          console.log(
-            `📏 Manual vs real distance: ${manualDistance.toFixed(2)} km`
-          );
-
-          // 如果手動設定位置比當前設定位置更接近真實位置，建議更新到手動設定位置
-          if (manualDistance < currentDistance) {
-            updateDirection = "toManual";
-            suggestedLocation = {
-              lat: state.lastManualLocation.lat,
-              lng: state.lastManualLocation.lng,
-            };
-            source = "manual";
-            console.log(
-              "🔄 Suggesting update to manual location (closer to real)"
-            );
-          } else {
-            console.log(
-              "📍 Suggesting update to real location (closer to manual)"
-            );
-          }
-        }
-
-        console.log("💾 Setting pendingLocationUpdate:", {
-          lat: suggestedLocation.lat,
-          lng: suggestedLocation.lng,
-          source,
-          distance: Math.round(currentDistance * 10) / 10,
-          updateDirection,
-        });
-
-        setState((prev) => ({
-          ...prev,
-          pendingLocationUpdate: {
-            lat: suggestedLocation.lat,
-            lng: suggestedLocation.lng,
-            source,
-            distance: Math.round(currentDistance * 10) / 10,
-            updateDirection,
-          },
-        }));
-
-        return {
-          needsUpdate: true,
-          suggestedLocation,
-          distance: Math.round(currentDistance * 10) / 10,
-          updateDirection,
-        };
-      } else {
-        console.log("✅ Distance <= 0.5km, no update needed");
-      }
-
-      return { needsUpdate: false };
-    } catch (error) {
-      console.error("❌ Failed to check location accuracy:", error);
-      return { needsUpdate: false };
-    }
-  }, [
-    state.lastManualLocation,
-    state.latitude,
-    state.longitude,
-    calculateDistance,
-  ]);
+    // 簡化邏輯：僅在特殊情況下才檢查位置準確性
+    // 例如：用戶明確要求檢查位置準確性時
+    return { needsUpdate: false };
+  }, [state.latitude, state.longitude, state.pendingLocationUpdate]);
 
   return {
     ...state,

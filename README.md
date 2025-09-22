@@ -2,10 +2,14 @@
 
 > AI 驅動的餐廳推薦系統，解決你的選擇困難症
 
+<div align="center">
+
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.0-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.0-blue?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
+
+</div>
 
 ## ✨ 特色功能
 
@@ -17,24 +21,15 @@
 
 ## 🚀 快速開始
 
-### 環境需求
-
-- Node.js 18.0+
-- npm 或 yarn
-
 ### 安裝步驟
 
 ```bash
 # 克隆專案
-git clone https://github.com/alaner652/foodie-ai
-cd foodie-ai
+git clone https://github.com/alaner652/FoodieAI
+cd FoodieAI
 
 # 安裝依賴
 npm install
-
-# 設定環境變數
-cp .env.example .env.local
-# 編輯 .env.local 填入你的 API 金鑰
 
 # 啟動開發伺服器
 npm run dev
@@ -46,7 +41,6 @@ npm run dev
 2. **Gemini API Key** - 用於 AI 智能推薦
 
 獲取 API 金鑰：
-
 - [Google Cloud Console](https://console.cloud.google.com/) (Places API)
 - [Google AI Studio](https://makersuite.google.com/app/apikey) (Gemini API)
 
@@ -61,64 +55,12 @@ npm run dev
 - **位置服務**: Google Places API
 - **建置工具**: Turbopack
 
-### 專案結構
-
-```
-src/
-├── app/                    # Next.js App Router 頁面
-│   ├── api/               # API 路由
-│   ├── use/               # 主要推薦頁面
-│   └── settings/          # 設定頁面
-├── components/            # React 組件
-│   ├── ui/               # 基礎 UI 組件
-│   └── ...               # 功能組件
-├── hooks/                # 自定義 React hooks
-├── lib/                  # 工具函數和配置
-└── types/                # TypeScript 類型定義
-```
-
 ## 📱 使用方式
 
 1. **前往 `/use` 頁面** - 主要推薦介面
 2. **描述你的偏好** - 例如：「日式料理，不要太貴，適合約會」
 3. **讓 AI 分析** - 點擊搜尋獲得 AI 推薦
 4. **瀏覽結果** - 查看餐廳詳情、評分和位置
-
-## 🛠️ 開發
-
-### 可用指令
-
-```bash
-npm run dev      # 啟動開發伺服器
-npm run build    # 建置生產版本
-npm run start    # 啟動生產伺服器
-npm run lint     # 執行 ESLint 檢查
-```
-
-### 核心組件
-
-- `SearchInput` - 智能搜尋，支援自然語言
-- `RestaurantCard` - 餐廳資訊顯示
-- `RecommendationResults` - AI 推薦結果
-- `QuickSuggestions` - 預設搜尋條件
-- `ApiKeySettings` - API 金鑰設定介面
-
-## 🚀 部署
-
-### Vercel (推薦)
-
-1. 推送到 GitHub
-2. 連接 Vercel 帳戶
-3. 匯入專案
-4. 設定環境變數
-5. 自動部署
-
-### 環境變數
-
-```env
-GOOGLE_PLACES_API_KEY=your_key_here
-GEMINI_API_KEY=your_key_here
-```
 
 ## 🤝 貢獻
 

@@ -3,7 +3,7 @@
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
-import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 
 // 修復 Leaflet 圖標問題
 L.Icon.Default.mergeOptions({
@@ -33,6 +33,17 @@ function MapClickHandler({
       onLocationChange(lat, lng);
     },
   });
+  return null;
+}
+
+// 地圖中心點更新組件
+function MapCenterUpdater({ position }: { position: [number, number] }) {
+  const map = useMap();
+
+  useEffect(() => {
+    map.setView(position, map.getZoom());
+  }, [map, position]);
+
   return null;
 }
 
@@ -67,7 +78,18 @@ export default function MapComponent({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <Marker position={position} />
+        <MapCenterUpdater position={position} />
+        <Marker
+          position={position}
+          draggable={true}
+          eventHandlers={{
+            dragend: (e) => {
+              const marker = e.target;
+              const newPos = marker.getLatLng();
+              handleLocationChange(newPos.lat, newPos.lng);
+            },
+          }}
+        />
         <MapClickHandler onLocationChange={handleLocationChange} />
       </MapContainer>
 
