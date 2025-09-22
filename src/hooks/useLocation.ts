@@ -29,10 +29,10 @@ export const addLocationChangeListener = (callback: (lat: number, lng: number) =
 };
 
 const notifyLocationChange = (lat: number, lng: number) => {
-  // 延遲到下一個事件循環，避免在渲染期間更新狀態
-  setTimeout(() => {
+  // 使用 queueMicrotask 實現更快的異步更新
+  queueMicrotask(() => {
     locationChangeListeners.forEach(callback => callback(lat, lng));
-  }, 0);
+  });
 };
 
 export const useLocation = () => {

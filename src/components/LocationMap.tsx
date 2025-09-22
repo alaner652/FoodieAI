@@ -1,8 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
-import { addLocationChangeListener } from "@/hooks/useLocation";
 
 // 動態導入地圖組件，禁用 SSR
 const MapComponent = dynamic(() => import("./MapComponent"), {
@@ -27,51 +25,16 @@ export default function LocationMap({
   onLocationChange,
   className = "",
 }: LocationMapProps) {
-  const [currentLat, setCurrentLat] = useState(latitude);
-  const [currentLng, setCurrentLng] = useState(longitude);
-  const isUpdatingRef = useRef(false);
-
-  // 監聽全域位置變更
-  useEffect(() => {
-    const unsubscribe = addLocationChangeListener((lat, lng) => {
-      // 避免無限循環更新
-      if (!isUpdatingRef.current) {
-        setCurrentLat(lat);
-        setCurrentLng(lng);
-      }
-    });
-
-    return unsubscribe;
-  }, []);
-
-  // 當 props 改變時，更新本地狀態
-  useEffect(() => {
-    if (latitude !== currentLat || longitude !== currentLng) {
-      setCurrentLat(latitude);
-      setCurrentLng(longitude);
-    }
-  }, [latitude, longitude, currentLat, currentLng]);
-
-  const handleLocationChange = (lat: number, lng: number) => {
-    // 標記正在更新，避免循環
-    isUpdatingRef.current = true;
-    setCurrentLat(lat);
-    setCurrentLng(lng);
-    onLocationChange(lat, lng);
-
-    // 延遲重置標記
-    setTimeout(() => {
-      isUpdatingRef.current = false;
-    }, 100);
-  };
+  // 使用穩定的 key 來強制重新渲染地圖
+  const mapKey = `${Math.round((latitude || 0) * 10000)}-${Math.round((longitude || 0) * 10000)}`;
 
   return (
     <div className={`w-full ${className}`}>
       <MapComponent
-        latitude={currentLat}
-        longitude={currentLng}
-        onLocationChange={handleLocationChange}
-        key={`map-${Math.round(currentLat * 1000)}-${Math.round(currentLng * 1000)}`}
+        latitude={latitude}
+        longitude={longitude}
+        onLocationChange={onLocationChange}
+        key={mapKey}
       />
     </div>
   );
