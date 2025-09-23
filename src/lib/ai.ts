@@ -20,10 +20,7 @@ export async function recommendRestaurantsWithAI(params: {
   const { restaurants, userRequest, radius, userApiKey } = params;
 
   // Get API Key
-  const apiKey =
-    userApiKey ||
-    process.env.GOOGLE_GEMINI_API_KEY ||
-    process.env.GEMINI_API_KEY;
+  const apiKey = userApiKey || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     console.error("缺少 Gemini API Key");
     return null;

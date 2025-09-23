@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 export default function UsePage() {
   const [userInput, setUserInput] = useState("");
   const [hasAttemptedLocation, setHasAttemptedLocation] = useState(false);
-  const [hasShownApiKeyReminder, setHasShownApiKeyReminder] = useState(false);
+  // Removed: API key reminder state (no longer needed with server-side fallback)
 
   // Use custom hooks
   const location = useLocation();
@@ -36,20 +36,7 @@ export default function UsePage() {
     }
   }, [hasAttemptedLocation]);
 
-  // 檢查 API keys 並顯示提醒
-  useEffect(() => {
-    if (!hasShownApiKeyReminder) {
-      const validation = apiKeys.validateApiKeys();
-      if (!validation.isValid) {
-        showInfo(
-          "請先前往設定頁面設定您的 API Keys，這樣才能使用推薦功能",
-          "設定提醒",
-          8000
-        );
-        setHasShownApiKeyReminder(true);
-      }
-    }
-  }, [apiKeys, hasShownApiKeyReminder, showInfo]);
+  // Note: API keys validation removed as server-side keys are available as fallback
 
   const handleSubmit = async () => {
     // 直接執行搜尋邏輯
@@ -72,12 +59,7 @@ export default function UsePage() {
       showInfo("使用預設位置（台北市中心）進行搜尋", "位置提示");
     }
 
-    // Validate API Keys
-    const validation = apiKeys.validateApiKeys();
-    if (!validation.isValid) {
-      showError(validation.error, "API Key 未設定");
-      return;
-    }
+    // Note: API Keys validation removed as server has fallback keys
 
     const keys = apiKeys.getApiKeys();
     try {
@@ -113,12 +95,7 @@ export default function UsePage() {
       showInfo("使用預設位置（台北市中心）進行搜尋", "位置提示");
     }
 
-    // Validate Google API Key
-    const validation = apiKeys.validateApiKeys(["google"]);
-    if (!validation.isValid) {
-      showError(validation.error, "API Key 未設定");
-      return;
-    }
+    // Note: API Keys validation removed as server has fallback keys
 
     const keys = apiKeys.getApiKeys();
     try {

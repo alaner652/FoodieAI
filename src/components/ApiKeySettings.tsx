@@ -36,14 +36,9 @@ export default function ApiKeySettings({
     setGeminiApiKey(savedGeminiKey);
   }, []);
 
-  // Check if we have environment variables as fallback
-  const hasGoogleEnvKey = !!process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
-  const hasGeminiEnvKey = !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-
-  const effectiveGoogleKey =
-    googleApiKey || (hasGoogleEnvKey ? "使用預設金鑰" : "");
-  const effectiveGeminiKey =
-    geminiApiKey || (hasGeminiEnvKey ? "使用預設金鑰" : "");
+  // Note: Server-side keys are now used as fallback automatically
+  const effectiveGoogleKey = googleApiKey;
+  const effectiveGeminiKey = geminiApiKey;
 
   const handleSave = useCallback(() => {
     localStorage.setItem("userGoogleApiKey", googleApiKey);
@@ -59,7 +54,7 @@ export default function ApiKeySettings({
     localStorage.removeItem("userGeminiKey");
   }, []);
 
-  const isConfigured = effectiveGoogleKey && effectiveGeminiKey;
+  const isConfigured = true; // Server-side keys available as fallback
 
   return (
     <div
@@ -165,7 +160,7 @@ export default function ApiKeySettings({
               onRightIconClick={() => setShowGoogleKey(!showGoogleKey)}
             />
             <p className="mt-1 text-xs text-gray-500">
-              用於搜尋附近餐廳和獲取餐廳詳細資訊
+              用於搜尋附近餐廳和獲取餐廳詳細資訊（可選：提供自己的金鑰以獲得更好的使用額度）
             </p>
           </div>
 
@@ -184,25 +179,24 @@ export default function ApiKeySettings({
               onRightIconClick={() => setShowGeminiKey(!showGeminiKey)}
             />
             <p className="mt-1 text-xs text-gray-500">
-              用於 AI 智能推薦和餐廳排序分析
+              用於 AI
+              智能推薦和餐廳排序分析（可選：提供自己的金鑰以獲得更好的使用額度）
             </p>
           </div>
 
-          {/* Environment Keys Status */}
-          {(hasGoogleEnvKey || hasGeminiEnvKey) && (
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <h4 className="text-sm font-medium text-green-900 mb-2">
-                🔧 預設金鑰狀態
-              </h4>
-              <div className="space-y-1 text-xs text-green-800">
-                {hasGoogleEnvKey && <p>✅ Google Places API 預設金鑰已配置</p>}
-                {hasGeminiEnvKey && <p>✅ Gemini AI API 預設金鑰已配置</p>}
-                <p className="text-green-700 font-medium mt-2">
-                  如果未設定個人金鑰，將自動使用預設金鑰
-                </p>
-              </div>
+          {/* Server Keys Status */}
+          <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+            <h4 className="text-sm font-medium text-green-900 mb-2">
+              🔧 伺服器端金鑰狀態
+            </h4>
+            <div className="space-y-1 text-xs text-green-800">
+              <p>✅ Google Places API 預設金鑰已配置</p>
+              <p>✅ Gemini AI API 預設金鑰已配置</p>
+              <p className="text-green-700 font-medium mt-2">
+                如果未設定個人金鑰，將自動使用伺服器端預設金鑰
+              </p>
             </div>
-          )}
+          </div>
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-2">

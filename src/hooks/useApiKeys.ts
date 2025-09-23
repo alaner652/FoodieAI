@@ -17,12 +17,11 @@ export const useApiKeys = () => {
     return { google: "", gemini: "" };
   });
 
-  // Get effective API keys with fallback to environment variables
+  // Get effective API keys (user-provided keys only, server has fallback)
   const getEffectiveApiKeys = useCallback((): ApiKeys => {
     return {
-      google:
-        apiKeys.google || process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || "",
-      gemini: apiKeys.gemini || process.env.NEXT_PUBLIC_GEMINI_API_KEY || "",
+      google: apiKeys.google || "",
+      gemini: apiKeys.gemini || "",
     };
   }, [apiKeys]);
 
@@ -34,32 +33,11 @@ export const useApiKeys = () => {
     );
   }, []);
 
-  const validateApiKeys = useCallback(
-    (requiredKeys: (keyof ApiKeys)[] = ["google", "gemini"]) => {
-      const effectiveKeys = getEffectiveApiKeys();
-      const missingKeys = requiredKeys.filter(
-        (key) => !effectiveKeys[key].trim()
-      );
-
-      if (missingKeys.length > 0) {
-        const keyNames = {
-          google: "Google Places API Key",
-          gemini: "Gemini API Key",
-        };
-
-        const missingKeyNames = missingKeys
-          .map((key) => keyNames[key])
-          .join("、");
-        return {
-          isValid: false,
-          error: `請先設定您的 ${missingKeyNames}，前往測試頁面進行設定。`,
-        };
-      }
-
-      return { isValid: true, error: "" };
-    },
-    [getEffectiveApiKeys]
-  );
+  const validateApiKeys = useCallback(() => {
+    // Note: Server-side has fallback keys, so validation is more lenient
+    // Users can optionally provide their own keys for better rate limits
+    return { isValid: true, error: "" };
+  }, []);
 
   const getApiKeys = useCallback(
     () => getEffectiveApiKeys(),
