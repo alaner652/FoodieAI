@@ -136,7 +136,7 @@ export const useRecommendations = () => {
             longitude: params.longitude,
             radius: params.radius,
             count: 4,
-            userGoogleApiKey: params.userGoogleApiKey,
+            userGoogleApiKey: params.userGoogleApiKey || undefined,
           }),
         });
 

@@ -22,9 +22,9 @@ export async function POST(request: NextRequest) {
     } = await request.json();
 
     // Validate required parameters
-    if (!latitude || !longitude || !userGoogleApiKey) {
+    if (!latitude || !longitude) {
       return NextResponse.json(
-        { success: false, error: "缺少必要參數" },
+        { success: false, error: "缺少必要參數：經緯度" },
         { status: 400 }
       );
     }

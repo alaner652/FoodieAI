@@ -103,7 +103,7 @@ export default function UsePage() {
         latitude: searchLat,
         longitude: searchLng,
         radius: location.radius * 1000, // 使用當前設定的半徑
-        userGoogleApiKey: keys.google,
+        userGoogleApiKey: keys.google || "", // 空字串會被 API 忽略，使用伺服器端密鑰
       });
     } catch (error) {
       console.error("Random restaurant selection failed:", error);
