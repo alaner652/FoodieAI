@@ -28,8 +28,6 @@
 git clone https://github.com/alaner652/FoodieAI
 
 cd FoodieAI
-=======
-cd foodie-ai
 
 # 安裝依賴
 npm install
