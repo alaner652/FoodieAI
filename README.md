@@ -26,11 +26,10 @@
 ```bash
 # 克隆專案
 git clone https://github.com/alaner652/FoodieAI
-<<<<<<< HEAD
+
 cd FoodieAI
 =======
 cd foodie-ai
->>>>>>> 4ab26d6f03213e146f18df54ac79870fac7e051a
 
 # 安裝依賴
 npm install
@@ -45,6 +44,7 @@ npm run dev
 2. **Gemini API Key** - 用於 AI 智能推薦
 
 獲取 API 金鑰：
+
 - [Google Cloud Console](https://console.cloud.google.com/) (Places API)
 - [Google AI Studio](https://makersuite.google.com/app/apikey) (Gemini API)
 
